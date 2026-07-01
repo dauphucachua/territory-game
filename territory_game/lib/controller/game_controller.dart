@@ -7,7 +7,11 @@ class GameController {
   const GameController({required this.board});
 
   void placeProperty(int x, int y, User owner, int health) {
-    board.board[x][y] = Property(owner: owner, health: health, x: x, y: y);
+    board.board[x][y] = Property(
+      owner: owner, 
+      health: health, 
+      x: x, 
+      y: y);
   }
 
   void attack(Property attacker, Property target, int damage) {
