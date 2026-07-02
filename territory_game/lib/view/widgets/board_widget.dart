@@ -40,9 +40,6 @@ class _BoardWidgetState extends State<BoardWidget> {
       itemBuilder: (BuildContext context, int index) {
         int row = index ~/ 10;
         int col = index % 10;
-
-        print((row, col));
-
         Color squareColor = getSquareColor(row, col); 
 
         return SquareWidget(color: squareColor);
