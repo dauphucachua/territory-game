@@ -1,10 +1,15 @@
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/property.dart';
+import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/model/user.dart';
 
 class GameController {
   final Board board;
-  const GameController({required this.board});
+  final Topic topic;
+  const GameController({required this.board, required this.topic});
+
+  String get topicName => topic.name;
+  List<String> get subTopics => topic.subTopics;
 
   void placeProperty(int x, int y, User owner, int health) {
     board.board[x][y] = Property(
