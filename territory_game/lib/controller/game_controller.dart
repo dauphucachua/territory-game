@@ -1,12 +1,19 @@
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/property.dart';
+import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/model/user.dart';
 
 class GameController {
   final Board board;
+  final Subject subject;
   final Topic topic;
-  const GameController({required this.board, required this.topic});
+  
+  const GameController({
+    required this.board, 
+    required this.subject,
+    required this.topic
+  });
 
   String get topicName => topic.name;
   List<String> get subTopics => topic.subTopics;
@@ -16,7 +23,8 @@ class GameController {
       owner: owner, 
       health: health, 
       x: x, 
-      y: y);
+      y: y
+    );
   }
 
   void attack(Property attacker, Property target, int damage) {
