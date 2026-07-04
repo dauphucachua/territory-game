@@ -1,7 +1,15 @@
 class Board {
-  List<List<dynamic>> board = List<List>.generate(
-    10, (x) => List<dynamic>.generate(
-      10, (y) => null
+  final int rows;
+  final int cols;
+
+  const Board({
+    required this.rows,
+    required this.cols
+  });
+
+  List<List<dynamic>> get board => List<List>.generate(
+    rows, (x) => List<dynamic>.generate(
+      cols, (y) => null
     ), 
     growable: false
   );
