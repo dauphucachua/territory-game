@@ -1,7 +1,9 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
+import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/view/widgets/game_screen/UI/question_dialogs/quiz_dialog.dart';
 
 class AddPropertyDialog extends StatelessWidget {
   final GameController gameController;
@@ -138,6 +140,30 @@ class AddPropertyDialog extends StatelessWidget {
                     // 
                     // Open question dialog passing in the JSON returned by Mistral
                     // Question dialog takes the question content and builds the UI per question
+                    Quiz newQuiz = Quiz(
+                      id: "1",
+                      type: "multipleChoice",
+                      questions: [
+                        MultipleChoiceQuestion(
+                          id: 1,
+                          question: "Are you cool?",
+                          correctAnswer: "Yes",
+                          distractors: ["I don't know", "No"]
+                        ),
+                        MultipleChoiceQuestion(
+                          id: 2, 
+                          question: "Are you sure?",
+                          correctAnswer: "Yes",
+                          distractors: ["I don't know", "No"]
+                        ),
+                      ]
+                    );
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return QuizDialog(quiz: newQuiz);
+                      },
+                    );
                   
                   }
                 ),
