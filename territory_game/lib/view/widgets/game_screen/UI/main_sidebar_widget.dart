@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:territory_game/controller/game_controller.dart';
-import 'package:territory_game/view/widgets/game_screen/UI/add_property_dialog.dart';
+import 'package:territory_game/view/widgets/game_screen/UI/dialogs/add_property_dialog.dart';
 
 class MainSidebarWidget extends StatefulWidget {
   final GameController gameController;
