@@ -2,7 +2,7 @@ import 'package:territory_game/model/quiz_models/question.dart';
 
 class MultipleChoiceQuestion extends Question {
   final String correctAnswer;
-  final List<String> distractors;
+  final List<dynamic> distractors;
 
   const MultipleChoiceQuestion({
     required super.id, 
@@ -20,7 +20,16 @@ class MultipleChoiceQuestion extends Question {
     );
   }
 
-  List<String> getRandomizedAnswers() {
+  @override
+  String toString() {
+    return """
+      Question $id: $question\n
+      Correct answer: $correctAnswer\n
+      Distractors: $distractors
+    """;
+  }
+
+  List<dynamic> getRandomizedAnswers() {
     final answers = distractors;
     answers.add(correctAnswer);
     answers.shuffle();
