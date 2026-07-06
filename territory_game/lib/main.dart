@@ -1,22 +1,15 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/firebase_options.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/subject.dart';
-import 'package:territory_game/model/topic.dart';
+import 'package:territory_game/services/chatbot_api_provider.dart';
+import 'package:territory_game/services/chatbot_config.dart';
+import 'package:territory_game/services/mistral_api.dart';
 import 'package:territory_game/view/screens/game_screen.dart';
 
 void main() async {
-  // Example topic for testing
-  Map<String, dynamic> exampleTopic = {
-    "name": "Variables",
-    "subTopics": [
-      "Naming", "Types", "Values", "Conventions", "Another", "Another", "Another", "Another"
-    ]
-  };
 
   Map<String, dynamic> exampleSubject = {
     "name": "Introduction to Programming",
@@ -56,8 +49,14 @@ void main() async {
     rows: 10,
     cols: 10
   );
+
+  final ChatbotApiProvider chatbotProvider = ChatbotApiProvider();
+  final mistralClient = MistralApiService(
+    config: ChatbotConfig());
+  chatbotProvider.addChatbot(mistralClient);
   
   final gameController = GameController(
+    chatbotProvider: chatbotProvider,
     board: board, 
     subject: subject,
     topic: subject.topics[0]
