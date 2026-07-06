@@ -10,6 +10,7 @@ dependencies:
   firebase_core: ^4.11.0
   flutter:
     sdk: flutter
+  mistralai_dart: ^5.0.0
 
 dev_dependencies:
   flutter_test:
