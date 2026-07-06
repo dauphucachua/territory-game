@@ -1,15 +1,21 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:territory_game/controller/game_controller.dart';
-import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/question_dialogs/quiz_dialog.dart';
 
-class AddPropertyDialog extends StatelessWidget {
+class AddPropertyDialog extends StatefulWidget {
   final GameController gameController;
-  String? selectedSubtopic;
-  String? selectedQuestionType;
+
   AddPropertyDialog(this.gameController, {super.key});
+
+  @override
+  State<AddPropertyDialog> createState() => _AddPropertyDialogState();
+}
+
+class _AddPropertyDialogState extends State<AddPropertyDialog> {
+  String selectedSubtopic = "";
+  String selectedQuestionType = "";
 
   @override
   Widget build(BuildContext context) {
@@ -65,15 +71,17 @@ class AddPropertyDialog extends StatelessWidget {
                 },),
                 child: ListView.builder(
                   scrollDirection: .horizontal,
-                  itemCount: gameController.subTopics.length,
+                  itemCount: widget.gameController.subTopics.length,
                   itemBuilder: (context, index) {
-                    String subTopicName = gameController.subTopics[index];
+                    String subTopicName = widget.gameController.subTopics[index];
 
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
+                      child: GestureDetector(                    
                         onTap: () {
-                          selectedSubtopic = subTopicName;
+                          setState(() {
+                            selectedSubtopic = subTopicName;
+                          });
                         },
                         child: SubTopicSelectionCard(
                           subTopicName: subTopicName
@@ -99,15 +107,17 @@ class AddPropertyDialog extends StatelessWidget {
               child: ListView(
                 scrollDirection: .horizontal,
                 children: [
-                  for (int i = 0; i < gameController.subject.questionTypes.length; i++)
+                  for (int i = 0; i < widget.gameController.subject.questionTypes.length; i++)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: InkWell(           
                       onTap: () {
-                        selectedQuestionType = gameController.subject.questionTypes[i];
+                        setState(() {
+                          selectedQuestionType = widget.gameController.subject.questionTypes[i];
+                        });
                       },
                       child: QuestionTypeSelectionCard(
-                        questionType: gameController.subject.questionTypes[i]),
+                        questionType: widget.gameController.subject.questionTypes[i]),
                     ),
                   )
                 ],
@@ -131,40 +141,30 @@ class AddPropertyDialog extends StatelessWidget {
                       fontWeight: FontWeight.bold
                     ),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     // Close dialog
-                    Navigator.pop(context);
-                    // Call to API with: 
-                    // 1) topic / subtopic details
-                    // 2) type of question required
-                    // 
-                    // Open question dialog passing in the JSON returned by Mistral
-                    // Question dialog takes the question content and builds the UI per question
-                    Quiz newQuiz = Quiz(
-                      id: "1",
-                      type: "multipleChoice",
-                      questions: [
-                        MultipleChoiceQuestion(
-                          id: 1,
-                          question: "Are you cool?",
-                          correctAnswer: "Yes",
-                          distractors: ["I don't know", "No"]
-                        ),
-                        MultipleChoiceQuestion(
-                          id: 2, 
-                          question: "Are you sure?",
-                          correctAnswer: "Yes",
-                          distractors: ["I don't know", "No"]
-                        ),
-                      ]
-                    );
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return QuizDialog(quiz: newQuiz);
-                      },
-                    );
-                  
+                    if (selectedSubtopic.isNotEmpty && selectedQuestionType.isNotEmpty) {
+                      Quiz newQuiz = await widget.gameController.getQuiz(
+                        selectedSubtopic,
+                        selectedQuestionType,
+                        5 // Temporarily hardcoded while buttons not implemented
+                      );
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return QuizDialog(quiz: newQuiz);
+                          },
+                        );
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text("Select a topic and quiz type"),
+                        )
+                      );
+                    }
                   }
                 ),
               ],
@@ -193,7 +193,7 @@ class SubTopicSelectionCard extends StatelessWidget {
       elevation: 2.0,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Container(
+        child: SizedBox(
           width: width,
           child: Text(
             subTopicName,
@@ -225,7 +225,7 @@ class QuestionTypeSelectionCard extends StatelessWidget {
       elevation: 2.0,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Container(
+        child: SizedBox(
           width: 150,
           child: Text(
             "Question Type",
