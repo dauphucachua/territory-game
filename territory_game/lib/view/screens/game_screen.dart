@@ -33,6 +33,7 @@ class _GameScreenState extends State<GameScreen> {
               child: BoardWidget(board: widget.gameController.board)
             ),
           ),
+          // The main action sidebar
           Padding(
             padding: const EdgeInsets.all(8.0),
             // The main sidebar 
