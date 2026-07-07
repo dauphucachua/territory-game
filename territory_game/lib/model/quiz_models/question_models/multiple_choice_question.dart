@@ -24,11 +24,7 @@ class MultipleChoiceQuestion extends Question {
 
   @override
   String toString() {
-    return """
-      Question $id: $question\n
-      Correct answer: $correctAnswer\n
-      Distractors: $distractors
-    """;
+    return "Question $id: $question\nCorrect answer: $correctAnswer\nDistractors: $distractors";
   }
 
   List<dynamic> getRandomizedAnswers() {
