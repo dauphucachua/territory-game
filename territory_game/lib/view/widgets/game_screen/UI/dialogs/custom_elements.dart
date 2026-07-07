@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// Common elements for use in dialog boxes.
+
+
 class DialogSubtitleText extends StatelessWidget {
   final String text;
   const DialogSubtitleText({

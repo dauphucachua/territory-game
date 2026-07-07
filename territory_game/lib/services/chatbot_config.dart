@@ -2,7 +2,12 @@ import 'dart:core';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/topic.dart';
 
+/// Encompasses a configuration that is passed to chatbot API services.
+/// 
+/// This allows different chatbot models to have access to the same prompting resources and chat history, facilitating smooth
+/// transitions between models.
 class ChatbotConfig {
+  /// A system prompt for chatbots assisting with programming education.
   final String programmingSystemPrompt = """
 
     You are an agent in a game designed to teach users basic programming.
@@ -18,8 +23,10 @@ class ChatbotConfig {
     Feedback should be around 1 - 2 sentences for multiple choice.
   """;
 
+  /// A chat history, primarily for giving chatbots context so that they are able to vary their content more effectively.
   final List<String> chatHistory = [];
 
+  /// A template for a prompt that requests a multiple choice quiz.
   String multipleChoicePrompt(Topic topic, String subTopic, int questionCount) {
     return """
 
@@ -32,6 +39,7 @@ class ChatbotConfig {
     """;
   } 
 
+  /// A template for a prompt that requests feedback on a completed quiz.
   String feedbackPrompt(Quiz quiz) {
     return """
 

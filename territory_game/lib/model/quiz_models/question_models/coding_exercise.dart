@@ -1,5 +1,6 @@
 import 'package:territory_game/model/quiz_models/question_models/question.dart';
 
+/// A data model for the coding exercise question type.
 class CodingExercise extends Question {
   final List<String> steps;
 
@@ -9,6 +10,7 @@ class CodingExercise extends Question {
     required this.steps
   });
 
+  /// Loads a CodingExercise object from a JSON file.
   factory CodingExercise.fromJson(Map<String, dynamic> json) {
     return CodingExercise(
       id: json["id"],

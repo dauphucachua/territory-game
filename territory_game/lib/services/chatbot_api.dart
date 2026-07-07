@@ -1,9 +1,11 @@
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/topic.dart';
 
+/// An interface class that sets the required functionality for individual chatbot APIs to be used in the application.
 abstract interface class ChatbotApiService {
   const ChatbotApiService();
 
+  /// Queries the chatbot with the desired quiz properties via its API and returns a quiz as a Map.
   Future<Map<String, dynamic>?> getQuizJson(
     Topic topic, 
     String subTopic, 
@@ -11,9 +13,6 @@ abstract interface class ChatbotApiService {
     int questionCount
   );
 
+  /// Sends the chatbot a completed quiz via its API and returns feedback as a Map.
   Future<Map<String, dynamic>?> getFeedbackJson(Quiz quiz);
-  
-  // Future<Map<String, dynamic>?> getTheoryJson(Topic topic);
-  // Future<Map<String, dynamic>?> getCodingProblemJson(Topic topic);
-  // Future<Map<String, dynamic>?> getCodingExerciseJson(Topic topic);
 }

@@ -3,6 +3,9 @@ import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/view/widgets/game_screen/board/board_widget.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/main_sidebar_widget.dart';
 
+/// This is the main game screen. 
+/// 
+/// It shows the game board, main sidebar, game tabs (unimplemented), main menu (unimplemented) and power-ups (unimplemented).
 class GameScreen extends StatefulWidget {
   final GameController gameController;
   const GameScreen(this.gameController, {super.key});

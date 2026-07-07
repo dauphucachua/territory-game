@@ -101,8 +101,11 @@ void main() {
     Quiz mockQuiz = Quiz(
       type: "multipleChoice",
       questions: [mockQuestion1, mockQuestion2],
-      userAnswers: ["x = 'Hello'", "x == 1"]
     );
+
+    Map<int, String> userAnswers = {1: "x = 'Hello'", 2: "x == 1"};
+
+    mockQuiz.storeUserAnswers(userAnswers);
 
     var quizFeedback = await gameController.getFeedback(mockQuiz);
     

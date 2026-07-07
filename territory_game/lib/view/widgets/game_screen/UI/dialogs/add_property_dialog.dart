@@ -5,7 +5,9 @@ import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.dart';
 
-/// A dialog box for selecting quiz settings.
+/// A dialog box for selecting quiz settings. 
+/// 
+/// Quiz settings include subtopic, question type, number of questions (unimplemented), difficulty (unimplemented).
 class AddPropertyDialog extends StatefulWidget {
   final GameController gameController;
 
@@ -21,7 +23,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
 
   List<SelectionCardData> getCardDataList(List<String> titles) {
     // also needs a bodies parameter
-    // titles - come from widget.gameController.subTopics
+    // titles - come from gameController.subTopics or gameController.subject.questionTypes
     // bodies - comes from somewhere unimplemented so far, will be 
     // should probably create a SubTopic class so that both title and body of card can be derived solely from there
     // can also look into zip() style functions for pairing titles to bodies

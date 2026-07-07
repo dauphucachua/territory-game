@@ -6,10 +6,17 @@ import 'package:territory_game/services/chatbot_api.dart';
 import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_config.dart';
 
+/// An API service for communicating with Mistral AI.
 class MistralApiService implements ChatbotApiService {
+
+  // The mistral client.
   final client = MistralClient.withApiKey(mistralKey);
+
+  // A list of model strings for switching easily. This can be expanded, can also add functionality for dynamically switching
+  // based on the need at hand. 
   final List<String> models = ["mistral-small-latest", "mistral-large-latest"];
-  
+
+  // A Map of schemas for use with various quiz types.
   final Map<String, dynamic> quizSchemas = {
     "multipleChoice": ResponseFormatJsonSchema(
       name: "multipleChoiceQuiz",
@@ -38,6 +45,7 @@ class MistralApiService implements ChatbotApiService {
     ),
   };
 
+  // A Map of feedback schemas, for use with various quiz types.
   final Map<String, dynamic> feedbackSchemas = {
     "multipleChoice": ResponseFormatJsonSchema(
       name: "multipleChoiceFeedback",
@@ -60,12 +68,14 @@ class MistralApiService implements ChatbotApiService {
     )
   };
 
+  // Configuration giving access to prompt templates and chat history.
   final ChatbotConfig config;
 
   MistralApiService({
     required this.config
   });
   
+  /// Queries Mistral with the desired quiz properties via its API and returns a quiz as a Map.
   @override
   Future<Map<String, dynamic>?> getQuizJson(
     Topic topic, 
@@ -89,6 +99,7 @@ class MistralApiService implements ChatbotApiService {
     return jsonDecode(response.text!);
   }
 
+  /// Sends Mistral a completed quiz via its API and returns feedback as a Map.
   @override
   Future<Map<String, dynamic>?> getFeedbackJson(Quiz quiz) async {
     final ChatCompletionResponse response = await client.chat.create(
