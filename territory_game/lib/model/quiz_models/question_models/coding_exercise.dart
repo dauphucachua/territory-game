@@ -1,4 +1,4 @@
-import 'package:territory_game/model/quiz_models/question.dart';
+import 'package:territory_game/model/quiz_models/question_models/question.dart';
 
 class CodingExercise extends Question {
   final List<String> steps;
