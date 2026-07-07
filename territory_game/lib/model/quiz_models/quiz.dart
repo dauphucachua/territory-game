@@ -3,37 +3,16 @@ import 'package:territory_game/model/quiz_models/question_models/multiple_choice
 class Quiz {
 
   final String type;
-  final List<dynamic> questions;
+  final List<dynamic> questions; // This should be List<Question>, having type issues, need to return to this
   List<String> userAnswers;
 
   Quiz({
     required this.type,
     required this.questions,
     List<String>? userAnswers
-  }) : userAnswers = userAnswers ?? [];
-
-  Map<dynamic, dynamic> get questionAnswerMap {
-
-    if (questions.length == userAnswers.length) {
-      final result = {};
-      
-      for (int i = 0; i < questions.length;) {
-        var questionNo = (i + 1).toString();
-        
-        result["question $questionNo"] = {
-          "question": questions[i],
-          "userAnswer": userAnswers[i] 
-        };
-
-        return result;
-      }
-    } 
-
-    throw "Number of questions != number of answers";
-
-    
-  }
-
+  }) : userAnswers = userAnswers ?? []; 
+  
+  
   factory Quiz.fromJson(Map<String, dynamic> json) {
     if (json["quizType"] == "multipleChoice") {
       return Quiz(
@@ -45,10 +24,49 @@ class Quiz {
     }
   }
 
+  Map<dynamic, dynamic> get questionAnswerMap {
+
+    if (questions.length == userAnswers.length) {
+      final result = {};
+      
+      for (int i = 0; i < questions.length; i++) {
+        final questionNo = questions[i].id;
+        final question = questions[i].question;
+        final userAnswer = userAnswers[i]; 
+        
+        result["question $questionNo"] = {
+          "question": question,
+          "userAnswer": userAnswer 
+        };
+
+        return result;
+      }
+    }  
+
+    throw "Number of questions != number of answers";
+  }
+
+  String toStringForFeedbackPrompt() {
+    if (userAnswers.length == questions.length) {
+      final String header = "Quiz type: $type\nQuestions:\n\n";
+      String body = "";
+      for (int i = 0; i < questions.length; i++) {
+        body += "${questions[i].toString()}\n";
+        body += "${userAnswers[i]}\n\n";
+      }
+
+      return header + body;
+    }
+
+    throw "Number of questions != number of answers";
+  }
+
+ 
+
   @override toString() {
     return """
       Quiz type: $type\n
-      Questions: $questions
+      Questions: $questions\n
     """;
   }
 
