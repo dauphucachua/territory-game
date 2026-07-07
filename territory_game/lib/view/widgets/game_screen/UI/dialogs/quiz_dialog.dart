@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:sortedmap/sortedmap.dart';
 import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/custom_elements.dart';
 
+/// A dialog box for displaying quizzes.
+/// 
+/// It dynamically selects the correct layout based on the type of quiz that it is passed in its constructor.
 class QuizDialog extends StatelessWidget {
   final GameController gameController;
   final Quiz quiz;
@@ -32,6 +37,7 @@ class QuizDialog extends StatelessWidget {
   }
 }
 
+/// Facilitates the selection of a quiz layout based on the type of quiz.
 Widget selectLayout(Quiz quiz) {
   if (quiz.type == "multipleChoice") {
       return MultipleChoiceLayout(
@@ -51,6 +57,7 @@ Widget selectLayout(Quiz quiz) {
     return const Placeholder();
 }
 
+/// A layout for multiple choice quizzes.
 class MultipleChoiceLayout extends StatefulWidget {
   final Quiz quiz;
   const MultipleChoiceLayout({
@@ -64,15 +71,17 @@ class MultipleChoiceLayout extends StatefulWidget {
 
 class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
   int currentQuestionIndex = 0;
-  List<String> userAnswers = [];
-
+  // Stores the answers selected by the user and automatically sorts them by key (question ID).
+  SortedMap<int, String> userAnswers = SortedMap(Ordering.byKey());
+  
   @override
   Widget build(BuildContext context) {
-    final questions = widget.quiz.questions;
+    final questions = List<MultipleChoiceQuestion>.from(widget.quiz.questions);
     final currentQuestion = questions[currentQuestionIndex];
 
-    void addUserAnswer(String answer) {
-      userAnswers.add(answer);
+    /// Adds a user answer to the userAnswers Map.
+    void logUserAnswer(String answer) {
+      userAnswers[currentQuestion.id] = answer;
       print(userAnswers);
     }
 
@@ -87,7 +96,7 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () {
-                addUserAnswer(answer);
+                logUserAnswer(answer);
               },
               child: Text(
                 answer
@@ -113,7 +122,7 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
               ),
               onPressed: () {
                 if (userAnswers.length == questions.length) {
-                  widget.quiz.userAnswers = userAnswers;
+                  widget.quiz.storeUserAnswers(userAnswers);
                   // widget.gameController
                   Navigator.pop(context);
                   showDialog(
@@ -122,7 +131,7 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
                       return Dialog(
                         child: Column(
                           children: [
-                            for (String answer in userAnswers)
+                            for (String answer in userAnswers.values)
                               Text(answer)
                           ]
                         )
