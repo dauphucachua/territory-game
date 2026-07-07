@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/view/widgets/game_screen/UI/dialogs/custom_elements.dart';
 
 class QuizDialog extends StatelessWidget {
+  final GameController gameController;
   final Quiz quiz;
 
-  const QuizDialog({
+  const QuizDialog(
+    this.gameController, {
     required this.quiz,
     super.key
   });
@@ -12,7 +16,18 @@ class QuizDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: selectLayout(quiz)
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0)
+      ),
+      backgroundColor: const Color.fromARGB(255, 33, 48, 68),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: 30.0,
+        vertical: 10.0
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: selectLayout(quiz)
+      ),
     );
   }
 }
@@ -49,7 +64,7 @@ class MultipleChoiceLayout extends StatefulWidget {
 
 class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
   int currentQuestionIndex = 0;
-  final userAnswers = [];
+  List<String> userAnswers = [];
 
   @override
   Widget build(BuildContext context) {
@@ -63,42 +78,64 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
 
     return Column(
       children: [
-        Text("Question $currentQuestion"),
+        DialogTitleText(text: "Question ${currentQuestion.id}"),
         SizedBox(height: 25),
-        Text(currentQuestion.question),
+        DialogSubtitleText(text: currentQuestion.question),
           
         ...currentQuestion.getRandomizedAnswers().map((answer) {
-          return ElevatedButton(
-            onPressed: () {
-              addUserAnswer(answer);
-            },
-            child: Text(
-              answer
-            )
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                addUserAnswer(answer);
+              },
+              child: Text(
+                answer
+              )
+            ),
           );
         }),
 
-        ElevatedButton(
-          child: Text("Next question"),
-          onPressed: () {
-            if (userAnswers.length == questions.length) {
-              Navigator.pop(context);
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return Dialog(
-                    child: Column(
-                      children: [
-                        for (String answer in userAnswers)
-                          Text(answer)
-                      ]
-                    )
-                  );
-                }); 
-            } else {
-              setState(() {currentQuestionIndex++;});
-            } 
-          }
+        Row(
+          mainAxisAlignment: .center,
+          spacing: 50,
+          children: [
+            if (currentQuestionIndex > 0)
+              ElevatedButton(
+                child: Text("Previous question"),
+                onPressed: () => setState(() {
+                  currentQuestionIndex--; 
+                })
+              ),
+            ElevatedButton(
+              child: Text(
+                currentQuestion.id < questions.length ? "Next question" : "Finish quiz"
+              ),
+              onPressed: () {
+                if (userAnswers.length == questions.length) {
+                  widget.quiz.userAnswers = userAnswers;
+                  // widget.gameController
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Dialog(
+                        child: Column(
+                          children: [
+                            for (String answer in userAnswers)
+                              Text(answer)
+                          ]
+                        )
+                      );
+                    }); 
+                } else {
+                  setState(() {
+                    currentQuestionIndex++;
+                  });
+                } 
+              }
+            )
+          ],
         )
       ]
     );
