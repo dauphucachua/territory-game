@@ -1,3 +1,4 @@
+import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/topic.dart';
 
 abstract interface class ChatbotApiService {
@@ -9,6 +10,9 @@ abstract interface class ChatbotApiService {
     String questionType,
     int questionCount
   );
+
+  Future<Map<String, dynamic>?> getFeedbackJson(Quiz quiz);
+  
   // Future<Map<String, dynamic>?> getTheoryJson(Topic topic);
   // Future<Map<String, dynamic>?> getCodingProblemJson(Topic topic);
   // Future<Map<String, dynamic>?> getCodingExerciseJson(Topic topic);
