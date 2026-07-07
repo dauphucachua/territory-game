@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/view/widgets/game_screen/UI/dialogs/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.dart';
 
 /// A dialog box for selecting quiz settings.
@@ -107,7 +108,10 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                         showDialog(
                           context: context,
                           builder: (context) {
-                            return QuizDialog(quiz: newQuiz);
+                            return QuizDialog(
+                              widget.gameController,
+                              quiz: newQuiz
+                            );
                           },
                         );
                       }
@@ -238,92 +242,5 @@ class ScrollableHorizontalListView extends StatelessWidget {
   }
 }
 
-class DialogTitleText extends StatelessWidget {
-  final String text;
-  const DialogTitleText({
-    required this.text,
-    super.key,
-  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text, 
-      style: TextStyle(
-        fontSize: 25.0,
-        color: const Color.fromARGB(164, 255, 255, 255),
-      ),
-    );
-  }
-}
-
-class DialogSubtitleText extends StatelessWidget {
-  final String text;
-  const DialogSubtitleText({
-    required this.text,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: const Color.fromARGB(164, 255, 255, 255),
-        fontSize: 20.0,
-      ),
-    );
-  }
-}
-
-class CloseWindowButton extends StatelessWidget {
-  const CloseWindowButton({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () {
-        Navigator.pop(context);
-      }, 
-      icon: Icon(
-        Icons.close, 
-        color: const Color.fromARGB(139, 255, 255, 255)
-      ),
-    );
-  }
-}
-
-class QuestionTypeSelectionCard extends StatelessWidget {
-  final String questionType;
-  final double width;
-  
-  const QuestionTypeSelectionCard({
-    required this.questionType,
-    this.width = 150, 
-    super.key
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: const Color.fromARGB(255, 57, 92, 109),
-      elevation: 2.0,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SizedBox(
-          width: 150,
-          child: Text(
-            "Question Type",
-            style: TextStyle(
-              color: const Color.fromARGB(164, 255, 255, 255),
-              fontSize: 15.0,
-            )
-          ),
-        ),
-      ),
-    );
-  }
-}
 
