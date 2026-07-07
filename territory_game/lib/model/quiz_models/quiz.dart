@@ -12,6 +12,28 @@ class Quiz {
     List<String>? userAnswers
   }) : userAnswers = userAnswers ?? [];
 
+  Map<dynamic, dynamic> get questionAnswerMap {
+
+    if (questions.length == userAnswers.length) {
+      final result = {};
+      
+      for (int i = 0; i < questions.length;) {
+        var questionNo = (i + 1).toString();
+        
+        result["question $questionNo"] = {
+          "question": questions[i],
+          "userAnswer": userAnswers[i] 
+        };
+
+        return result;
+      }
+    } 
+
+    throw "Number of questions != number of answers";
+
+    
+  }
+
   factory Quiz.fromJson(Map<String, dynamic> json) {
     if (json["quizType"] == "multipleChoice") {
       return Quiz(
