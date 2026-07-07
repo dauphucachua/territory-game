@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:territory_game/model/quiz_models/question.dart';
+import 'package:territory_game/model/quiz_models/question_models/question.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 
