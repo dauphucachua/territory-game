@@ -1,6 +1,7 @@
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
 import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/model/user.dart';
@@ -47,6 +48,15 @@ class GameController {
       return Quiz.fromJson(quizJson);
     } else {
       throw "Failed to get quiz from chatbot";
+    }
+  }
+
+  Future<QuizFeedback> getFeedback(Quiz quiz) async {
+    Map<String, dynamic>? quizFeedbackJson = await chatbot.getFeedbackJson(quiz);
+    if (quizFeedbackJson != null) {
+      return QuizFeedback.fromJson(quizFeedbackJson);
+    } else {
+      throw "Failed to get feedback for chatbot";
     }
   }
 }
