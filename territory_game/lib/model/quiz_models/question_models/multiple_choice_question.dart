@@ -11,6 +11,8 @@ class MultipleChoiceQuestion extends Question {
     required this.distractors, 
   }); 
 
+  List<dynamic> get allAnswers => [correctAnswer, ...distractors];
+
   factory MultipleChoiceQuestion.fromJson(Map<String, dynamic> json) {
     return MultipleChoiceQuestion(
       id: json["id"],
@@ -30,8 +32,7 @@ class MultipleChoiceQuestion extends Question {
   }
 
   List<dynamic> getRandomizedAnswers() {
-    final answers = distractors;
-    answers.add(correctAnswer);
+    final answers = allAnswers;
     answers.shuffle();
     return answers;
   }
