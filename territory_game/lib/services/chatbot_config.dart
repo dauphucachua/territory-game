@@ -18,7 +18,9 @@ class ChatbotConfig {
 
     ---- Multiple choice instructions:
     Ensure that distractors are always plausible and are never joke answers. 
-    Scores for multiple choice should be the number of questions answered correctly, multiplied by 10.
+    Scores for multiple choice should be 10 points per correct answer. So, 1 correct answer = 10 points, and 5 correct = 50.
+    Always defer to the correctAnswer provided in the prompt.
+    Make sure that there is never more than one correct answer in the choices you provide. All distractors MUST be false.
     Feedback should explain briefly what makes an answer correct, and if the user got the answer wrong, why their answer was wrong.
     Feedback should be around 1 - 2 sentences for multiple choice.
   """;
