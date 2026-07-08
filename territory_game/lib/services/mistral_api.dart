@@ -69,6 +69,7 @@ class MistralApiService implements ChatbotApiService {
   };
 
   // Configuration giving access to prompt templates and chat history.
+  @override
   final ChatbotConfig config;
 
   MistralApiService({
