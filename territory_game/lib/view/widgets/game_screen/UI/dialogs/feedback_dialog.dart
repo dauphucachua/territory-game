@@ -1,17 +1,113 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
+import 'package:territory_game/view/widgets/game_screen/UI/dialogs/custom_elements.dart';
 
 /// A dialog box showing the quiz feedback and scores provided by the chatbot model.
 class FeedbackDialog extends StatelessWidget {
   final GameController gameController;
   final Quiz quiz;
+  final QuizFeedback quizFeedback;
 
   const FeedbackDialog(
     this.gameController, {
-    required this.quiz,  
+    required this.quiz,
+    required this.quizFeedback,  
     super.key
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0)
+      ),
+      backgroundColor: const Color.fromARGB(255, 33, 48, 68),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: 30.0,
+        vertical: 10.0
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: selectLayout(gameController, quiz, quizFeedback),
+          ),
+           SizedBox(
+          height: 20.0,
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 84, 104, 138) 
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Exit and place property",
+                style: TextStyle(
+                  color: const Color.fromARGB(141, 255, 255, 255),
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold
+                )
+              
+              ),
+            ),
+            onPressed: () {
+              gameController.saveToQuestionHistory(quiz.questions);
+              Navigator.pop(context);
+            }
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Widget selectLayout(GameController gameController, Quiz quiz, QuizFeedback quizFeedback) {
+  if (quiz.type == "multipleChoice") {
+    return MultipleChoiceFeedbackLayout(
+      gameController, 
+      quiz: quiz,
+      quizFeedback: quizFeedback
+    );
+  } 
+
+  throw "Quiz type not found / not recognised";
+}
+
+class MultipleChoiceFeedbackLayout extends StatelessWidget {
+  final GameController gameController;
+  final Quiz quiz;
+  final QuizFeedback quizFeedback;
+
+  const MultipleChoiceFeedbackLayout(
+    this.gameController, {
+    required this.quiz,
+    required this.quizFeedback,
+    super.key
+  });
+
+  // Useful getters
+  List<MultipleChoiceQuestion> get questions => List<MultipleChoiceQuestion>.from(quiz.questions);
+  
+  int get numQuestions => questions.length;
+  
+  List<String> get correctAnswers => List<String>.from(questions.map((question) => question.correctAnswer));
+
+  int get numCorrectAnswers {
+    int correctCounter = 0;
+
+    for (int i = 0; i < questions.length; i++) {
+      if (quiz.userAnswers[i] == correctAnswers[i]) {
+        correctCounter += 1;
+      } 
+    }
+
+    return correctCounter;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +122,171 @@ class FeedbackDialog extends StatelessWidget {
     //    saves quiz and feedback to user's quiz history
     //    begins placeProperty process
     //  
-    return const Placeholder();
+    return Column(
+      mainAxisAlignment: .start,
+      crossAxisAlignment: .center,
+
+      children: [
+        SizedBox(height: 20),
+        DialogTitleText(
+          text: "You got $numCorrectAnswers out of $numQuestions correct",
+        ),
+        DialogSubtitleText(
+          text: "Score: ${quizFeedback.totalScore}"),
+        Divider(),
+        Row(
+          mainAxisAlignment: .spaceEvenly,
+          children: [
+            DialogSubtitleText(
+              text: "Questions"
+            ),
+            SizedBox(),
+            DialogSubtitleText(
+              text: "Feedback"
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        SizedBox(
+          height: 400, 
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              dragDevices: {
+                PointerDeviceKind.touch,
+                PointerDeviceKind.mouse,
+              },
+            ),
+            child: ListView.builder(
+              itemCount: numQuestions,
+              scrollDirection: .vertical,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FeedbackListItem(
+                    correctAnswerText: correctAnswers[index],
+                    feedbackText: quizFeedback.results[index].feedback,
+                    questionScore: quizFeedback.results[index].score.toString(),
+                    questionText: questions[index].question,
+                    userAnswerText: quiz.userAnswers[index],
+                    distractors: questions[index].distractors
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ]
+    );
+  }
+}
+
+class FeedbackListItem extends StatelessWidget {
+  final String questionText;
+  final String userAnswerText;
+  final String feedbackText;
+  final String correctAnswerText;
+  final String questionScore;
+  final List<String> distractors;
+
+  const FeedbackListItem({
+    required this.questionText,
+    required this.userAnswerText,
+    required this.feedbackText,
+    required this.correctAnswerText,
+    required this.questionScore,
+    required this.distractors,
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: .spaceEvenly,
+      children: [
+        Container(
+          width: 600,
+          padding: EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 45, 65, 90),
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          child: Column(
+            children: [
+              ContentText(text: questionText),
+              Divider(color: const Color.fromARGB(26, 193, 193, 193)),
+              ...[correctAnswerText, ...distractors].map((item) => Text(
+                item,
+                style: item == correctAnswerText 
+                ? TextStyle(
+                  color: Colors.green,
+                  fontSize: 18, 
+                  fontWeight: FontWeight.bold,
+                  )
+                : TextStyle(
+                  color: const Color.fromARGB(144, 255, 255, 255),
+                  fontSize: 15
+                  ) 
+                )
+              )
+            ],
+          ),
+        ),
+        Icon(
+          Icons.arrow_forward,
+          color: const Color.fromARGB(136, 255, 255, 255)
+        ),
+        Container(
+          width: 600,
+          padding: EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+            color: userAnswerText == correctAnswerText 
+              ? const Color.fromARGB(177, 74, 113, 57)
+              : const Color.fromARGB(185, 113, 57, 57),
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          child: Column(
+            children: [
+              Text(
+                "You answered: '$userAnswerText'",
+                style: TextStyle(
+                  color: const Color.fromARGB(144, 255, 255, 255),
+                  fontSize: 18.0
+                ),
+              ),
+              SizedBox(height: 10),
+              ContentText(text: feedbackText),
+              SizedBox(height: 10),
+              Text(
+                "Score: $questionScore",
+                style: TextStyle(
+                  color: const Color.fromARGB(144, 255, 255, 255),
+                  fontSize: 18.0
+                )
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ContentText extends StatelessWidget {
+  const ContentText({
+    super.key,
+    required this.text,
+  });
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: const Color.fromARGB(136, 255, 255, 255)
+      )
+            
+    );
   }
 }
