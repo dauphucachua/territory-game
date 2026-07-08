@@ -16,6 +16,14 @@ class QuizFeedback {
     );
   }
 
+  /// Gets the total score for all items of feedback in the quiz.
+  int get totalScore {
+    int scoreCounter = 0;
+    for (QuestionFeedback feedback in results) {
+      scoreCounter += feedback.score;
+    } return scoreCounter;
+  }
+
 
 
   
