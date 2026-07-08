@@ -4,6 +4,7 @@ import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/custom_elements.dart';
+import 'package:territory_game/view/widgets/game_screen/UI/dialogs/feedback_dialog.dart';
 
 /// A dialog box for displaying quizzes.
 /// 
@@ -31,16 +32,17 @@ class QuizDialog extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: selectLayout(quiz)
+        child: selectLayout(gameController, quiz)
       ),
     );
   }
 }
 
 /// Facilitates the selection of a quiz layout based on the type of quiz.
-Widget selectLayout(Quiz quiz) {
+Widget selectLayout(GameController gameController, Quiz quiz) {
   if (quiz.type == "multipleChoice") {
       return MultipleChoiceLayout(
+        gameController,
         quiz: quiz,
       );
     // } else if (quiz.type == "theory") {
@@ -59,8 +61,10 @@ Widget selectLayout(Quiz quiz) {
 
 /// A layout for multiple choice quizzes.
 class MultipleChoiceLayout extends StatefulWidget {
+  final GameController gameController;
   final Quiz quiz;
-  const MultipleChoiceLayout({
+  const MultipleChoiceLayout(
+    this.gameController, {
     required this.quiz,
     super.key
   });
@@ -100,11 +104,10 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
               },
               child: Text(
                 answer
-              )
+              ),
             ),
           );
         }),
-
         Row(
           mainAxisAlignment: .center,
           spacing: 50,
@@ -120,33 +123,32 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
               child: Text(
                 currentQuestion.id < questions.length ? "Next question" : "Finish quiz"
               ),
-              onPressed: () {
+              onPressed: () async {
                 if (userAnswers.length == questions.length) {
                   widget.quiz.storeUserAnswers(userAnswers);
                   // widget.gameController
+                  final quizFeedback = await widget.gameController.getFeedback(widget.quiz);
                   Navigator.pop(context);
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return Dialog(
-                        child: Column(
-                          children: [
-                            for (String answer in userAnswers.values)
-                              Text(answer)
-                          ]
-                        )
+                      return FeedbackDialog(
+                        widget.gameController, 
+                        quiz: widget.quiz, 
+                        quizFeedback: quizFeedback
                       );
-                    }); 
+                    }
+                  ); 
                 } else {
                   setState(() {
                     currentQuestionIndex++;
                   });
-                } 
+                }
               }
-            )
+            ),
           ],
-        )
-      ]
+        ),
+      ],
     );
   }
 }
