@@ -1,5 +1,6 @@
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/property.dart';
+import 'package:territory_game/model/quiz_models/question_models/question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
 import 'package:territory_game/model/subject.dart';
@@ -58,10 +59,16 @@ class GameController {
   /// Gets a QuizFeedback object based on a completed quiz from the active chatbot.
   Future<QuizFeedback> getFeedback(Quiz quiz) async {
     Map<String, dynamic>? quizFeedbackJson = await chatbot.getFeedbackJson(quiz);
+    print(quizFeedbackJson.toString());
     if (quizFeedbackJson != null) {
       return QuizFeedback.fromJson(quizFeedbackJson);
     } else {
       throw "Failed to get feedback for chatbot";
     }
+  }
+
+  void saveToQuestionHistory(List<Question> questions) {
+    List<String> questionStrings = List<String>.from(questions.map((questionObj) => questionObj.question));
+    chatbot.config.chatHistory.addAll(questionStrings);
   }
 }
