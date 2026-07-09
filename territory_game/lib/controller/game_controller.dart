@@ -5,18 +5,20 @@ import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
 import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
-import 'package:territory_game/model/user.dart';
-import 'package:territory_game/services/chatbot_api.dart';
-import 'package:territory_game/services/chatbot_api_provider.dart';
+import 'package:territory_game/model/game_user.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_api_service.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
 
 /// A controller class that manages interactions between the major classes of the game.
 class GameController {
+  final GameUser user;
   final ChatbotApiProvider chatbotProvider;
   final Board board;
   final Subject subject;
   final Topic topic;
   
   const GameController({
+    required this.user,
     required this.chatbotProvider,
     required this.board, 
     required this.subject,
@@ -28,7 +30,7 @@ class GameController {
   ChatbotApiService get chatbot => chatbotProvider.chatbot;
 
   /// Places a property at the coordinate indicated by the x and y parameters.
-  void placeProperty(int x, int y, User owner, int health) {
+  void placeProperty(int x, int y, GameUser owner, int health) {
     board.board[x][y] = Property(
       owner: owner, 
       health: health, 

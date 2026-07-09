@@ -4,7 +4,7 @@ import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
-import 'package:territory_game/view/widgets/game_screen/UI/dialogs/custom_elements.dart';
+import 'package:territory_game/view/widgets/custom_elements.dart';
 
 /// A dialog box showing the quiz feedback and scores provided by the chatbot model.
 class FeedbackDialog extends StatelessWidget {
@@ -128,20 +128,20 @@ class MultipleChoiceFeedbackLayout extends StatelessWidget {
 
       children: [
         SizedBox(height: 20),
-        DialogTitleText(
+        TitleText(
           text: "You got $numCorrectAnswers out of $numQuestions correct",
         ),
-        DialogSubtitleText(
+        SubtitleText(
           text: "Score: ${quizFeedback.totalScore}"),
         Divider(),
         Row(
           mainAxisAlignment: .spaceEvenly,
           children: [
-            DialogSubtitleText(
+            SubtitleText(
               text: "Questions"
             ),
             SizedBox(),
-            DialogSubtitleText(
+            SubtitleText(
               text: "Feedback"
             ),
           ],
@@ -271,22 +271,3 @@ class FeedbackListItem extends StatelessWidget {
   }
 }
 
-class ContentText extends StatelessWidget {
-  const ContentText({
-    super.key,
-    required this.text,
-  });
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: const Color.fromARGB(136, 255, 255, 255)
-      )
-            
-    );
-  }
-}

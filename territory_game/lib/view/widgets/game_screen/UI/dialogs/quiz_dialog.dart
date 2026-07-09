@@ -3,7 +3,7 @@ import 'package:sortedmap/sortedmap.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
-import 'package:territory_game/view/widgets/game_screen/UI/dialogs/custom_elements.dart';
+import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/feedback_dialog.dart';
 
 /// A dialog box for displaying quizzes.
@@ -91,9 +91,9 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
 
     return Column(
       children: [
-        DialogTitleText(text: "Question ${currentQuestion.id}"),
+        TitleText(text: "Question ${currentQuestion.id}"),
         SizedBox(height: 25),
-        DialogSubtitleText(text: currentQuestion.question),
+        SubtitleText(text: currentQuestion.question),
           
         ...currentQuestion.getRandomizedAnswers().map((answer) {
           return Padding(

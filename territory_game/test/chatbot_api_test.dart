@@ -1,13 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
+import 'package:territory_game/model/game_user.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
-import 'package:territory_game/services/chatbot_api_provider.dart';
-import 'package:territory_game/services/chatbot_config.dart';
-import 'package:territory_game/services/mistral_api.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
+import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
 
 void main() {
 
@@ -52,7 +53,13 @@ void main() {
     rows: 10
   );
 
+  final user = GameUser(
+    email: "bro@bro.com",
+    id: "666"
+  );
+
   final gameController = GameController(
+    user: user,
     chatbotProvider: chatbotProvider, 
     board: board, 
     subject: subject, 

@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
-import 'package:territory_game/view/widgets/game_screen/UI/dialogs/custom_elements.dart';
+import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.dart';
 
 /// A dialog box for selecting quiz settings. 
@@ -52,14 +52,14 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             Row(
               mainAxisAlignment: .spaceBetween,
               children: [
-                DialogTitleText(text: "New property"),
+                TitleText(text: "New property"),
                 CloseWindowButton(),
               ],
             ),
             Divider(),
             SizedBox(height: 20.0),
             // First subtitle
-            DialogSubtitleText(text: "Select a sub-topic"),
+            SubtitleText(text: "Select a sub-topic"),
             // Sub-topic selection ListView
             ScrollableHorizontalListView(
               cardData: getCardDataList(widget.gameController.subTopics),
@@ -69,7 +69,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             Divider(),
             SizedBox(height: 20.0),
             // Second subtitle
-            DialogSubtitleText(
+            SubtitleText(
               text: "Select a question type",
             ),
             // Question type choice ListView

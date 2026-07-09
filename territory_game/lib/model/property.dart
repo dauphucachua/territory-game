@@ -1,10 +1,10 @@
-import 'package:territory_game/model/user.dart';
+import 'package:territory_game/model/game_user.dart';
 
  /// A data model for properties, which are territorial game pieces owned by players and placed on the board.
  /// 
  /// Probably needs an id attribute.
 class Property {
-  User owner;
+  GameUser owner;
   int health;
   int x;
   int y;
