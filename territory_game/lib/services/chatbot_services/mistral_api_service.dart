@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:mistralai_dart/mistralai_dart.dart';
 import 'package:territory_game/api_keys/api_keys.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
-import 'package:territory_game/services/chatbot_api.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_api_service.dart';
 import 'package:territory_game/model/topic.dart';
-import 'package:territory_game/services/chatbot_config.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 
 /// An API service for communicating with Mistral AI.
 class MistralApiService implements ChatbotApiService {
@@ -87,7 +87,7 @@ class MistralApiService implements ChatbotApiService {
 
     final ChatCompletionResponse response = await client.chat.create(
       request: ChatCompletionRequest(
-        model: models[0],
+        model: models[1],
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
           if (questionType == "multipleChoice") 
@@ -105,7 +105,7 @@ class MistralApiService implements ChatbotApiService {
   Future<Map<String, dynamic>?> getFeedbackJson(Quiz quiz) async {
     final ChatCompletionResponse response = await client.chat.create(
       request: ChatCompletionRequest(
-        model: models[0],
+        model: models[1],
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
           ChatMessage.user(config.feedbackPrompt(quiz))

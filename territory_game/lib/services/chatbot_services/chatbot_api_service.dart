@@ -1,6 +1,6 @@
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/topic.dart';
-import 'package:territory_game/services/chatbot_config.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 
 /// An interface class that sets the required functionality for individual chatbot APIs to be used in the application.
 abstract interface class ChatbotApiService {

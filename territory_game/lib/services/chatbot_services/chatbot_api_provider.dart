@@ -1,4 +1,4 @@
-import 'package:territory_game/services/chatbot_api.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_api_service.dart';
 
 /// A class that provides access to various chatbots' API services through their API service interface.
 /// 
