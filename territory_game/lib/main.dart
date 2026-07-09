@@ -4,10 +4,11 @@ import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/firebase_options.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/subject.dart';
-import 'package:territory_game/services/chatbot_api_provider.dart';
-import 'package:territory_game/services/chatbot_config.dart';
-import 'package:territory_game/services/mistral_api.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
+import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
 import 'package:territory_game/view/screens/game_screen.dart';
+import 'package:territory_game/view/screens/login_screen.dart';
 
 void main() async {
 
@@ -55,27 +56,27 @@ void main() async {
     config: ChatbotConfig());
   chatbotProvider.addChatbot(mistralClient);
   
-  final gameController = GameController(
-    chatbotProvider: chatbotProvider,
-    board: board, 
-    subject: subject,
-    topic: subject.topics[0]
-  );
+  // final gameController = GameController(
+  //   chatbotProvider: chatbotProvider,
+  //   board: board, 
+  //   subject: subject,
+  //   topic: subject.topics[0]
+  // );
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  runApp(MainApp(gameController));
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  final GameController gameController;
-  const MainApp(this.gameController, {super.key});
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: GameScreen(gameController)
+      home: LoginScreen()
     );
   }
 }
