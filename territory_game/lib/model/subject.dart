@@ -24,3 +24,34 @@ class Subject {
     );  
   }
 }
+
+ final Map<String, dynamic> exampleSubject = {
+    "name": "Introduction to Programming",
+    "topics": [
+      {
+          "name": "Variables",
+          "week": 1,
+          "subTopics": [
+              "Naming",
+              "Conventions",
+              "Values"
+          ]
+      },
+      {
+          "name": "Functions",
+          "week": 2,
+          "subTopics": [
+              "Scope",
+              "Iteration"
+          ]
+      },
+    ],
+    "questionTypes": [
+        "multipleChoice",
+        "theory",
+        "codingProblem",
+        "codingExercise"
+    ]
+  };
+
+final List<Subject> subjectList = [Subject.fromJson(exampleSubject)];
