@@ -1,16 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:territory_game/constants/constants.dart';
-import 'package:territory_game/controller/game_controller.dart';
-import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game_user.dart';
-import 'package:territory_game/model/subject.dart';
-import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
-import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
-import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
-import 'package:territory_game/view/screens/game_screen.dart';
+import 'package:territory_game/view/screens/main_menu_screen.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
-import 'package:territory_game/view/widgets/game_screen/UI/dialogs/feedback_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
@@ -25,35 +18,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  
-  final Map<String, dynamic> exampleSubject = {
-    "name": "Introduction to Programming",
-    "topics": [
-      {
-          "name": "Variables",
-          "week": 1,
-          "subTopics": [
-              "Naming",
-              "Conventions",
-              "Values"
-          ]
-      },
-      {
-          "name": "Functions",
-          "week": 2,
-          "subTopics": [
-              "Scope",
-              "Iteration"
-          ]
-      },
-    ],
-    "questionTypes": [
-        "multipleChoice",
-        "theory",
-        "codingProblem",
-        "codingExercise"
-    ]
-  };
 
   Future<UserCredential> login(String email, String password) async {
     final credential = await firebaseAuth.signInWithEmailAndPassword(
@@ -63,21 +27,33 @@ class _LoginScreenState extends State<LoginScreen> {
     return credential;
   }
 
-  Future<void> register(String email, String password) async {
+  Future<void> register(BuildContext context, String email, String password) async {
     try {
-      final credential = await firebaseAuth.createUserWithEmailAndPassword(
+      await firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password
       );
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          duration: Duration(
-            seconds: 3
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Account registered successfully for $email. Login now."),
+            duration: Duration(
+              seconds: 3
+            )
           )
-        )
-      );
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            duration: Duration(
+              seconds: 3
+            ),
+          ),
+        );
+      } 
     }
   }
 
@@ -135,8 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: .center,
                 children: [
-                  ElevatedButton(
-                  
+                  ElevatedButton(         
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.blue,
                     ),
@@ -150,9 +125,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    onPressed: () async {
-                      
-                    }
+                    onPressed: () async => register(
+                      context, 
+                      emailController.text,
+                      passwordController.text
+                    )
                   ),
                   SizedBox(width: 20.0),
                   ElevatedButton(
@@ -172,45 +149,24 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () async {
                       try {
                         final credential = await login(emailController.text, passwordController.text);
-                        GameUser currentUser = GameUser.fromFirebaseCredential(credential);
+                        GameUser currentUser = GameUser.fromFirebaseCredential(credential);                       
 
-                        Subject subject = Subject.fromJson(exampleSubject);
-
-                        final board = Board(
-                          rows: 10,
-                          cols: 10
-                        );
-
-                        final ChatbotApiProvider chatbotProvider = ChatbotApiProvider();
-                        final mistralClient = MistralApiService(
-                          config: ChatbotConfig());
-                        chatbotProvider.addChatbot(mistralClient);
-                        
-                        final gameController = GameController(
-                          user: currentUser,
-                          chatbotProvider: chatbotProvider,
-                          board: board, 
-                          subject: subject,
-                          topic: subject.topics[0]
-                        );
-
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => GameScreen(
-                              gameController
+                        if (context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) => MainMenuScreen(currentUser: currentUser)
                             ),
-                          ),
-                        );
-
+                          );
+                        }
                       } on FirebaseAuthException catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(e.toString()),
                             duration: Duration(
                               seconds: 3
-                            )
-                          )
+                            ),
+                          ),
                         );
                       }
                     }
@@ -226,10 +182,10 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class EntryField extends StatelessWidget {
-  bool hideText;
-  TextEditingController controller;
+  final bool hideText;
+  final TextEditingController controller;
   
-  EntryField({
+  const EntryField({
     required this.hideText,
     required this.controller,
     super.key,
