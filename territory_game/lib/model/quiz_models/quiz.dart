@@ -4,11 +4,13 @@ import 'package:territory_game/model/quiz_models/question_models/question.dart';
 /// A data model for quizzes created by a chatbot model.
 class Quiz {
   final String type;
+  final String subTopic;
   final List<Question> questions; // This should be List<Question>, having type issues, need to return to this
   List<String> userAnswers;
   
   Quiz({
     required this.type,
+    required this.subTopic,
     required this.questions,
     List<String>? userAnswers
   }) : userAnswers = userAnswers ?? [];
@@ -18,6 +20,7 @@ class Quiz {
     if (json["quizType"] == "multipleChoice") {
       return Quiz(
         type: json["quizType"],
+        subTopic: json["subTopic"],
         questions: List<MultipleChoiceQuestion>.from(
           json["questions"].map((question) => MultipleChoiceQuestion.fromJson(question))
         )

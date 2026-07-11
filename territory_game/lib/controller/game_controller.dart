@@ -1,4 +1,5 @@
 import 'package:territory_game/model/board.dart';
+import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/question_models/question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
@@ -11,14 +12,14 @@ import 'package:territory_game/services/chatbot_services/chatbot_api_provider.da
 
 /// A controller class that manages interactions between the major classes of the game.
 class GameController {
-  final GameUser user;
+  final Player player;
   final ChatbotApiProvider chatbotProvider;
   final Board board;
   final Subject subject;
   final Topic topic;
   
   const GameController({
-    required this.user,
+    required this.player,
     required this.chatbotProvider,
     required this.board, 
     required this.subject,
@@ -30,23 +31,18 @@ class GameController {
   ChatbotApiService get chatbot => chatbotProvider.chatbot;
 
   /// Places a property at the coordinate indicated by the x and y parameters.
-  void placeProperty(int x, int y, GameUser owner, int health) {
-    board.board[x][y] = Property(
-      owner: owner, 
-      health: health, 
-      x: x, 
-      y: y
-    );
+  void placeProperty(Property property, {required int x, required int y}) {
+    board.board[x][y] = property;
   }
 
   /// Facilitates an attack from one selected property to a target one.
-  void attack(Property attacker, Property target, int damage) {
-    if (attacker.canAttack(target)) {
-      target.takeDamage(damage);
-    } else {
-      print("You can't attack this property.");
-    }
-  }
+  // void attack(Property attacker, Property target, int damage) {
+  //   if (attacker.canAttack(target)) {
+  //     target.takeDamage(damage);
+  //   } else {
+  //     print("You can't attack this property.");
+  //   }
+  // }
 
   /// Gets a Quiz object with the specified parameters from the active chatbot.
   Future<Quiz> getQuiz(String subTopic, String questionType, int questionCount) async {

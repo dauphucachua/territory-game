@@ -22,8 +22,12 @@ class MistralApiService implements ChatbotApiService {
       name: "multipleChoiceQuiz",
       schema: {
         "quizType": {
-          "type": "String",
+          "type": "string",
           "description": "This value must be: multipleChoice. It describes the quiz type."
+        },
+        "subTopic": {
+          "type": "string",
+          "description": "Return the sub-topic provided in the prompt"
         }, 
         "questions": {"type": "array"},
         "items": {

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game_user.dart';
+import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/subject.dart';
@@ -53,13 +54,12 @@ void main() {
     rows: 10
   );
 
-  final user = GameUser(
-    email: "bro@bro.com",
+  final player = Player(
     id: "666"
   );
 
   final gameController = GameController(
-    user: user,
+    player: player,
     chatbotProvider: chatbotProvider, 
     board: board, 
     subject: subject, 
