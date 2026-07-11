@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
@@ -57,6 +58,14 @@ class FeedbackDialog extends StatelessWidget {
             ),
             onPressed: () {
               gameController.saveToQuestionHistory(quiz.questions);
+              final newProperty = Property(
+                ownerId: gameController.player.id, 
+                subTopic: quiz.subTopic, 
+                questions: quiz.questions, 
+                health: quizFeedback.totalScore, 
+              );
+              gameController.player.propertyToPlace = newProperty;
+              print(gameController.player.propertyToPlace);
               Navigator.pop(context);
             }
           ),
