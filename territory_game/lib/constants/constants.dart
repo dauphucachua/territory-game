@@ -8,4 +8,6 @@ class AppColors {
 
 class AppDimensions {
   static final cornerRadius = BorderRadius.circular(15.0);
+  static final boardRows = 10;
+  static final boardCols = 10;
 }
