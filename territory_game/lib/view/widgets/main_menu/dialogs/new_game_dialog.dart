@@ -3,6 +3,7 @@ import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game_user.dart';
+import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
@@ -31,6 +32,9 @@ class _NewGameDialogState extends State<NewGameDialog> {
   /// Starts a new game once all necessary selections have been made by the user.
   void startGame() {
     if (selectedSubject != null && selectedTopic != null) {
+      // Convert GameUser into a Player object
+      final player = Player.newPlayerFromUser(widget.currentUser);
+
       // Initialize Board object
       final board = Board(
         rows: AppDimensions.boardRows,
@@ -38,14 +42,16 @@ class _NewGameDialogState extends State<NewGameDialog> {
       );      
 
       // Initialize ChatbotApi services.
-      final ChatbotApiProvider chatbotProvider = ChatbotApiProvider();
+      final chatbotProvider = ChatbotApiProvider();
       final mistralClient = MistralApiService(
         config: ChatbotConfig());
       chatbotProvider.addChatbot(mistralClient);
 
+      
+
       // Initialize GameController with objects passed in.
       final gameController = GameController(
-        user: widget.currentUser,
+        player: player,
         chatbotProvider: chatbotProvider,
         board: board, 
         subject: selectedSubject!,
