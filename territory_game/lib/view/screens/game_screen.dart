@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/view/widgets/game_screen/board/board_widget.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/main_sidebar_widget.dart';
@@ -22,26 +23,41 @@ class _GameScreenState extends State<GameScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.menu),
-          onPressed: () {
-
-          }
+          onPressed: () {}
+          
         ),
       ),
-      body: Row(
+      body: Stack(
         children: [
-          // The game board and play area - still needs zoom / scrollability
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.all(50.0),
-              child: BoardWidget(board: widget.gameController.board)
+          // The game board and play area - still needs zoom / scrollability  
+          InteractiveViewer(
+            constrained: false,
+            minScale: 0.1,
+            maxScale: 4,
+            boundaryMargin: EdgeInsets.symmetric(
+              vertical: 2000, 
+              horizontal: 10000
+            ),
+            child: SizedBox(
+              width: 2000,
+              height: 2000,
+              child: BoardWidget(
+                board: widget.gameController.board
+              ),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            top: 0,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              // The main sidebar 
+              child: MainSidebarWidget(widget.gameController)
             ),
           ),
           // The main action sidebar
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            // The main sidebar 
-            child: MainSidebarWidget(widget.gameController)
-          ),
+          
         ],
       ),
     );
