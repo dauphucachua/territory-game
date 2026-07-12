@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:territory_game/constants/constants.dart';
+import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
+import 'package:territory_game/model/property.dart';
+import 'package:territory_game/model/square.dart';
+import 'package:territory_game/view/widgets/game_screen/board/property_widget.dart';
 import 'package:territory_game/view/widgets/game_screen/board/square_widget.dart';
 
 /// This widget builds the game board based on the Board data model. 
@@ -15,25 +21,40 @@ class BoardWidget extends StatefulWidget {
 }
 
 class _BoardWidgetState extends State<BoardWidget> {
+  int rows = AppDimensions.boardRows;
+  int cols = AppDimensions.boardCols;
   /// The build method returns a GridView, where each item of the Grid is a SquareWidget object.
   @override
   Widget build(BuildContext context) {
-    final board = widget.board.board;
+    
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: board[0].length
-      ),
-      itemCount: 100,
-      itemBuilder: (BuildContext context, int index) {
-        int row = index ~/ widget.board.rows;
-        int col = index % widget.board.cols;
-        Color squareColor = getSquareColor(row, col); 
+    return Consumer<GameController>(
+      builder: (context, gameController, child) => GridView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: rows
+        ),
+        itemCount: 100,
+        itemBuilder: (BuildContext context, int index) {
+          int row = index ~/ rows;
+          int col = index % cols;
+          Color squareColor = getSquareColor(row, col);
+          Square squareData = Square(x: row, y: col);
+          Property? squareProperty = gameController.boardState[row][col];
 
-        return SquareWidget(color: squareColor); 
-      }    
+          return SquareWidget(
+            square: squareData,
+            color: squareColor,
+            property: squareProperty != null 
+            ? PropertyWidget(
+                color: Colors.black,
+                property: squareProperty,
+            )
+            : null,
+          ); 
+        }
+      )    
     );
   }
   

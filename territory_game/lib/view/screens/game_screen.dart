@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/view/widgets/game_screen/board/board_widget.dart';
@@ -8,8 +9,7 @@ import 'package:territory_game/view/widgets/game_screen/UI/main_sidebar_widget.d
 /// 
 /// It shows the game board, main sidebar, game tabs (unimplemented), main menu (unimplemented) and power-ups (unimplemented).
 class GameScreen extends StatefulWidget {
-  final GameController gameController;
-  const GameScreen(this.gameController, {super.key});
+  const GameScreen({super.key});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -18,6 +18,8 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
+    final gameController = context.watch<GameController>();
+
     return Scaffold(
       // AppBar with menu button - this should probably be converted into a row for customisability (tabs etc)
       appBar: AppBar(
@@ -42,7 +44,7 @@ class _GameScreenState extends State<GameScreen> {
               width: 2000,
               height: 2000,
               child: BoardWidget(
-                board: widget.gameController.board
+                board: gameController.board
               ),
             ),
           ),
@@ -53,7 +55,7 @@ class _GameScreenState extends State<GameScreen> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               // The main sidebar 
-              child: MainSidebarWidget(widget.gameController)
+              child: MainSidebarWidget()
             ),
           ),
           // The main action sidebar

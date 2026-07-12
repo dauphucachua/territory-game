@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sortedmap/sortedmap.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
@@ -10,17 +11,17 @@ import 'package:territory_game/view/widgets/game_screen/UI/dialogs/feedback_dial
 /// 
 /// It dynamically selects the correct layout based on the type of quiz that it is passed in its constructor.
 class QuizDialog extends StatelessWidget {
-  final GameController gameController;
   final Quiz quiz;
 
-  const QuizDialog(
-    this.gameController, {
+  const QuizDialog({
     required this.quiz,
     super.key
   });
 
   @override
   Widget build(BuildContext context) {
+    final gameController = context.watch<GameController>();
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0)
@@ -32,17 +33,16 @@ class QuizDialog extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: selectLayout(gameController, quiz)
+        child: selectLayout(quiz)
       ),
     );
   }
 }
 
 /// Facilitates the selection of a quiz layout based on the type of quiz.
-Widget selectLayout(GameController gameController, Quiz quiz) {
+Widget selectLayout(Quiz quiz) {
   if (quiz.type == "multipleChoice") {
       return MultipleChoiceLayout(
-        gameController,
         quiz: quiz,
       );
     // } else if (quiz.type == "theory") {
@@ -61,10 +61,8 @@ Widget selectLayout(GameController gameController, Quiz quiz) {
 
 /// A layout for multiple choice quizzes.
 class MultipleChoiceLayout extends StatefulWidget {
-  final GameController gameController;
   final Quiz quiz;
-  const MultipleChoiceLayout(
-    this.gameController, {
+  const MultipleChoiceLayout({
     required this.quiz,
     super.key
   });
@@ -80,6 +78,7 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
   
   @override
   Widget build(BuildContext context) {
+    final gameController = context.watch<GameController>();
     final questions = List<MultipleChoiceQuestion>.from(widget.quiz.questions);
     final currentQuestion = questions[currentQuestionIndex];
 
@@ -127,17 +126,17 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
                 if (userAnswers.length == questions.length) {
                   widget.quiz.storeUserAnswers(userAnswers);
                   // widget.gameController
-                  final quizFeedback = await widget.gameController.getFeedback(widget.quiz);
+                  final quizFeedback = await gameController.getFeedback(widget.quiz);
                   Navigator.pop(context);
                   showDialog(
                     context: context,
-                    builder: (context) {
-                      return FeedbackDialog(
-                        widget.gameController, 
-                        quiz: widget.quiz, 
+                    builder: (newContext) => ChangeNotifierProvider.value(
+                      value: context.read<GameController>(),
+                      child: FeedbackDialog(
+                        quiz: widget.quiz,
                         quizFeedback: quizFeedback
-                      );
-                    }
+                      )
+                    )
                   ); 
                 } else {
                   setState(() {

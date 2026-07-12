@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
@@ -9,12 +10,10 @@ import 'package:territory_game/view/widgets/custom_elements.dart';
 
 /// A dialog box showing the quiz feedback and scores provided by the chatbot model.
 class FeedbackDialog extends StatelessWidget {
-  final GameController gameController;
   final Quiz quiz;
   final QuizFeedback quizFeedback;
 
-  const FeedbackDialog(
-    this.gameController, {
+  const FeedbackDialog({
     required this.quiz,
     required this.quizFeedback,  
     super.key
@@ -22,6 +21,8 @@ class FeedbackDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final gameController = context.watch<GameController>();
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0)
@@ -57,15 +58,19 @@ class FeedbackDialog extends StatelessWidget {
               ),
             ),
             onPressed: () {
+              // Clear the current user's answers from the quiz
+              quiz.userAnswers.clear();
+              // Save the questions to a global question history
               gameController.saveToQuestionHistory(quiz.questions);
+              // Load a new Property object with the ownerId, quiz data and score
               final newProperty = Property(
                 ownerId: gameController.player.id, 
-                subTopic: quiz.subTopic, 
-                questions: quiz.questions, 
+                quiz: quiz, 
                 health: quizFeedback.totalScore, 
               );
-              gameController.player.propertyToPlace = newProperty;
-              print(gameController.player.propertyToPlace);
+              // Add that property to the current player' propertyToPlace attribute;
+              gameController.setPropertyToPlace(newProperty);
+              // Return to the GameScreen
               Navigator.pop(context);
             }
           ),
@@ -77,8 +82,7 @@ class FeedbackDialog extends StatelessWidget {
 
 Widget selectLayout(GameController gameController, Quiz quiz, QuizFeedback quizFeedback) {
   if (quiz.type == "multipleChoice") {
-    return MultipleChoiceFeedbackLayout(
-      gameController, 
+    return MultipleChoiceFeedbackLayout( 
       quiz: quiz,
       quizFeedback: quizFeedback
     );
@@ -88,12 +92,10 @@ Widget selectLayout(GameController gameController, Quiz quiz, QuizFeedback quizF
 }
 
 class MultipleChoiceFeedbackLayout extends StatelessWidget {
-  final GameController gameController;
   final Quiz quiz;
   final QuizFeedback quizFeedback;
 
-  const MultipleChoiceFeedbackLayout(
-    this.gameController, {
+  const MultipleChoiceFeedbackLayout({
     required this.quiz,
     required this.quizFeedback,
     super.key

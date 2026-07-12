@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
@@ -61,7 +62,10 @@ class _NewGameDialogState extends State<NewGameDialog> {
       // Push to the main game screen.
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder:(context) => GameScreen(gameController),
+          builder:(context) => ChangeNotifierProvider(
+            create: (context) => gameController,
+            child: const GameScreen()
+          )
         )
       );
     }

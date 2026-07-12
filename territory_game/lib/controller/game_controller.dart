@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/property.dart';
@@ -11,14 +12,14 @@ import 'package:territory_game/services/chatbot_services/chatbot_api_service.dar
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
 
 /// A controller class that manages interactions between the major classes of the game.
-class GameController {
+class GameController extends ChangeNotifier {
   final Player player;
   final ChatbotApiProvider chatbotProvider;
   final Board board;
   final Subject subject;
   final Topic topic;
   
-  const GameController({
+  GameController({
     required this.player,
     required this.chatbotProvider,
     required this.board, 
@@ -29,10 +30,29 @@ class GameController {
   String get topicName => topic.name;
   List<String> get subTopics => topic.subTopics;
   ChatbotApiService get chatbot => chatbotProvider.chatbot;
+  List<List<dynamic>> get boardState => board.state;
+
+  void setPropertyToPlace(Property property) {
+    player.propertyToPlace = property;
+    notifyListeners();
+  }
+
+  void removePropertyToPlace() {
+    player.propertyToPlace = null;
+  }
+
+  void addToPlayerProperties(Property property) {
+    player.properties.add(property);
+  }
 
   /// Places a property at the coordinate indicated by the x and y parameters.
   void placeProperty(Property property, {required int x, required int y}) {
-    board.board[x][y] = property;
+    boardState[x][y] = property;
+    property.x = x;
+    property.y = y;
+    removePropertyToPlace();
+    addToPlayerProperties(property);
+    notifyListeners();
   }
 
   /// Facilitates an attack from one selected property to a target one.

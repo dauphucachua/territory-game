@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
@@ -9,9 +10,7 @@ import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.d
 /// 
 /// Quiz settings include subtopic, question type, number of questions (unimplemented), difficulty (unimplemented).
 class AddPropertyDialog extends StatefulWidget {
-  final GameController gameController;
-
-  const AddPropertyDialog(this.gameController, {super.key});
+  const AddPropertyDialog({super.key});
 
   @override
   State<AddPropertyDialog> createState() => _AddPropertyDialogState();
@@ -30,11 +29,12 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
 
     List<SelectionCardData> cardData = (titles.map((title) => SelectionCardData(title: title))).toList();
     return cardData;
-
   }
   
   @override
   Widget build(BuildContext context) {
+    final gameController = context.watch<GameController>();
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0)
@@ -62,7 +62,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             SubtitleText(text: "Select a sub-topic"),
             // Sub-topic selection ListView
             ScrollableHorizontalListView(
-              cardData: getCardDataList(widget.gameController.subTopics),
+              cardData: getCardDataList(gameController.subTopics),
               onTapCallback: (String subTopic) => setState(() {selectedSubtopic = subTopic;}),
             ),
             SizedBox(height: 10.0),
@@ -74,7 +74,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             ),
             // Question type choice ListView
             ScrollableHorizontalListView(
-              cardData: getCardDataList(widget.gameController.subject.questionTypes as List<String>), 
+              cardData: getCardDataList(gameController.subject.questionTypes as List<String>), 
               onTapCallback: (String questionType) => setState(() {selectedQuestionType = questionType;})
             ),
             Spacer(),
@@ -100,7 +100,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                   onPressed: () async { // Still to refactor
                     // Close dialog
                     if (selectedSubtopic.isNotEmpty && selectedQuestionType.isNotEmpty) {
-                      Quiz newQuiz = await widget.gameController.getQuiz(
+                      Quiz newQuiz = await gameController.getQuiz(
                         selectedSubtopic,
                         selectedQuestionType,
                         5 // Temporarily hardcoded while buttons not implemented
@@ -109,12 +109,12 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                         Navigator.pop(context);
                         showDialog(
                           context: context,
-                          builder: (context) {
-                            return QuizDialog(
-                              widget.gameController,
-                              quiz: newQuiz
-                            );
-                          },
+                          builder: (newContext) => ChangeNotifierProvider.value(
+                            value: context.read<GameController>(),
+                            child: QuizDialog(
+                              quiz: newQuiz,
+                            )
+                          )
                         );
                       }
                     } else {
