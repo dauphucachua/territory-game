@@ -27,7 +27,6 @@ class _BoardWidgetState extends State<BoardWidget> {
   @override
   Widget build(BuildContext context) {
     
-
     return Consumer<GameController>(
       builder: (context, gameController, child) => GridView.builder(
         shrinkWrap: true,
@@ -37,15 +36,21 @@ class _BoardWidgetState extends State<BoardWidget> {
         ),
         itemCount: 100,
         itemBuilder: (BuildContext context, int index) {
-          int row = index ~/ rows;
-          int col = index % cols;
-          Color squareColor = getSquareColor(row, col);
-          Square squareData = Square(x: row, y: col);
+          final row = index ~/ rows;
+          final col = index % cols;
+          final areaSpecificData = getAreaSpecificData(row, col);
+          Square squareData = Square(
+            x: row, 
+            y: col,
+            area: areaSpecificData["area"],
+            points: areaSpecificData["points"]
+          );
           Property? squareProperty = gameController.boardState[row][col];
+          // 
 
           return SquareWidget(
             square: squareData,
-            color: squareColor,
+            color: areaSpecificData["color"],
             property: squareProperty != null 
             ? PropertyWidget(
                 color: Colors.black,
@@ -61,15 +66,25 @@ class _BoardWidgetState extends State<BoardWidget> {
   /// Returns the correct square color based on the coordinate of the square.
   /// 
   /// This delineates the four play areas of the board.
-  Color getSquareColor(int row, int col) {
+  Map<String, dynamic> getAreaSpecificData (int row, int col) {
+    Map<String, dynamic> data = {};
     if (row >= 4 && row <= 5 && col >= 4 && col <= 5) {
-      return const Color.fromARGB(255, 165, 55, 51);
+      data["area"] = "The Pit";
+      data["color"] = AppColors.pitRed;
+      data["points"] = 10;
     } else if (row >= 3 && row <= 6 && col >= 3 && col <= 6) {
-      return const Color.fromARGB(255, 118, 50, 135);
+      data["area"] = "The Battleground";
+      data["color"] = AppColors.battlegroundPurple;
+      data["points"] = 5;
     } else if (row >= 2 && row <= 7 && col >= 2 && col <= 7) {
-      return const Color.fromARGB(255, 87, 138, 50);
+      data["area"] = "The Arena";
+      data["color"] = AppColors.arenaGreen;
+      data["points"] = 2;
     } else {
-      return const Color.fromARGB(255, 78, 101, 123);
+      data["area"] = "The Dojo";
+      data["color"] = AppColors.dojoGrey;
+      data["points"] = 1;
     }
+    return data;
   }
 }
