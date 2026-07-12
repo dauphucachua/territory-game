@@ -10,20 +10,21 @@ import 'package:territory_game/model/topic.dart';
  /// Probably needs an id attribute.
 class Property {
   String ownerId;
-  String subTopic;
-  List<Question> questions;
+  Quiz quiz;
   int health;
   int? x;
   int? y;
   
   Property({
     required this.ownerId,
-    required this.subTopic,
-    required this.questions,
+    required this.quiz,
     required this.health,
     this.x,
     this.y
   });
+
+  int get questionCount => quiz.questions.length;
+  String get quizType => quiz.type;
 
   /// Returns a string for showing the property on the game board via its checkBoardState() method.
   /// 
@@ -69,4 +70,6 @@ class Property {
     health -= amount;
     print("$ownerId's property took $amount damage. $health health remaining");
   }
+
+
 }
