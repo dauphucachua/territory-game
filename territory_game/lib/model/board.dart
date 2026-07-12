@@ -5,7 +5,7 @@ class Board {
   final int rows;
   final int cols;
   /// Generates a 2d list for managing the current state of the board.
-  late final List<List<dynamic>> board = List<List>.generate(
+  late final List<List<dynamic>> state = List<List>.generate(
     rows, (x) => List<dynamic>.generate(
       cols, (y) => null
     ), 
@@ -19,8 +19,8 @@ class Board {
 
   /// Prints a representation of the board state.
   void checkBoardState() {
-    for (int i = 0; i < board.length; i++) {
-      print("$i: ${board[i].join(" ")}");
+    for (int i = 0; i < state.length; i++) {
+      print("$i: ${state[i].join(" ")}");
     }
   }
 }
