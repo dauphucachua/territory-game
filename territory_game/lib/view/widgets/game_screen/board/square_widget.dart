@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/property.dart';
+import 'package:territory_game/model/square.dart';
+import 'package:territory_game/view/widgets/game_screen/board/property_widget.dart';
 
 /// This widget embodies a square of the game board.
-/// 
-/// Unimplemented: it will contain a Property? field for displaying a property within the square.
 class SquareWidget extends StatefulWidget {
+  final Square square;
   final Color color;
-  const SquareWidget({required this.color, super.key});
+  PropertyWidget? property;
+  
+  SquareWidget({
+    required this.square,
+    required this.color, 
+    this.property, 
+    super.key
+  });
 
   @override
   State<SquareWidget> createState() => _SquareWidgetState();
@@ -19,14 +30,25 @@ class _SquareWidgetState extends State<SquareWidget> {
         // Clicking on square behaviour here
         // May need to be a callback function
       },
-      child: Container(
-        decoration: BoxDecoration(
-          border: BoxBorder.all(width: 2),
-          color: widget.color,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(3.0),
-        )
+      child: DragTarget<Property>(
+        onAcceptWithDetails: (details) {
+          context.read<GameController>().placeProperty(
+            details.data, 
+            x: widget.square.x, 
+            y: widget.square.y);
+        },
+        builder: (context, property, rejected) {
+          return Container(
+            decoration: BoxDecoration(
+              border: BoxBorder.all(width: 2),
+              color: widget.color,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: widget.property
+            )
+          );
+        }
       )
     );
   }
