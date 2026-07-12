@@ -44,7 +44,7 @@ class _SquareWidgetState extends State<SquareWidget> {
               color: widget.color,
             ),
             child: Padding(
-              padding: const EdgeInsets.all(3.0),
+              padding: const EdgeInsets.all(20.0),
               child: widget.property
             )
           );
