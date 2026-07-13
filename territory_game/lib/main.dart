@@ -26,7 +26,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return ChangeNotifierProvider(
       create: (context) => firebaseAuth,
       child: MaterialApp(

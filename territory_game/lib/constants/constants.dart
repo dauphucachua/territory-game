@@ -9,6 +9,8 @@ class AppColors {
   static const battlegroundPurple = Color.fromARGB(255, 118, 50, 135);
   static const arenaGreen = Color.fromARGB(255, 87, 138, 50);
   static const dojoGrey = Color.fromARGB(255, 78, 101, 123);
+  static const propertyBlack = Colors.black;
+  static const propertyWhite = Colors.white;
   
 }
 

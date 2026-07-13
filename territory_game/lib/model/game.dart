@@ -18,7 +18,7 @@ class Game {
     required this.board,
     required this.subject,
     required this.topic
-  })
+  });
 
   
   
