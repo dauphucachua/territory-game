@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
+import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/game_user.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/subject.dart';
@@ -10,15 +11,16 @@ import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
+import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 import 'package:territory_game/view/screens/game_screen.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 
 class NewGameDialog extends StatefulWidget {
-  final GameUser currentUser;
+  final FirebaseAuthService firebaseAuth;
   final List<Subject> subjectOptions = subjectList;
 
   NewGameDialog({
-    required this.currentUser,
+    required this.firebaseAuth,
     super.key
   });
 
@@ -29,18 +31,35 @@ class NewGameDialog extends StatefulWidget {
 class _NewGameDialogState extends State<NewGameDialog> {
   Subject? selectedSubject;
   Topic? selectedTopic;
-
+  Color? selectedColor;
+  DateTime? selectedEndTime;
+  
   /// Starts a new game once all necessary selections have been made by the user.
   void startGame() {
-    if (selectedSubject != null && selectedTopic != null) {
-      // Convert GameUser into a Player object
-      final player = Player.newPlayerFromUser(widget.currentUser);
+    if (
+      selectedSubject != null 
+      && selectedTopic != null
+      && selectedColor != null
+      && selectedEndTime != null
+    ) {
+      // Convert GameUser into a Player object.
+      final player = Player.newPlayerFromUser(widget.firebaseAuth.activeUser!);
 
-      // Initialize Board object
+      // Initialize Board object.
       final board = Board(
         rows: AppDimensions.boardRows,
         cols: AppDimensions.boardCols
-      );      
+      );
+
+      // Initialize Game object.
+      final game = Game(
+        board: board,
+        players: [player],
+        subject: selectedSubject!,
+        topic: selectedTopic!, 
+        startTime: DateTime.now(), 
+        endTime: selectedEndTime!
+      );
 
       // Initialize ChatbotApi services.
       final chatbotProvider = ChatbotApiProvider();
@@ -52,11 +71,9 @@ class _NewGameDialogState extends State<NewGameDialog> {
 
       // Initialize GameController with objects passed in.
       final gameController = GameController(
-        player: player,
+        firebaseAuth: widget.firebaseAuth,
         chatbotProvider: chatbotProvider,
-        board: board, 
-        subject: selectedSubject!,
-        topic: selectedTopic!
+        game: game,
       );
 
       // Push to the main game screen.

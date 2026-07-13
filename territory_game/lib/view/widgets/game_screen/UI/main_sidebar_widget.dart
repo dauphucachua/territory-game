@@ -121,8 +121,8 @@ class PropertiesTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Property> playerProperties = context.watch<GameController>().player.properties;
-    final propertyToPlace = context.watch<GameController>().player.propertyToPlace;
+    List<Property> playerProperties = context.watch<GameController>().activePlayer.properties;
+    final propertyToPlace = context.watch<GameController>().activePlayer.propertyToPlace;
 
     return Column(
       children: [

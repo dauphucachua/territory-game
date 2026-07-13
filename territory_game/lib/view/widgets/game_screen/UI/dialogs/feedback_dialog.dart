@@ -64,7 +64,7 @@ class FeedbackDialog extends StatelessWidget {
               gameController.saveToQuestionHistory(quiz.questions);
               // Load a new Property object with the ownerId, quiz data and score
               final newProperty = Property(
-                ownerId: gameController.player.id, 
+                ownerId: gameController.activePlayer.id, 
                 quiz: quiz, 
                 health: quizFeedback.totalScore, 
               );

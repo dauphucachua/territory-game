@@ -47,7 +47,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (context) => NewGameDialog(
-                        currentUser: firebaseAuth.activeUser!,
+                        firebaseAuth: firebaseAuth,
                       ),
                     )
                   ),
