@@ -14,7 +14,7 @@ class MistralApiService implements ChatbotApiService {
 
   // A list of model strings for switching easily. This can be expanded, can also add functionality for dynamically switching
   // based on the need at hand. 
-  final List<String> models = ["mistral-small-latest", "mistral-large-latest"];
+  final List<String> models = ["mistral-small-latest", "mistral-medium-latest", "mistral-large-latest"];
 
   // A Map of schemas for use with various quiz types.
   final Map<String, dynamic> quizSchemas = {
@@ -91,17 +91,24 @@ class MistralApiService implements ChatbotApiService {
 
     final ChatCompletionResponse response = await client.chat.create(
       request: ChatCompletionRequest(
-        model: models[1],
+        model: models[0],
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
           if (questionType == "multipleChoice") 
             ChatMessage.user(config.multipleChoicePrompt(topic, subTopic, questionCount))
         ],
-        responseFormat: quizSchemas[questionType]
+        reasoningEffort: .high,
+        responseFormat: quizSchemas[questionType],
       ),
     );
+    
+    // A series of conversions to access the content.parts and part.text properties, which are only available in inherited
+    // offshoots of the MessageContent and TextContent classes
+    final content = response.choices.first.message!.content! as MessagePartsContent;
+    final part = content.parts[1] as TextContentPart;
+    final responseText = part.text;
 
-    return jsonDecode(response.text!);
+    return jsonDecode(responseText);
   }
 
   /// Sends Mistral a completed quiz via its API and returns feedback as a Map.
@@ -109,16 +116,21 @@ class MistralApiService implements ChatbotApiService {
   Future<Map<String, dynamic>?> getFeedbackJson(Quiz quiz) async {
     final ChatCompletionResponse response = await client.chat.create(
       request: ChatCompletionRequest(
-        model: models[1],
+        model: models[0],
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
           ChatMessage.user(config.feedbackPrompt(quiz))
         ],
-        responseFormat: feedbackSchemas[quiz.type]
+        reasoningEffort: .high,
+        responseFormat: feedbackSchemas[quiz.type],
       )
     );
 
-    return jsonDecode(response.text!);
+    final content = response.choices.first.message!.content! as MessagePartsContent;
+    final part = content.parts[1] as TextContentPart;
+    final responseText = part.text;
+
+    return jsonDecode(responseText);
   }
   
  
