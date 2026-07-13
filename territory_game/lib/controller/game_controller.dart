@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:territory_game/model/board.dart';
+import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/question_models/question.dart';
@@ -10,39 +11,41 @@ import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/model/game_user.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_service.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
+import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 
 /// A controller class that manages interactions between the major classes of the game.
 class GameController extends ChangeNotifier {
-  final Player player;
+  final FirebaseAuthService firebaseAuth;
   final ChatbotApiProvider chatbotProvider;
-  final Board board;
-  final Subject subject;
-  final Topic topic;
+  final Game game;
+  late final Player activePlayer = game.players.where(
+    (player) => player.id == firebaseAuth.activeUser!.id).first;
   
   GameController({
-    required this.player,
+    required this.firebaseAuth,
     required this.chatbotProvider,
-    required this.board, 
-    required this.subject,
-    required this.topic
+    required this.game
   });
 
-  String get topicName => topic.name;
-  List<String> get subTopics => topic.subTopics;
+  Subject get subject => game.subject;
+  Topic get topic => game.topic;
+  String get topicName => game.topic.name;
+  List<String> get subTopics => game.topic.subTopics;
   ChatbotApiService get chatbot => chatbotProvider.chatbot;
-  List<List<dynamic>> get boardState => board.state;
+  Board get board => game.board;
+  List<List<dynamic>> get boardState => game.board.state;
 
   void setPropertyToPlace(Property property) {
-    player.propertyToPlace = property;
+    activePlayer.propertyToPlace = property;
     notifyListeners();
-  }
+  } 
 
   void removePropertyToPlace() {
-    player.propertyToPlace = null;
+    activePlayer.propertyToPlace = null;
   }
 
   void addToPlayerProperties(Property property) {
-    player.properties.add(property);
+    activePlayer.properties.add(property);
   }
 
   /// Places a property at the coordinate indicated by the x and y parameters.
@@ -66,7 +69,7 @@ class GameController extends ChangeNotifier {
 
   /// Gets a Quiz object with the specified parameters from the active chatbot.
   Future<Quiz> getQuiz(String subTopic, String questionType, int questionCount) async {
-    Map<String, dynamic>? quizJson = await chatbot.getQuizJson(topic, subTopic, questionType, questionCount);
+    Map<String, dynamic>? quizJson = await chatbot.getQuizJson(game.topic, subTopic, questionType, questionCount);
     if (quizJson != null) {
       return Quiz.fromJson(quizJson);
     } else {
@@ -81,7 +84,7 @@ class GameController extends ChangeNotifier {
     if (quizFeedbackJson != null) {
       return QuizFeedback.fromJson(quizFeedbackJson);
     } else {
-      throw "Failed to get feedback for chatbot";
+      throw "Failed to get feedback from chatbot";
     }
   }
 
