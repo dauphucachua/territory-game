@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/model/game_user.dart';
+import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 import 'package:territory_game/view/screens/main_menu_screen.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 
@@ -15,50 +17,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  Future<UserCredential> login(String email, String password) async {
-    final credential = await firebaseAuth.signInWithEmailAndPassword(
-      email: email, 
-      password: password
-    );
-    return credential;
-  }
-
-  Future<void> register(BuildContext context, String email, String password) async {
-    try {
-      await firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password
-      );
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Account registered successfully for $email. Login now."),
-            duration: Duration(
-              seconds: 3
-            )
-          )
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            duration: Duration(
-              seconds: 3
-            ),
-          ),
-        );
-      } 
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final firebaseAuth = context.watch<FirebaseAuthService>();
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 22, 41, 58),
       body: Center(
@@ -125,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    onPressed: () async => register(
+                    onPressed: () async => firebaseAuth.register(
                       context, 
                       emailController.text,
                       passwordController.text
@@ -148,16 +114,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     onPressed: () async {
                       try {
-                        final credential = await login(emailController.text, passwordController.text);
-                        GameUser currentUser = GameUser.fromFirebaseCredential(credential);                       
+                        await firebaseAuth.login(emailController.text, passwordController.text);                  
 
                         if (context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) => MainMenuScreen(currentUser: currentUser)
-                            ),
-                          );
+                          if (firebaseAuth.activeUser != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChangeNotifierProvider.value(
+                                  value: context.read<FirebaseAuthService>(),
+                                  child: MainMenuScreen()
+                                )
+                              )
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Login unsuccessful. No active user."),
+                                duration: Duration(
+                                  seconds: 3
+                                ),
+                              ),
+                            );
+                          }
                         }
                       } on FirebaseAuthException catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(

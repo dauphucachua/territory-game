@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/model/game_user.dart';
+import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 import 'package:territory_game/view/widgets/main_menu/dialogs/new_game_dialog.dart';
 
 
 class MainMenuScreen extends StatefulWidget {
-  final GameUser currentUser;
 
   const MainMenuScreen({
-    required this.currentUser,
     super.key
   });
 
@@ -17,8 +17,10 @@ class MainMenuScreen extends StatefulWidget {
 }
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
+  
   @override
   Widget build(BuildContext context) {
+    final FirebaseAuthService firebaseAuth = context.watch<FirebaseAuthService>();
     // New game, opens dialog - choose subject, choose topic, choose duration, start game
     return Scaffold(
       body: Column(
@@ -26,7 +28,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         spacing: 50.0,
         children: [
           Text(
-            "Welcome, ${widget.currentUser.email}",
+            "Welcome, ${firebaseAuth.activeUser!.email}\n${firebaseAuth.activeUser!.id}",
             style: TextStyle(
               color: AppColors.blue,
               fontSize: 25.0,
@@ -45,7 +47,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     onPressed: () => showDialog(
                       context: context,
                       builder: (context) => NewGameDialog(
-                        currentUser: widget.currentUser,
+                        currentUser: firebaseAuth.activeUser!,
                       ),
                     )
                   ),
@@ -55,7 +57,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   ),
                   MainMenuButton(
                     text: "Logout",
-                    onPressed: () {}// Signout - create with firebaseauth class
+                    onPressed: () {
+                      firebaseAuth.logout();
+                      Navigator.pop(context);
+                    }// Signout - create with firebaseauth class
                   )
                 ],
               ),
