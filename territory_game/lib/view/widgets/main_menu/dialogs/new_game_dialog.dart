@@ -34,6 +34,18 @@ class _NewGameDialogState extends State<NewGameDialog> {
   Color? selectedColor;
   DateTime? selectedEndTime;
   
+  final Map<String, Color> propertyColorsMap = {
+    "Black": AppColors.propertyBlack, 
+    "White": AppColors.propertyWhite
+  };
+
+  final Map<String, DateTime> endTimeMap = {
+    "10 seconds": DateTime.now().add(Duration(seconds: 10)),
+    "1 day": DateTime.now().add(Duration(days: 1)),
+    "3 days": DateTime.now().add(Duration(days: 3)),
+    "1 week": DateTime.now().add(Duration(days: 7))
+  };
+  
   /// Starts a new game once all necessary selections have been made by the user.
   void startGame() {
     if (
@@ -127,23 +139,59 @@ class _NewGameDialogState extends State<NewGameDialog> {
                       });
                     },
                   ),
-                  SizedBox(height: 40.0),
+                  SizedBox(height: 32.0),
                   SelectionDropdownRow(
                     instructionText: "Select a topic", 
                     dropdownItems: selectedSubject != null // If a subject has been selected
                     ? List<DropdownMenuEntry>.from(
                       selectedSubject!.topics.map( // Populate the dropdown with subject.topics items
-                        (subject) => DropdownMenuEntry(
-                          value: subject, 
-                          label: subject.name,
+                        (topic) => DropdownMenuEntry(
+                          value: topic, 
+                          label: topic.name,
                         ),
                       ),
                     )
-                    : [], 
+                    : [DropdownMenuEntry(value: null, label: "Select a subject first")], 
                     onItemSelected: (topic) {
                       setState(() {
                         selectedTopic = topic;
                       });
+                    }
+                  ),
+                  SizedBox(height: 32.0),
+                  SelectionDropdownRow(
+                    instructionText: "Select a property color", 
+                    dropdownItems: List<DropdownMenuEntry>.from(
+                      propertyColorsMap.keys.toList().map( 
+                        (colorName) => DropdownMenuEntry(
+                          value: propertyColorsMap[colorName], 
+                          label: colorName,
+                        ),
+                      ),
+                    ),
+                    onItemSelected: (color) {
+                      setState(() {
+                        selectedColor = color;
+                      });
+                      print(selectedColor);
+                    }
+                  ),
+                  SizedBox(height: 32.0),
+                  SelectionDropdownRow(
+                    instructionText: "Select a game duration", 
+                    dropdownItems: List<DropdownMenuEntry>.from(
+                      endTimeMap.keys.toList().map( 
+                        (durationName) => DropdownMenuEntry(
+                          value: endTimeMap[durationName], 
+                          label: durationName,
+                        ),
+                      ),
+                    ),
+                    onItemSelected: (endTime) {
+                      setState(() {
+                        selectedEndTime = endTime;
+                      });
+                      print(endTime);
                     }
                   ),
                   ElevatedButton(
@@ -160,6 +208,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                       ),
                     ), 
                   )
+
                   
                 ],
               ),
