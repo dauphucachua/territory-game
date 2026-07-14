@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
@@ -34,6 +35,8 @@ class _NewGameDialogState extends State<NewGameDialog> {
   Topic? selectedTopic;
   Color? selectedColor;
   DateTime? selectedEndTime;
+
+  final db = FirebaseFirestore.instance;
   
   final Map<String, Color> propertyColorsMap = {
     "Black": AppColors.propertyBlack, 
@@ -46,15 +49,17 @@ class _NewGameDialogState extends State<NewGameDialog> {
     "3 days": Duration(days: 3),
     "1 week": Duration(days: 7)
   };
+
+  bool allOptionsSelected() {
+    return selectedSubject != null 
+      && selectedTopic != null
+      && selectedColor != null
+      && selectedEndTime != null;
+  }
   
   /// Starts a new game once all necessary selections have been made by the user.
   void startGame() {
-    if (
-      selectedSubject != null 
-      && selectedTopic != null
-      && selectedColor != null
-      && selectedEndTime != null
-    ) {
+    if (allOptionsSelected()) {
       // Convert GameUser into a Player object.
       final player = Player.newPlayerFromUser(widget.firebaseAuth.activeUser!);
 
@@ -67,8 +72,13 @@ class _NewGameDialogState extends State<NewGameDialog> {
       // Capture the start time of the game.
       final startTime = DateTime.now();
 
+      // Create a Firestore reference doc with an auto-generated ID for the new game.
+      final newGameRef = db.collection("games").doc();
+      final newGameId = newGameRef.id;
+
       // Initialize Game object.
       final game = Game(
+        id: newGameId,
         board: board,
         players: [player],
         subject: selectedSubject!,
@@ -76,7 +86,19 @@ class _NewGameDialogState extends State<NewGameDialog> {
         startTime: startTime,
         endTime: selectedEndTime!,
       );
+  
+      // Add gameId to the active user's activeGameIds List.
+      widget.firebaseAuth.activeUser!.addGameId(newGameId);
+      
+      // Update activeUser's document with the new game.
+      db.collection("users").doc(
+        widget.firebaseAuth.activeUser!.id).set(
+          widget.firebaseAuth.activeUser!.toJson());
 
+      // Add game object to the games collection on Firestore.
+      db.collection("games").add(game.toJson());
+
+      // Initialize the Timer with the chosen end time of the game.
       final timer = TimerService(
         endTime: game.endTime
       );
@@ -87,7 +109,6 @@ class _NewGameDialogState extends State<NewGameDialog> {
         config: ChatbotConfig());
       chatbotProvider.addChatbot(mistralClient);
 
-
       // Initialize GameController with objects passed in.
       final gameController = GameController(
         firebaseAuth: widget.firebaseAuth,
@@ -96,6 +117,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
         game: game,
       );
 
+      // Begin the game timer.
       gameController.timer.runTimer(() => showDialog(
         context: context,
         builder: (context) => AlertDialog(title: Text("The game is over"))));
@@ -103,10 +125,16 @@ class _NewGameDialogState extends State<NewGameDialog> {
       // Push to the main game screen.
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder:(context) => ChangeNotifierProvider(
+          builder: (context) => ChangeNotifierProvider(
             create: (context) => gameController,
             child: const GameScreen()
-          )
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Make sure all options are selected."),
         )
       );
     }
@@ -195,7 +223,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                       durationMap.keys.toList().map( 
                         (durationName) => DropdownMenuEntry(
                           value: DateTime.now().add(durationMap[durationName]!), 
-                          label: durationName,
+                          label: durationName, 
                         ),
                       ),
                     ),
