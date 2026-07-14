@@ -4,6 +4,7 @@ import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
 
 class Game {
+  final String id;
   final DateTime startTime;
   final DateTime endTime;
   final List<Player> players;
@@ -12,6 +13,7 @@ class Game {
   final Topic topic;
 
   const Game({
+    required this.id,
     required this.startTime,
     required this.endTime,
     required this.players,
@@ -22,6 +24,7 @@ class Game {
 
   factory Game.fromJson(Map<String, dynamic> json) {
     return Game(
+      id: json["id"],
       startTime: DateTime.parse(json["startTime"]),
       endTime: DateTime.parse(json["endTime"]),
       players: List<Player>.from(json["players"].map((player) => player.fromJson())),
@@ -29,12 +32,11 @@ class Game {
       subject: json["subject"].fromJson(),
       topic: json["topic"].fronJson()
     );
-
-    
-    }
+  }
     
   Map<String, dynamic> toJson() {
     return {
+      "id": id,
       "startTime": startTime.toString(),
       "endTime": endTime.toString(),
       "players": players.map((player) => player.toJson()),
@@ -43,7 +45,4 @@ class Game {
       "topic": topic.toJson()
     };
   }
-
-  
-  
 }

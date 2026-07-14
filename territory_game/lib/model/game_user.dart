@@ -5,13 +5,13 @@ import 'package:territory_game/model/game.dart';
 class GameUser {
   final String id;
   final String email;
-  List<Game> activeGames;
+  List<String> activeGameIds;
   
   GameUser({
     required this.id,
     required this.email,
-    List<Game>? activeGames
-  }) : activeGames = activeGames ?? [];
+    List<String>? activeGameIds
+  }) : activeGameIds = activeGameIds ?? [];
 
   factory GameUser.fromFirebaseCredential(UserCredential credential) {
     return GameUser(
@@ -24,7 +24,7 @@ class GameUser {
     return GameUser(
       id: json["id"],
       email: json["email"],
-      activeGames: json["activeGames"]
+      activeGameIds: json["activeGameIds"]
     );
   }
 
@@ -32,11 +32,11 @@ class GameUser {
     return {
       "id": id,
       "email": email,
-      "activeGames": activeGames
+      "activeGameIds": activeGameIds
     };
   }
 
-  void addGame(Game game) {
-    activeGames.add(game);
+  void addGameId(String gameId) {
+    activeGameIds.add(gameId);
   }
 }
