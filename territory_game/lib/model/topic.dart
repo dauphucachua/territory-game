@@ -18,4 +18,12 @@ class Topic {
       subTopics: json["subTopics"]
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "week": week,
+      "subTopics": subTopics
+    };
+  }
 }

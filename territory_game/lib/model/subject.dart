@@ -6,8 +6,8 @@ import 'package:territory_game/model/topic.dart';
 /// different topics and types of questions.
 class Subject {
   final String name;
-  final List topics;
-  final List questionTypes;
+  final List<Topic> topics;
+  final List<String> questionTypes;
 
   Subject({
     required this.name,
@@ -19,9 +19,17 @@ class Subject {
   factory Subject.fromJson(Map<String, dynamic> json) {
     return Subject(
       name: json["name"],
-      topics: (json["topics"].map((topic) => Topic.fromJson(topic))).toList(),
-      questionTypes: json["questionTypes"]
+      topics: List<Topic>.from((json["topics"].map((topic) => Topic.fromJson(topic))).toList()),
+      questionTypes: List<String>.from(json["questionTypes"])
     );  
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "topics": topics.map((topic) => topic.toJson()),
+      "questionTypes": questionTypes
+    };
   }
 }
 
