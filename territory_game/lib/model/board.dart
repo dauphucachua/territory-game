@@ -20,43 +20,55 @@ class Board {
 
   /// Loads a board state from a JSON file.
   factory Board.fromJson(Map<String, dynamic> json) {
+    final rowsList = [];
+    for (int i = 0; i < json["state"].values.length; i++) {
+      var currentRow = json["state"]["row $i"];
+      final currentRowValues = [];
+      for (var value in currentRow) {
+        if (value != null) {
+          currentRowValues.add(Property.fromJson(value));
+        } else {
+          currentRowValues.add(null);
+        }
+      }
+      rowsList.add(currentRowValues);
+      }
+    
     return Board(
       rows: json["rows"],
       cols: json["cols"],
-      state: json["state"].map(
-        (row) => row.map(
-          (square) {
-            if (square.isNotEmpty) {
-              return square.fromJson();
-            } else {
-              return null;
-            }
-          },
-        ),
-      ),
+      state: List<List<dynamic>>.from(rowsList),
     );
   } 
 
   /// Returns the properties of the board as a JSON-friendly map.
   Map<String, dynamic> toJson() {
+    
+    final serializedList = [];
+    for (List row in state) {
+      var serializedRow = [];
+      for (var value in row) {
+        if (value != null) {
+          serializedRow.add(value.toJson());
+        } else {
+          serializedRow.add(null);
+        }
+      }
+      serializedList.add(serializedRow);
+    }
+    
+    final rowsMap = {};
+    for (int i = 0; i < serializedList.length; i++) {
+      rowsMap["row $i"] = serializedList[i];
+    } 
+    
+    print(rowsMap);
     return {
       "rows": rows,
       "cols": cols,
-      "state": state.map(
-        (row) => row.map(
-          (square) {
-            if (square.isNotEmpty) {
-              return square.toJson();
-            } else {
-              return null;
-            }
-          },
-        ),
-      ),
-    };
+      "state": rowsMap
+    }; 
   }
-
-  
 
   /// Prints a representation of the board state.
   void checkBoardState() {
