@@ -21,4 +21,14 @@ class CodingProblem extends Question {
       outputExample: json["outputExample"]
     );  
   }
+
+  /// Returns a JSON-friendly Map version of the question.
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "question": question,
+      "inputExample": inputExample,
+      "outputExample": outputExample
+    };
+  }
 }

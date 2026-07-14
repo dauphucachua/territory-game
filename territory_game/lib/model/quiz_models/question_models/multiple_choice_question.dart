@@ -25,6 +25,15 @@ class MultipleChoiceQuestion extends Question {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "question": question,
+      "correctAnswer": correctAnswer,
+      "distractors": distractors
+    };
+  }
+
   /// Returns the object as a reader-friendly string.
   @override
   String toString() {
