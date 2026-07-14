@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +20,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
 
   @override
   Widget build(BuildContext context) {
@@ -91,11 +91,33 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    onPressed: () async => firebaseAuth.register(
-                      context, 
-                      emailController.text,
-                      passwordController.text
-                    )
+                    onPressed: () async { 
+                      try {
+                        firebaseAuth.register( 
+                          emailController.text,
+                          passwordController.text
+                        );
+
+                         ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Account registed successfully for ${emailController.text}. Login now."),
+                            duration: Duration(
+                              seconds: 3
+                            ),
+                          ),
+                        );
+
+                      } on FirebaseAuthException catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(e.toString()),
+                            duration: Duration(
+                              seconds: 3
+                            ),
+                          ),
+                        );
+                      }
+                    },
                   ),
                   SizedBox(width: 20.0),
                   ElevatedButton(
