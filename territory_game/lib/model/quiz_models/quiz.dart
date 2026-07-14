@@ -1,3 +1,4 @@
+import 'package:territory_game/model/quiz_models/question_models/coding_problem.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/question_models/question.dart';
 
@@ -17,17 +18,39 @@ class Quiz {
   
   /// Loads a Quiz object from a JSON file.
   factory Quiz.fromJson(Map<String, dynamic> json) {
-    if (json["quizType"] == "multipleChoice") {
-      return Quiz(
-        type: json["quizType"],
-        subTopic: json["subTopic"],
-        questions: List<MultipleChoiceQuestion>.from(
-          json["questions"].map((question) => MultipleChoiceQuestion.fromJson(question))
-        )
-      );
-    } else {
-      throw "Quiz type not recognised"; // Other quiz types still unimplemented
-    }
+    // A map to help select the right fromJson() constructor for each type of question.
+    final typeSelector = {
+      "multipleChoice": List<MultipleChoiceQuestion>.from(
+        json["questions"].map((question) => MultipleChoiceQuestion.fromJson(question))
+      ),
+      "codingProblem": List<CodingProblem>.from(
+        json["questions"].map((question) => CodingProblem.fromJson(question))
+      )
+    };
+
+    return Quiz(
+      type: json["quizType"],
+      subTopic: json["subTopic"],
+      questions: typeSelector[json["quizType"]]!
+    );
+  }
+  
+  /// Return a JSON-friendly Map version of a Quiz.
+  Map<String, dynamic> toJson() {
+    return {
+      "quizType": type,
+      "subTopic": subTopic,
+      "questions": questions.map((question) {
+        switch (type) {
+          case "multipleChoice": 
+            question = question as MultipleChoiceQuestion;
+            return question.toJson();
+          case "codingProblem":
+            question = question as CodingProblem;
+            return question.toJson();
+        }
+      })
+    };
   }
 
   /// Returns a Map pairing the question and user answers that should be related to each other.
