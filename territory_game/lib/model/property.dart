@@ -1,9 +1,4 @@
-import 'package:territory_game/model/game_user.dart';
-import 'package:territory_game/model/player.dart';
-import 'package:territory_game/model/quiz_models/question_models/question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
-import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
-import 'package:territory_game/model/topic.dart';
 
  /// A data model for properties, which are territorial game pieces owned by players and placed on the board.
  /// 
@@ -24,7 +19,29 @@ class Property {
   });
 
   int get questionCount => quiz.questions.length;
-  String get quizType => quiz.type;
+  String get quizType => quiz.type; 
+
+  factory Property.fromJson(Map<String, dynamic> json) {
+    return Property(
+      ownerId: json["ownerId"],
+      quiz: json["quiz"].fromJson(),
+      health: json["health"],
+      x: json["x"],
+      y: json["y"],
+    );
+  }
+  
+  
+  /// Returns a map version of the property for saving to JSON.
+  Map<String, dynamic> toJson() {
+    return {
+      "ownerId": ownerId,
+      "quiz": quiz.toJson(),
+      "health": health,
+      "x": x,
+      "y": y
+    };
+  }
 
   /// Returns a string for showing the property on the game board via its checkBoardState() method.
   /// 
@@ -34,15 +51,7 @@ class Property {
     return "PROP";
   }
 
-  /// Returns a map version of the property for saving to JSON.
-  Map<String, dynamic> toMap() {
-    return {
-      "ownerId": ownerId,
-      "health": health,
-      "x": x,
-      "y": y
-    };
-  }
+ 
 
   /// Checks if a target property is an enemy property or not.
   bool isEnemyOf(Property target) {
