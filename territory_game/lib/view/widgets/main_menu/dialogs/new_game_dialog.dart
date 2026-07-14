@@ -12,6 +12,7 @@ import 'package:territory_game/services/chatbot_services/chatbot_api_provider.da
 import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
+import 'package:territory_game/services/timer_service/timer_service.dart';
 import 'package:territory_game/view/screens/game_screen.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 
@@ -39,11 +40,11 @@ class _NewGameDialogState extends State<NewGameDialog> {
     "White": AppColors.propertyWhite
   };
 
-  final Map<String, DateTime> endTimeMap = {
-    "10 seconds": DateTime.now().add(Duration(seconds: 10)),
-    "1 day": DateTime.now().add(Duration(days: 1)),
-    "3 days": DateTime.now().add(Duration(days: 3)),
-    "1 week": DateTime.now().add(Duration(days: 7))
+  final Map<String, Duration> durationMap = {
+    "10 seconds": Duration(seconds: 10),
+    "1 day": Duration(days: 1),
+    "3 days": Duration(days: 3),
+    "1 week": Duration(days: 7)
   };
   
   /// Starts a new game once all necessary selections have been made by the user.
@@ -63,14 +64,21 @@ class _NewGameDialogState extends State<NewGameDialog> {
         cols: AppDimensions.boardCols
       );
 
+      // Capture the start time of the game.
+      final startTime = DateTime.now();
+
       // Initialize Game object.
       final game = Game(
         board: board,
         players: [player],
         subject: selectedSubject!,
         topic: selectedTopic!, 
-        startTime: DateTime.now(), 
-        endTime: selectedEndTime!
+        startTime: startTime,
+        endTime: selectedEndTime!,
+      );
+
+      final timer = TimerService(
+        endTime: game.endTime
       );
 
       // Initialize ChatbotApi services.
@@ -79,14 +87,18 @@ class _NewGameDialogState extends State<NewGameDialog> {
         config: ChatbotConfig());
       chatbotProvider.addChatbot(mistralClient);
 
-      
 
       // Initialize GameController with objects passed in.
       final gameController = GameController(
         firebaseAuth: widget.firebaseAuth,
         chatbotProvider: chatbotProvider,
+        timer: timer,
         game: game,
       );
+
+      gameController.timer.runTimer(() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(title: Text("The game is over"))));
 
       // Push to the main game screen.
       Navigator.of(context).push(
@@ -180,18 +192,18 @@ class _NewGameDialogState extends State<NewGameDialog> {
                   SelectionDropdownRow(
                     instructionText: "Select a game duration", 
                     dropdownItems: List<DropdownMenuEntry>.from(
-                      endTimeMap.keys.toList().map( 
+                      durationMap.keys.toList().map( 
                         (durationName) => DropdownMenuEntry(
-                          value: endTimeMap[durationName], 
+                          value: DateTime.now().add(durationMap[durationName]!), 
                           label: durationName,
                         ),
                       ),
                     ),
-                    onItemSelected: (endTime) {
+                    onItemSelected: (duration) {
                       setState(() {
-                        selectedEndTime = endTime;
+                        selectedEndTime = duration;
                       });
-                      print(endTime);
+                      print(duration);
                     }
                   ),
                   ElevatedButton(
