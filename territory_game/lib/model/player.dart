@@ -25,5 +25,14 @@ class Player {
       propertyToPlace: json["propertyToPlace"]
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "properties": properties.map((property) => property.toJson()),
+      "propertyToPlace": propertyToPlace
+    };
+  }
+
 }
 
