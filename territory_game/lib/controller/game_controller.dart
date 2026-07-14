@@ -12,11 +12,13 @@ import 'package:territory_game/model/game_user.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_service.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
+import 'package:territory_game/services/timer_service/timer_service.dart';
 
 /// A controller class that manages interactions between the major classes of the game.
 class GameController extends ChangeNotifier {
   final FirebaseAuthService firebaseAuth;
   final ChatbotApiProvider chatbotProvider;
+  final TimerService timer;
   final Game game;
   late final Player activePlayer = game.players.where(
     (player) => player.id == firebaseAuth.activeUser!.id).first;
@@ -24,6 +26,7 @@ class GameController extends ChangeNotifier {
   GameController({
     required this.firebaseAuth,
     required this.chatbotProvider,
+    required this.timer,
     required this.game
   });
 
@@ -34,6 +37,9 @@ class GameController extends ChangeNotifier {
   ChatbotApiService get chatbot => chatbotProvider.chatbot;
   Board get board => game.board;
   List<List<dynamic>> get boardState => game.board.state;
+  DateTime get endTime => game.endTime;
+
+  
 
   void setPropertyToPlace(Property property) {
     activePlayer.propertyToPlace = property;

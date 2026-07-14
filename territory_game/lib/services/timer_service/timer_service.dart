@@ -6,8 +6,6 @@ class TimerService {
   Duration? timeLeft;
   Timer? timer;
 
-  
-
   TimerService({
     required this.endTime
   });
@@ -18,7 +16,6 @@ class TimerService {
       if (timeLeft! < const Duration(seconds: 0)) {
         timer!.cancel();
         onTimeout();
-       
       }
     });
   }
