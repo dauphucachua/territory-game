@@ -20,6 +20,30 @@ class Game {
     required this.topic
   });
 
+  factory Game.fromJson(Map<String, dynamic> json) {
+    return Game(
+      startTime: DateTime.parse(json["startTime"]),
+      endTime: DateTime.parse(json["endTime"]),
+      players: List<Player>.from(json["players"].map((player) => player.fromJson())),
+      board: json["board"].fromJson(),
+      subject: json["subject"].fromJson(),
+      topic: json["topic"].fronJson()
+    );
+
+    
+    }
+    
+  Map<String, dynamic> toJson() {
+    return {
+      "startTime": startTime.toString(),
+      "endTime": endTime.toString(),
+      "players": players.map((player) => player.toJson()),
+      "board": board.toJson(),
+      "subject": subject.toJson(),
+      "topic": topic.toJson()
+    };
+  }
+
   
   
 }
