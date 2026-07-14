@@ -21,8 +21,8 @@ class Player {
   factory Player.fromJson(Map<String, dynamic> json) {
     return Player(
       id: json["id"],
-      properties: json["properties"],
-      propertyToPlace: json["propertyToPlace"]
+      properties: json["properties"].map((property) => property.fromJson()),
+      propertyToPlace: json["propertyToPlace"].fromJson()
     );
   }
 
