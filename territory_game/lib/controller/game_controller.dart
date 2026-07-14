@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game.dart';
@@ -19,9 +20,11 @@ class GameController extends ChangeNotifier {
   final FirebaseAuthService firebaseAuth;
   final ChatbotApiProvider chatbotProvider;
   final TimerService timer;
-  final Game game;
+  final Game game;  
+  final db = FirebaseFirestore.instance;
   late final Player activePlayer = game.players.where(
     (player) => player.id == firebaseAuth.activeUser!.id).first;
+
   
   GameController({
     required this.firebaseAuth,
@@ -40,7 +43,6 @@ class GameController extends ChangeNotifier {
   DateTime get endTime => game.endTime;
 
   
-
   void setPropertyToPlace(Property property) {
     activePlayer.propertyToPlace = property;
     notifyListeners();
@@ -55,13 +57,14 @@ class GameController extends ChangeNotifier {
   }
 
   /// Places a property at the coordinate indicated by the x and y parameters.
-  void placeProperty(Property property, {required int x, required int y}) {
+  void placeProperty(Property property, {required int x, required int y}) async {
     boardState[x][y] = property;
     property.x = x;
     property.y = y;
     removePropertyToPlace();
     addToPlayerProperties(property);
     notifyListeners();
+    await db.collection("games").doc(game.id).set(game.toJson());
   }
 
   /// Facilitates an attack from one selected property to a target one.
