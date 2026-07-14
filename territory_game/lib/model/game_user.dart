@@ -20,6 +20,14 @@ class GameUser {
     );
   }
 
+  factory GameUser.fromJson(Map<String, dynamic> json) {
+    return GameUser(
+      id: json["id"],
+      email: json["email"],
+      activeGames: json["activeGames"]
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       "id": id,
