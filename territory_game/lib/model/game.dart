@@ -27,10 +27,14 @@ class Game {
       id: json["id"],
       startTime: DateTime.parse(json["startTime"]),
       endTime: DateTime.parse(json["endTime"]),
-      players: List<Player>.from(json["players"].map((player) => player.fromJson())),
-      board: json["board"].fromJson(),
-      subject: json["subject"].fromJson(),
-      topic: json["topic"].fronJson()
+      players: json["players"] != null 
+        ? List<Player>.from(json["players"].map(
+          (player) => Player.fromJson(player)
+          )) 
+        : [],
+      board: Board.fromJson(json["board"]),
+      subject: Subject.fromJson(json["subject"]),
+      topic: Topic.fromJson(json["topic"])
     );
   }
     
