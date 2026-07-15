@@ -13,7 +13,11 @@ class FirebaseAuthService extends ChangeNotifier {
       email: email, 
       password: password
     );
-    activeUser = GameUser.fromFirebaseCredential(credential);
+    
+    final userDoc = await db.collection("users").doc(credential.user!.uid).get();
+    final userData = userDoc.data() as Map<String, dynamic>;
+
+    activeUser = GameUser.fromJson(userData);
   }
 
   Future<void> register(String email, String password) async {
