@@ -18,20 +18,25 @@ class Quiz {
   
   /// Loads a Quiz object from a JSON file.
   factory Quiz.fromJson(Map<String, dynamic> json) {
-    // A map to help select the right fromJson() constructor for each type of question.
-    final typeSelector = {
-      "multipleChoice": List<MultipleChoiceQuestion>.from(
-        json["questions"].map((question) => MultipleChoiceQuestion.fromJson(question))
-      ),
-      "codingProblem": List<CodingProblem>.from(
-        json["questions"].map((question) => CodingProblem.fromJson(question))
-      )
-    };
+    // A function to help select the right fromJson() constructor for each type of question.
+    List<Question> typeSelector(String type) {
+      if (type == "multipleChoice") {
+        return List<MultipleChoiceQuestion>.from(
+          json["questions"].map((question) => MultipleChoiceQuestion.fromJson(question))
+        );
+      } else if (type == "codingProblem") {
+        return List<CodingProblem>.from(
+          json["questions"].map((question) => CodingProblem.fromJson(question))
+        );
+      } else {
+        throw "Question type not recognized.";
+      }
+    }
 
     return Quiz(
       type: json["quizType"],
       subTopic: json["subTopic"],
-      questions: typeSelector[json["quizType"]]!
+      questions: typeSelector(json["quizType"])
     );
   }
   
