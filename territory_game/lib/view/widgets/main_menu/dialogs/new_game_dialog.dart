@@ -75,6 +75,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
       // Create a Firestore reference doc with an auto-generated ID for the new game.
       final newGameRef = db.collection("games").doc();
       final newGameId = newGameRef.id;
+      print("new game Id from Firestore ref: ${newGameId}");
 
       // Initialize Game object.
       final game = Game(
@@ -86,17 +87,21 @@ class _NewGameDialogState extends State<NewGameDialog> {
         startTime: startTime,
         endTime: selectedEndTime!,
       );
+
+      print("Game object initialized id: ${game.id}");
   
       // Add gameId to the active user's activeGameIds List.
       widget.firebaseAuth.activeUser!.addGameId(newGameId);
-      
+
+      print("FirebaseAuth activeUser game ids: ${widget.firebaseAuth.activeUser!.activeGameIds}");
+
       // Update activeUser's document with the new game.
       db.collection("users").doc(
         widget.firebaseAuth.activeUser!.id).set(
           widget.firebaseAuth.activeUser!.toJson());
-
-      // Add game object to the games collection on Firestore.
-      db.collection("games").add(game.toJson());
+      
+      // Set a document in the Firestore games collection using the Game id.
+      db.collection("games").doc(game.id).set(game.toJson());
 
       // Initialize the Timer with the chosen end time of the game.
       final timer = TimerService(
