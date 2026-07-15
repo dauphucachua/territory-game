@@ -24,7 +24,7 @@ class GameUser {
     return GameUser(
       id: json["id"],
       email: json["email"],
-      activeGameIds: json["activeGameIds"]
+      activeGameIds: List<String>.from(json["activeGameIds"])
     );
   }
 
