@@ -1,8 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
+import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/game_user.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
+import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
+import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
+import 'package:territory_game/services/timer_service/timer_service.dart';
+import 'package:territory_game/view/screens/game_screen.dart';
+import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/main_menu/dialogs/new_game_dialog.dart';
 
 
@@ -20,24 +29,26 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   
   @override
   Widget build(BuildContext context) {
-    final FirebaseAuthService firebaseAuth = context.watch<FirebaseAuthService>();
+    final firebaseAuth = context.watch<FirebaseAuthService>();
+    final db = FirebaseFirestore.instance;
     // New game, opens dialog - choose subject, choose topic, choose duration, start game
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: .center,
-        spacing: 50.0,
+      body: Row(
+        mainAxisAlignment: .spaceEvenly,
         children: [
-          Text(
-            "Welcome, ${firebaseAuth.activeUser!.email}\n${firebaseAuth.activeUser!.id}",
-            style: TextStyle(
-              color: AppColors.blue,
-              fontSize: 25.0,
-              fontWeight: FontWeight.w800,
-            )
-          ),
-          Row(
-            mainAxisAlignment: .spaceEvenly,
+          Column(
+            mainAxisAlignment: .center,
+            crossAxisAlignment: .start,
+            spacing: 50.0,
             children: [
+              Text(
+                "Welcome, ${firebaseAuth.activeUser!.email}\n${firebaseAuth.activeUser!.id}",
+                style: TextStyle(
+                  color: AppColors.blue,
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w800,
+                )
+              ),
               Column(
                 mainAxisAlignment: .center,
                 spacing: 20.0,
@@ -60,19 +71,93 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     onPressed: () {
                       firebaseAuth.logout();
                       Navigator.pop(context);
-                    }// Signout - create with firebaseauth class
+                    }
                   )
                 ],
+              ),
+
+                ]
               ),
               Column(
                 mainAxisAlignment: .center,
                 children: [
-                  Text("Ongoing games: "),
-                  for (int i = 0; i < 5; i++)
-                  Text("Current game ${i + 1}")
-                ]
-              )
-            ]
+                  Text("Continue a game"),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    height: 300,
+                    width: 400,
+                    child: StreamBuilder(
+                      stream: db.collection("games")
+                        .where("id", whereIn: firebaseAuth.activeUser!.activeGameIds)
+                        .snapshots(),    
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Text("Loading active games...");
+                        }
+                        
+                        final data = snapshot.data!.docs.map((doc) => doc.data()).toList();
+ 
+                        return ListView.builder(
+                          itemCount: data.length,
+                          itemBuilder: (context, index) {
+                            final currentGameData = Map<String, dynamic>.from(data[index]);
+                            
+
+                            void onGameChosen() {
+                              print(currentGameData.runtimeType);
+                              
+                              final game = Game.fromJson(currentGameData);
+
+                              final timer = TimerService(
+                                endTime: game.endTime
+                              );
+
+                              final chatbotProvider = ChatbotApiProvider();
+                              final mistralClient = MistralApiService(
+                                config: ChatbotConfig());
+                              chatbotProvider.addChatbot(mistralClient);
+
+                              final gameController = GameController(
+                                chatbotProvider: chatbotProvider,
+                                game: game,
+                                firebaseAuth: firebaseAuth,
+                                timer: timer
+                              );
+
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ChangeNotifierProvider(
+                                    create: (context) => gameController,
+                                    child: const GameScreen()
+                                  ),
+                                ),
+                              );
+                            }
+                             
+                            return ElevatedButton(
+                              onPressed: () => onGameChosen(),
+                              child: Container(
+                                padding: EdgeInsets.all(20),
+                                margin: EdgeInsets.all(5),
+                                width: 150.0,
+                                height: 75.0,
+                                decoration: BoxDecoration(
+                                  color: AppColors.blue,
+                                  borderRadius: AppDimensions.cornerRadius,
+                                ),
+                                child: Row(
+                                  children: [
+                                    ContentText(text: "Ends at: ${currentGameData["endTime"]}")
+                                  ]
+                                )
+                              ),
+                            );
+                          }
+                        );
+                      }
+                    ),
+                  )
+            ],
           ),
         ],
       )
