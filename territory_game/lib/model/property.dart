@@ -31,7 +31,6 @@ class Property {
     );
   }
   
-  
   /// Returns a map version of the property for saving to JSON.
   Map<String, dynamic> toJson() {
     return {

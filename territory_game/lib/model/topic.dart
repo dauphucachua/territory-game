@@ -15,7 +15,7 @@ class Topic {
     return Topic(
       name: json["name"],
       week: json["week"],
-      subTopics: json["subTopics"]
+      subTopics: List<String>.from(json["subTopics"])
     );
   }
 
