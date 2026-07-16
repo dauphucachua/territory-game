@@ -31,36 +31,26 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   Widget build(BuildContext context) {
     final firebaseAuth = context.watch<FirebaseAuthService>();
 
-    void onGameChosen(Map<String, dynamic> gameData) {                 
-      final game = Game.fromJson(gameData);
-
-      if (!game.players.any((player) => player.id == firebaseAuth.activeUser!.id)) {
-        final opponent = game.players[0];
-        final newPlayer = Player(
-          id: firebaseAuth.activeUser!.id,
-          propertyColor: opponent.propertyColor == AppColors.propertyBlack 
-            ? AppColors.propertyWhite 
-            : AppColors.propertyBlack 
-        );
-        game.addPlayer(newPlayer);
-      }
-
+    
+    GameController initializeGameController(Game game) {
       final timer = TimerService(
         endTime: game.endTime
-      );
+        );
 
       final chatbotProvider = ChatbotApiProvider();
       final mistralClient = MistralApiService(
         config: ChatbotConfig());
       chatbotProvider.addChatbot(mistralClient);
 
-      final gameController = GameController(
+      return GameController(
         chatbotProvider: chatbotProvider,
         game: game,
         firebaseAuth: firebaseAuth,
         timer: timer
       );
+    }
 
+    void pushToGameScreen(GameController gameController) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
@@ -69,6 +59,31 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ),
         ),
       );
+    }
+
+    Player createPlayerWithOppositeColor(Game game) {
+      final opponentColor = game.players[0].propertyColor;
+
+      return Player(
+        id: firebaseAuth.activeUser!.id,
+        propertyColor: opponentColor == AppColors.propertyBlack 
+          ? AppColors.propertyWhite 
+          : AppColors.propertyBlack 
+      );
+    }
+
+    void onGameChosen(Map<String, dynamic> gameData) async {                 
+      final game = Game.fromJson(gameData);
+      final gameController = initializeGameController(game);
+
+      if (game.containsPlayerWithId(firebaseAuth.activeUser!.id)) {       
+        pushToGameScreen(gameController);
+      } else {
+        final newPlayer = createPlayerWithOppositeColor(game);
+        print("New player id: ${newPlayer.id}");
+        await gameController.addPlayerToGame(newPlayer);
+        pushToGameScreen(gameController);
+      }
     }
     
     // New game, opens dialog - choose subject, choose topic, choose duration, start game
@@ -204,7 +219,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         }
                           
                         return ElevatedButton(
-                          onPressed: () => onGameChosen(currentGameData),
+                          onPressed: () async => onGameChosen(currentGameData),
                           child: Container(
                             padding: EdgeInsets.all(20),
                             margin: EdgeInsets.all(5),
