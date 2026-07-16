@@ -38,7 +38,7 @@ class MistralApiService implements ChatbotApiService {
               "description": "The chronological number of the question in the set."
               },
             "question": {"type": "string"},
-            "correct_answer": {"type": "string"},
+            "correctAnswer": {"type": "string"},
             "distractors": {
               "type": "array",
               "items": {"type": "string"} 
