@@ -21,7 +21,7 @@ class GameController extends ChangeNotifier {
   final ChatbotApiProvider chatbotProvider;
   final TimerService timer;
   final Game game;  
-  final db = FirebaseFirestore.instance;
+  final FirebaseFirestore db = FirebaseFirestore.instance;
   late final Player activePlayer = game.players.where(
     (player) => player.id == firebaseAuth.activeUser!.id).first;
 
@@ -43,38 +43,39 @@ class GameController extends ChangeNotifier {
   DateTime get endTime => game.endTime;
 
   
-  void setPropertyToPlace(Property property) {
+  Future<void> setPropertyToPlace(Property property) async {
     activePlayer.propertyToPlace = property;
     notifyListeners();
+    await db.collection("games").doc(game.id).set(game.toJson());
   } 
 
-  void removePropertyToPlace() {
+  void _removePropertyToPlace() {
     activePlayer.propertyToPlace = null;
   }
 
-  void addToPlayerProperties(Property property) {
+  void _addToPlayerProperties(Property property) {
     activePlayer.properties.add(property);
   }
 
   /// Places a property at the coordinate indicated by the x and y parameters.
-  void placeProperty(Property property, {required int x, required int y}) async {
-    boardState[x][y] = property;
-    property.x = x;
-    property.y = y;
-    removePropertyToPlace();
-    addToPlayerProperties(property);
+  Future<void> placeProperty(Property property, {required int row, required int col}) async {
+    boardState[row][col] = property;
+    property.row = row;
+    property.col = col;
+    _removePropertyToPlace();
+    _addToPlayerProperties(property);
     notifyListeners();
     await db.collection("games").doc(game.id).set(game.toJson());
   }
 
   /// Facilitates an attack from one selected property to a target one.
-  // void attack(Property attacker, Property target, int damage) {
-  //   if (attacker.canAttack(target)) {
-  //     target.takeDamage(damage);
-  //   } else {
-  //     print("You can't attack this property.");
-  //   }
-  // }
+  void attack(Property attacker, Property target, int damage) {
+    if (attacker.canAttack(target)) {
+      target.takeDamage(damage);
+    } else {
+      print("You can't attack this property.");
+    }
+  }
 
   /// Gets a Quiz object with the specified parameters from the active chatbot.
   Future<Quiz> getQuiz(String subTopic, String questionType, int questionCount) async {
