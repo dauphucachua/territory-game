@@ -18,9 +18,13 @@ class MainSidebarWidget extends StatefulWidget {
 
 class _MainSidebarWidgetState extends State<MainSidebarWidget> {
   TabStatus activeTab = TabStatus.propertiesTab;
+  
 
   @override
   Widget build(BuildContext context) {
+    final gameController = context.watch<GameController>();
+    final activePlayer = gameController.activePlayer;
+
     return Container(
       width: 300,
       padding: EdgeInsets.all(8.0),
@@ -77,13 +81,19 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
               )
             ),
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (newContext) => ChangeNotifierProvider.value(
-                  value: context.read<GameController>(),
-                  child: AddPropertyDialog()
+              activePlayer.mustPlaceProperty 
+                ? ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("You must place your property before adding a new one.")
+                  )
                 )
-              );
+                : showDialog(
+                  context: context,
+                  builder: (newContext) => ChangeNotifierProvider.value(
+                    value: context.read<GameController>(),
+                    child: AddPropertyDialog()
+                  )
+                );
             }
           ),
           SizedBox(height: 10)
@@ -133,12 +143,13 @@ class PropertiesTabContent extends StatelessWidget {
             ContentText(text: "Property to place"),
             propertyToPlace == null
             ? Text(
-              "Click '+ New property' to load a property",
+              "None\nClick '+ New property' to load a property",
               style: TextStyle(
                 color: AppColors.opaqueWhite,
                 fontSize: 12,
                 fontStyle: FontStyle.italic
               ),
+              textAlign: .center,
             )
             : Column(
               children: [
@@ -151,13 +162,15 @@ class PropertiesTabContent extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 8.0),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.blue,
+                Text(
+                  "Click and drag property to place it",
+                  style: TextStyle(
+                    color: AppColors.opaqueWhite,
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic
                   ),
-                  onPressed: () {},
-                  child: ContentText(text: "Place property")
-                )
+                  textAlign: .center,
+                ),
               ],
             ),
             SizedBox(height: 10),

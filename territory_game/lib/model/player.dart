@@ -16,6 +16,10 @@ class Player {
     List<Property>? properties,
     this.propertyToPlace,
   }) : properties = properties ?? [];
+   
+  bool get mustPlaceProperty {
+    return propertyToPlace != null;
+  }
 
   factory Player.fromJson(Map<String, dynamic> json) {
     return Player(
@@ -40,6 +44,8 @@ class Player {
       "propertyToPlace": propertyToPlace?.toJson()
     };
   }
+
+  
 
 }
 
