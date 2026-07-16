@@ -58,4 +58,8 @@ class Game {
       print("Game at max capacity.");
     }
   }
+
+  bool containsPlayerWithId (String userId) {
+      return players.any((player) => player.id == userId);
+  }
 }
