@@ -59,7 +59,7 @@ class FeedbackDialog extends StatelessWidget {
             ),
             onPressed: () async {
               // Clear the current user's answers from the quiz
-              quiz.userAnswers.clear();
+             
               // Save the questions to a global question history
               gameController.saveToQuestionHistory(quiz.questions);
               // Load a new Property object with the ownerId, quiz data and score
@@ -73,6 +73,7 @@ class FeedbackDialog extends StatelessWidget {
               // Return to the GameScreen
               if (context.mounted) {
                 Navigator.pop(context);
+                quiz.userAnswers.clear(); 
               }
             }
           ),
