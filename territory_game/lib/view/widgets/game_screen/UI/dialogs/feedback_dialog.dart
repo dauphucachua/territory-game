@@ -57,7 +57,7 @@ class FeedbackDialog extends StatelessWidget {
               
               ),
             ),
-            onPressed: () {
+            onPressed: () async {
               // Clear the current user's answers from the quiz
               quiz.userAnswers.clear();
               // Save the questions to a global question history
@@ -69,9 +69,11 @@ class FeedbackDialog extends StatelessWidget {
                 health: quizFeedback.totalScore, 
               );
               // Add that property to the current player' propertyToPlace attribute;
-              gameController.setPropertyToPlace(newProperty);
+              await gameController.setPropertyToPlace(newProperty);
               // Return to the GameScreen
-              Navigator.pop(context);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
             }
           ),
         ],
