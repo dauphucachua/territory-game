@@ -13,6 +13,8 @@ class FirebaseAuthService extends ChangeNotifier {
       email: email, 
       password: password
     );
+
+    print("Credential on login: ${credential.user!.uid}");
     
     final userDoc = await db.collection("users").doc(credential.user!.uid).get();
     final userData = userDoc.data() as Map<String, dynamic>;
@@ -25,8 +27,11 @@ class FirebaseAuthService extends ChangeNotifier {
       email: email,
       password: password
     );
+
+   print("Credential on register: ${credential.user!.uid}");
+
     final newUser = GameUser.fromFirebaseCredential(credential);
-    db.collection("users").add(newUser.toJson());
+    db.collection("users").doc(newUser.id).set(newUser.toJson());
   }
 
   Future<void> logout() async {
