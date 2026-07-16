@@ -18,10 +18,10 @@ class MultipleChoiceQuestion extends Question {
   /// Loads a MultipleChoiceQuestion object from a JSON structure.
   factory MultipleChoiceQuestion.fromJson(Map<String, dynamic> json) {
     return MultipleChoiceQuestion(
-      id: json["id"],
-      question: json["question"],
-      correctAnswer: json["correct_answer"],
-      distractors: List<String>.from(json["distractors"])
+      id: json["id"] as int,
+      question: json["question"] as String,
+      correctAnswer: json["correctAnswer"] as String,
+      distractors: List<String>.from(json["distractors"].map((distractor) => distractor as String))
     );
   }
 

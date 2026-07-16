@@ -33,8 +33,10 @@ class Player {
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "properties": properties.map((property) => property.toJson()),
-      "propertyToPlace": propertyToPlace
+      "properties": properties.isNotEmpty 
+        ? properties.map((property) => property.toJson())
+        : [],
+      "propertyToPlace": propertyToPlace?.toJson()
     };
   }
 
