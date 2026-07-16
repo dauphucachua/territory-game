@@ -48,7 +48,7 @@ class GameController extends ChangeNotifier {
     notifyListeners();
     await db.collection("games").doc(game.id).set(game.toJson());
   } 
-
+  
   void _removePropertyToPlace() {
     activePlayer.propertyToPlace = null;
   }
@@ -59,13 +59,17 @@ class GameController extends ChangeNotifier {
 
   /// Places a property at the coordinate indicated by the x and y parameters.
   Future<void> placeProperty(Property property, {required int row, required int col}) async {
-    boardState[row][col] = property;
-    property.row = row;
-    property.col = col;
-    _removePropertyToPlace();
-    _addToPlayerProperties(property);
-    notifyListeners();
-    await db.collection("games").doc(game.id).set(game.toJson());
+    if (boardState[row][col] == null) {
+      boardState[row][col] = property;
+      property.row = row;
+      property.col = col;
+      _removePropertyToPlace();
+      _addToPlayerProperties(property);
+      notifyListeners();
+      await db.collection("games").doc(game.id).set(game.toJson());
+    } else {
+      print("Square is occupied.");
+    }
   }
 
   /// Facilitates an attack from one selected property to a target one.
