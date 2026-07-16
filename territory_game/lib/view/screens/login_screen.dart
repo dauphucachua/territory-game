@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                          ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text("Account registed successfully for ${emailController.text}. Login now."),
+                            content: Text("Account registered successfully for ${emailController.text}. Login now."),
                             duration: Duration(
                               seconds: 3
                             ),
