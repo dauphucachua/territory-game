@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:territory_game/model/board.dart';
@@ -20,12 +22,12 @@ class GameController extends ChangeNotifier {
   final FirebaseAuthService firebaseAuth;
   final ChatbotApiProvider chatbotProvider;
   final TimerService timer;
-  final Game game;  
-  final FirebaseFirestore db = FirebaseFirestore.instance;
+  Game game; 
+  StreamSubscription? gameSubscription; 
+  final FirebaseFirestore db = FirebaseFirestore.instance; 
   late final Player activePlayer = game.players.where(
     (player) => player.id == firebaseAuth.activeUser!.id).first;
 
-  
   GameController({
     required this.firebaseAuth,
     required this.chatbotProvider,
@@ -41,8 +43,31 @@ class GameController extends ChangeNotifier {
   Board get board => game.board;
   List<List<dynamic>> get boardState => game.board.state;
   DateTime get endTime => game.endTime;
+  GameUser get activeUser => firebaseAuth.activeUser!;
 
-  
+  Future<void> listenForStateUpdates() async {
+    final DocumentReference gameRef = db.collection("games").doc(game.id);
+    gameSubscription = gameRef.snapshots().listen((gameState) {
+      final gameData = gameState.data();
+      if (gameData != null) {
+        game = Game.fromJson(gameData as Map<String, dynamic>);
+      }
+      notifyListeners();
+    });
+  }
+
+  Future<void> addPlayerToGame(Player player) async {
+    if (activeUser.id == player.id) {
+      game.addPlayer(player);
+      activeUser.addGameId(game.id);
+      notifyListeners();
+      await db.collection("users").doc(activeUser.id).set(activeUser.toJson());
+      await db.collection("games").doc(game.id).set(game.toJson());
+    } else {
+      throw "Authorized user ID does not match Player object ID.";
+    }
+  }
+
   Future<void> setPropertyToPlace(Property property) async {
     activePlayer.propertyToPlace = property;
     notifyListeners();

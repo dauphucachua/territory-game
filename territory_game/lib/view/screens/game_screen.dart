@@ -1,9 +1,12 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/view/widgets/game_screen/board/board_widget.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/main_sidebar_widget.dart';
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:riverpod_lint/main.dart";
 
 /// This is the main game screen. 
 /// 
@@ -16,6 +19,12 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<GameController>().listenForStateUpdates();
+  }
+
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
