@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
+import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/square.dart';
 import 'package:territory_game/view/widgets/game_screen/board/property_widget.dart';
@@ -26,6 +27,16 @@ class _BoardWidgetState extends State<BoardWidget> {
   /// The build method returns a GridView, where each item of the Grid is a SquareWidget object.
   @override
   Widget build(BuildContext context) {
+    final playerList = context.watch<GameController>().game.players;
+    
+    Color getPropertyColorFromOwner(Property property) {
+      for (Player player in playerList) {
+        if (player.id == property.ownerId) {
+          return player.propertyColor;
+        }
+      }
+      throw "No matching player ID.";
+    }
     
     return Consumer<GameController>(
       builder: (context, gameController, child) => GridView.builder(
@@ -39,29 +50,27 @@ class _BoardWidgetState extends State<BoardWidget> {
           final row = index ~/ rows;
           final col = index % cols;
           final areaSpecificData = getAreaSpecificData(row, col);
-          Square squareData = Square(
+          final squareData = Square(
             row: row, 
             col: col,
             area: areaSpecificData["area"],
             points: areaSpecificData["points"]
           );
-          Property? squareProperty = gameController.boardState[row][col];
-          print(squareProperty);
-          // 
+          final squareProperty = gameController.boardState[row][col];
 
           return SquareWidget(
             square: squareData,
             color: areaSpecificData["color"],
             property: squareProperty != null 
             ? PropertyWidget(
-                color: Colors.black,
+                color: getPropertyColorFromOwner(squareProperty),
                 property: squareProperty,
             )
             : null,
-          ); 
+          );
         }
-      )    
-    );
+      )
+    ); 
   }
   
   /// Returns the correct square color based on the coordinate of the square.
@@ -88,4 +97,6 @@ class _BoardWidgetState extends State<BoardWidget> {
     }
     return data;
   }
+
+  
 }

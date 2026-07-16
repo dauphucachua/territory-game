@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/game.dart';
-import 'package:territory_game/model/game_user.dart';
+import 'package:territory_game/model/player.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
@@ -16,7 +16,6 @@ import 'package:territory_game/view/widgets/main_menu/dialogs/new_game_dialog.da
 
 
 class MainMenuScreen extends StatefulWidget {
-
   const MainMenuScreen({
     super.key
   });
@@ -31,6 +30,46 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   @override
   Widget build(BuildContext context) {
     final firebaseAuth = context.watch<FirebaseAuthService>();
+
+    void onGameChosen(Map<String, dynamic> gameData) {                 
+      final game = Game.fromJson(gameData);
+
+      if (!game.players.any((player) => player.id == firebaseAuth.activeUser!.id)) {
+        final opponent = game.players[0];
+        final newPlayer = Player(
+          id: firebaseAuth.activeUser!.id,
+          propertyColor: opponent.propertyColor == AppColors.propertyBlack 
+            ? AppColors.propertyWhite 
+            : AppColors.propertyBlack 
+        );
+        game.addPlayer(newPlayer);
+      }
+
+      final timer = TimerService(
+        endTime: game.endTime
+      );
+
+      final chatbotProvider = ChatbotApiProvider();
+      final mistralClient = MistralApiService(
+        config: ChatbotConfig());
+      chatbotProvider.addChatbot(mistralClient);
+
+      final gameController = GameController(
+        chatbotProvider: chatbotProvider,
+        game: game,
+        firebaseAuth: firebaseAuth,
+        timer: timer
+      );
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider(
+            create: (context) => gameController,
+            child: const GameScreen()
+          ),
+        ),
+      );
+    }
     
     // New game, opens dialog - choose subject, choose topic, choose duration, start game
     return Scaffold(
@@ -43,7 +82,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             spacing: 50.0,
             children: [
               Text(
-                "Welcome, ${firebaseAuth.activeUser!.email}\n${firebaseAuth.activeUser!.id}",
+                "Welcome, ${firebaseAuth.activeUser!.email}",
                 style: TextStyle(
                   color: AppColors.blue,
                   fontSize: 25.0,
@@ -72,101 +111,125 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     onPressed: () {
                       firebaseAuth.logout();
                       Navigator.pop(context);
-                    }
-                  )
+                    },
+                  ),
                 ],
               ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: .center,
+            crossAxisAlignment: .center,
+            children: [
+              Text("Continue a game"),
+              SizedBox(height: 10),
+              SizedBox(
+                height: 300,
+                width: 300,
+                child: firebaseAuth.activeUser!.activeGameIds.isNotEmpty 
+                ? StreamBuilder(
+                  stream: db.collection("games")
+                    .where("id", whereIn: firebaseAuth.activeUser!.activeGameIds)
+                    .snapshots(),    
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text("Loading active games...");
+                    }
+                    
+                    final data = snapshot.data!.docs.map((doc) => doc.data()).toList();
 
-                ]
-              ),
-              Column(
-                mainAxisAlignment: .center,
-                children: [
-                  Text("Continue a game"),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    height: 300,
-                    width: 400,
-                    child: firebaseAuth.activeUser!.activeGameIds.isNotEmpty 
-                    ? StreamBuilder(
-                      stream: db.collection("games")
-                        .where("id", whereIn: firebaseAuth.activeUser!.activeGameIds)
-                        .snapshots(),    
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Text("Loading active games...");
-                        }
-                        
-                        final data = snapshot.data!.docs.map((doc) => doc.data()).toList();
- 
-                        return ListView.builder(
-                          itemCount: data.length,
-                          itemBuilder: (context, index) {
-                            final currentGameData = Map<String, dynamic>.from(data[index]);
-                            
-                            void onGameChosen() {
-                              print(currentGameData.runtimeType);
-                              
-                              final game = Game.fromJson(currentGameData);
-
-                              final timer = TimerService(
-                                endTime: game.endTime
-                              );
-
-                              final chatbotProvider = ChatbotApiProvider();
-                              final mistralClient = MistralApiService(
-                                config: ChatbotConfig());
-                              chatbotProvider.addChatbot(mistralClient);
-
-                              final gameController = GameController(
-                                chatbotProvider: chatbotProvider,
-                                game: game,
-                                firebaseAuth: firebaseAuth,
-                                timer: timer
-                              );
-
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ChangeNotifierProvider(
-                                    create: (context) => gameController,
-                                    child: const GameScreen()
-                                  ),
-                                ),
-                              );
-                            }
-                             
-                            return ElevatedButton(
-                              onPressed: () => onGameChosen(),
-                              child: Container(
-                                padding: EdgeInsets.all(20),
-                                margin: EdgeInsets.all(5),
-                                width: 150.0,
-                                height: 75.0,
-                                decoration: BoxDecoration(
-                                  color: AppColors.blue,
-                                  borderRadius: AppDimensions.cornerRadius,
-                                ),
-                                child: Row(
-                                  children: [
-                                    ContentText(text: "Ends at: ${currentGameData["endTime"]}")
-                                  ]
-                                )
-                              ),
-                            );
-                          }
+                    return ListView.builder(
+                      itemCount: data.length,
+                      itemBuilder: (context, index) {
+                        final currentGameData = Map<String, dynamic>.from(data[index]);
+                          
+                        return GestureDetector(
+                          onTap: () => onGameChosen(currentGameData),
+                          child: Container(
+                            padding: EdgeInsets.all(20),
+                            margin: EdgeInsets.all(5),
+                            width: 150.0,
+                            height: 75.0,
+                            decoration: BoxDecoration(
+                              color: AppColors.blue,
+                              borderRadius: AppDimensions.cornerRadius,
+                            ),
+                            child: Row(
+                              children: [
+                                ContentText(text: "Ends at: ${currentGameData["endTime"]}")
+                              ]
+                            )
+                          ),
                         );
                       }
-                    )
-                    : Center(
-                      child: Text(
-                        "You currently have no active games. "
-                      )
-                    )
+                    );
+                  }
+                )
+                : Center(
+                  child: Text(
+                    "You currently have no active games. "
                   )
+                )
+              ),
+              SizedBox(height: 10),
+              Text("Join an available game"),
+              SizedBox(
+                height: 300,
+                width: 300,
+                child: StreamBuilder(
+                  stream: db.collection("games").snapshots(),    
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text("Loading available games...");
+                    }
+                    
+                    final data = snapshot.data!.docs.map((doc) => doc.data()).toList();
+
+                    return ListView.builder(
+                      itemCount: data.length,
+                      itemBuilder: (context, index) {
+                        final currentGameData = Map<String, dynamic>.from(data[index]);
+
+                        if (
+                          currentGameData["players"].isEmpty
+                          || currentGameData["players"].length > 1
+                        ) {
+                          return Container();
+                        }
+                        
+                        for (Map<String, dynamic> player in currentGameData["players"]) {
+                          if (player["id"] == firebaseAuth.activeUser!.id) {
+                            return Container();
+                          }
+                        }
+                          
+                        return ElevatedButton(
+                          onPressed: () => onGameChosen(currentGameData),
+                          child: Container(
+                            padding: EdgeInsets.all(20),
+                            margin: EdgeInsets.all(5),
+                            width: 150.0,
+                            height: 75.0,
+                            decoration: BoxDecoration(
+                              color: AppColors.blue,
+                              borderRadius: AppDimensions.cornerRadius,
+                            ),
+                            child: Row(
+                              children: [
+                                ContentText(text: "Ends at: ${currentGameData["endTime"]}")
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ],
-      )
+      ),
     );
   }
 }

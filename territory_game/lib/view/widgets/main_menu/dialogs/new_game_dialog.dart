@@ -61,7 +61,10 @@ class _NewGameDialogState extends State<NewGameDialog> {
   void startGame() {
     if (allOptionsSelected()) {
       // Convert GameUser into a Player object.
-      final player = Player.newPlayerFromUser(widget.firebaseAuth.activeUser!);
+      final player = Player(
+        id: widget.firebaseAuth.activeUser!.id,
+        propertyColor: selectedColor!
+      );
 
       // Initialize Board object.
       final board = Board(
@@ -218,7 +221,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                       setState(() {
                         selectedColor = color;
                       });
-                      print(selectedColor);
+
                     }
                   ),
                   SizedBox(height: 32.0),

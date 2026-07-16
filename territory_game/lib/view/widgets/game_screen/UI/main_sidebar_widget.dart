@@ -125,8 +125,10 @@ class PropertiesTabContent extends StatelessWidget {
     final propertyToPlace = context.watch<GameController>().activePlayer.propertyToPlace;
 
     return Consumer<GameController>(
-      builder: (context, gameController, child) =>
-        Column(
+      builder: (context, gameController, child) {
+        final playerColor = gameController.activePlayer.propertyColor;
+
+        return Column(
           children: [
             ContentText(text: "Property to place"),
             propertyToPlace == null
@@ -142,9 +144,10 @@ class PropertiesTabContent extends StatelessWidget {
               children: [
                 Draggable(
                   data: propertyToPlace,
-                  feedback: PropertyIcon(color: Colors.black), // Needs to be player.color             
+                  feedback: PropertyIcon(color: playerColor), // Needs to be player.color             
                   child: PropertyListCard(
-                    property: propertyToPlace
+                    property: propertyToPlace,
+                    iconColor: playerColor
                   ),
                 ),
                 SizedBox(height: 8.0),
@@ -157,30 +160,30 @@ class PropertiesTabContent extends StatelessWidget {
                 )
               ],
             ),
-        SizedBox(height: 10),
-        Divider(),
-        SizedBox(
-          height: 400,
-          width: MediaQuery.widthOf(context),
-          child: ListView.builder(
-            scrollDirection: .vertical,
-
-            itemCount: playerProperties.length,
-            itemBuilder: (context, index) {
-              final property = playerProperties[index];
-          
-              return Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: PropertyListCard(
-                  property: property
-                ),
-              );
-            },
-            
-          ),
-        )
-      ]
-      )
+            SizedBox(height: 10),
+            Divider(),
+            SizedBox(
+              height: 400,
+              width: MediaQuery.widthOf(context),
+              child: ListView.builder(
+                scrollDirection: .vertical,
+                itemCount: playerProperties.length,
+                itemBuilder: (context, index) {
+                  final property = playerProperties[index];
+              
+                  return Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: PropertyListCard(
+                      property: property,
+                      iconColor: playerColor
+                    ),
+                  );
+                },       
+              ),
+            ),
+          ],
+        );
+      }
     );
   }
 }
@@ -189,9 +192,11 @@ class PropertyListCard extends StatelessWidget {
   const PropertyListCard({
     super.key,
     required this.property,
+    required this.iconColor
   });
 
   final Property property;
+  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -206,14 +211,16 @@ class PropertyListCard extends StatelessWidget {
         mainAxisAlignment: .spaceBetween,
         children: [
           PropertyIcon(
-            color: Colors.black, 
+            color: iconColor, 
             width: 40, 
             height: 40,
             child: (property.row != null && property.col != null) 
               ? Text(
                 "${property.humanCoord}",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: iconColor == AppColors.propertyBlack 
+                  ? AppColors.propertyWhite
+                  : AppColors.propertyBlack,
                   fontSize: 10
                 )
               )

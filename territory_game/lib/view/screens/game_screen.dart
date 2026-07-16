@@ -21,10 +21,15 @@ class _GameScreenState extends State<GameScreen> {
     final gameController = context.watch<GameController>();
 
     return Scaffold(
+      backgroundColor: AppColors.backgroundCream,
       // AppBar with menu button - this should probably be converted into a row for customisability (tabs etc)
       appBar: AppBar(
+        backgroundColor: AppColors.darkBlue,
         leading: IconButton(
-          icon: Icon(Icons.menu),
+          icon: Icon(
+            Icons.menu,
+            color: AppColors.opaqueWhite
+          ),
           onPressed: () {}
           
         ),
@@ -37,7 +42,7 @@ class _GameScreenState extends State<GameScreen> {
             minScale: 0.1,
             maxScale: 4,
             boundaryMargin: EdgeInsets.symmetric(
-              vertical: 2000, 
+              vertical: 10000, 
               horizontal: 10000
             ),
             child: SizedBox(
