@@ -4,11 +4,13 @@ class PropertyIcon extends StatelessWidget {
   final double width;
   final double height;
   final Color color;
+  Widget? child;
 
-  const PropertyIcon({
+  PropertyIcon({
     this.width = 100.0,
     this.height = 100.0,
     required this.color,
+    this.child,
     super.key,
     
   });
@@ -22,6 +24,7 @@ class PropertyIcon extends StatelessWidget {
       ),
       width: width,
       height: height,
+      child: Center(child: child)
       
     );
   }

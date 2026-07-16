@@ -17,7 +17,7 @@ class MainSidebarWidget extends StatefulWidget {
 }
 
 class _MainSidebarWidgetState extends State<MainSidebarWidget> {
-  TabStatus activeTab = TabStatus.activityTab;
+  TabStatus activeTab = TabStatus.propertiesTab;
 
   @override
   Widget build(BuildContext context) {
@@ -124,13 +124,11 @@ class PropertiesTabContent extends StatelessWidget {
     List<Property> playerProperties = context.watch<GameController>().activePlayer.properties;
     final propertyToPlace = context.watch<GameController>().activePlayer.propertyToPlace;
 
-    return Column(
-      children: [
-        ContentText(text: "Property to place"),
-        SizedBox(height: 10),
-
-        Consumer<GameController>(
-          builder: (context, gameController, child) =>
+    return Consumer<GameController>(
+      builder: (context, gameController, child) =>
+        Column(
+          children: [
+            ContentText(text: "Property to place"),
             propertyToPlace == null
             ? Text(
               "Click '+ New property' to load a property",
@@ -159,8 +157,7 @@ class PropertiesTabContent extends StatelessWidget {
                 )
               ],
             ),
-        ),
-
+        SizedBox(height: 10),
         Divider(),
         SizedBox(
           height: 400,
@@ -172,14 +169,18 @@ class PropertiesTabContent extends StatelessWidget {
             itemBuilder: (context, index) {
               final property = playerProperties[index];
           
-              return PropertyListCard(
-                property: property
+              return Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: PropertyListCard(
+                  property: property
+                ),
               );
             },
             
           ),
         )
       ]
+      )
     );
   }
 }
@@ -204,7 +205,20 @@ class PropertyListCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: .spaceBetween,
         children: [
-          PropertyIcon(color: Colors.black, width: 40, height: 40),
+          PropertyIcon(
+            color: Colors.black, 
+            width: 40, 
+            height: 40,
+            child: (property.row != null && property.col != null) 
+              ? Text(
+                "${property.humanCoord}",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10
+                )
+              )
+              : null
+          ),
           Column(
             crossAxisAlignment: .start,
             children: [             
