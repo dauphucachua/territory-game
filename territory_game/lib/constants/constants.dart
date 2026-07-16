@@ -11,6 +11,7 @@ class AppColors {
   static const dojoGrey = Color.fromARGB(255, 78, 101, 123);
   static const propertyBlack = Colors.black;
   static const propertyWhite = Colors.white;
+  static const backgroundCream = Color.fromARGB(255, 217, 213, 206);
   
 }
 
