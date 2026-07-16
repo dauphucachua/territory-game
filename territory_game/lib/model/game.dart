@@ -49,4 +49,13 @@ class Game {
       "topic": topic.toJson()
     };
   }
+
+  /// Adds a player to the players list if the game is not at max capacity.
+  void addPlayer(Player player) {
+    if (players.length < 2) {
+      players.add(player);
+    } else {
+      print("Game at max capacity.");
+    }
+  }
 }
