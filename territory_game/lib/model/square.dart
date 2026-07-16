@@ -1,12 +1,12 @@
 class Square {
-  final int x;
-  final int y;
+  final int row;
+  final int col;
   final String area;
   final int points;
 
   const Square({
-    required this.x,
-    required this.y,
+    required this.row,
+    required this.col,
     required this.area,
     required this.points
   });
