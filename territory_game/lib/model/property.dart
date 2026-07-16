@@ -20,7 +20,30 @@ class Property {
   });
 
   int get questionCount => quiz.questions.length;
-  String get quizType => quiz.type; 
+  String get quizType => quiz.type;
+  
+  String get boardArea {
+    if (row != null && col != null) {
+      if (row! >= 4 && row! <= 5 && col! >= 4 && col! <= 5) {
+        return "The Pit";
+      } else if (row! >= 3 && row! <= 6 && col! >= 3 && col! <= 6) {
+        return "The Battleground";
+      } else if (row! >= 2 && row! <= 7 && col! >= 2 && col! <= 7) {
+        return "The Arena";
+      } else {
+        return "The Dojo";
+      }
+    } throw "The property has not been placed.";
+  }
+
+  int get controlPoints {
+    switch (boardArea) {
+      case "The Pit": 10;
+      case "The Battleground": 5;
+      case "The Arena": 2;
+      case "The Dojo": 1;
+    } throw "The property has not been placed.";
+  } 
 
   factory Property.fromJson(Map<String, dynamic> json) {
     return Property(
