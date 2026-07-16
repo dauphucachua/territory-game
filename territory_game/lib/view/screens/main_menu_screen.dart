@@ -26,11 +26,12 @@ class MainMenuScreen extends StatefulWidget {
 }
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
+  final db = FirebaseFirestore.instance;
   
   @override
   Widget build(BuildContext context) {
     final firebaseAuth = context.watch<FirebaseAuthService>();
-    final db = FirebaseFirestore.instance;
+    
     // New game, opens dialog - choose subject, choose topic, choose duration, start game
     return Scaffold(
       body: Row(
@@ -86,7 +87,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   SizedBox(
                     height: 300,
                     width: 400,
-                    child: StreamBuilder(
+                    child: firebaseAuth.activeUser!.activeGameIds.isNotEmpty 
+                    ? StreamBuilder(
                       stream: db.collection("games")
                         .where("id", whereIn: firebaseAuth.activeUser!.activeGameIds)
                         .snapshots(),    
@@ -102,7 +104,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                           itemBuilder: (context, index) {
                             final currentGameData = Map<String, dynamic>.from(data[index]);
                             
-
                             void onGameChosen() {
                               print(currentGameData.runtimeType);
                               
@@ -155,7 +156,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                           }
                         );
                       }
-                    ),
+                    )
+                    : Center(
+                      child: Text(
+                        "You currently have no active games. "
+                      )
+                    )
                   )
             ],
           ),
