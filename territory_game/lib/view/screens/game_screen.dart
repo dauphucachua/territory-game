@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/player.dart';
+import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/board/board_widget.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/main_sidebar_widget.dart';
-
+import 'package:territory_game/view/widgets/game_screen/property_icon.dart';
 
 /// This is the main game screen. 
 /// 
@@ -26,53 +28,178 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
-
+    final activePlayer = gameController.activePlayer;
+    Player? opponent = gameController.opponent;
+    
     return Scaffold(
       backgroundColor: AppColors.backgroundCream,
-      // AppBar with menu button - this should probably be converted into a row for customisability (tabs etc)
-      appBar: AppBar(
-        backgroundColor: AppColors.darkBlue,
-        leading: IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: AppColors.opaqueWhite
-          ),
-          onPressed: () {}
-          
-        ),
-      ),
-      body: Stack(
+      body: Column(
         children: [
-          // The game board and play area - still needs zoom / scrollability  
-          InteractiveViewer(
-            constrained: false,
-            minScale: 0.1,
-            maxScale: 4,
-            boundaryMargin: EdgeInsets.symmetric(
-              vertical: 10000, 
-              horizontal: 10000
-            ),
-            child: SizedBox(
-              width: 2000,
-              height: 2000,
-              child: BoardWidget(
-                board: gameController.board
-              ),
+          Container(
+            height: 50,
+            color: AppColors.darkBlue,
+            child: Row(
+              children: [
+                PopupMenuButton(
+                  icon: Icon(
+                    Icons.menu,
+                    color: AppColors.opaqueWhite,
+                  ),
+                  color: AppColors.darkBlue,
+                  elevation: 4.0,
+                  shadowColor: Colors.black,
+                  offset: Offset(0, 50),
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        child: MainMenuItem(
+                          text: "Home",
+                          onTap: () => Navigator.pop(context),
+                        ),
+                      ),
+                       PopupMenuItem(
+                        child: MainMenuItem(
+                          text: "Logout",
+                          onTap: () {
+                            gameController.firebaseAuth.logout();
+                            Navigator.of(context).popUntil((route) => route.isFirst);
+                          },
+                        ),
+                      ),
+                    ];
+                  },
+                ),
+                SizedBox(width: 32.0),
+                ContentText(text: "activePlayer.displayName vs opponent.displayName"),
+                SizedBox(width: 32.0),
+                PlayerStatContainer(
+                activePlayer: activePlayer, 
+                opponent: opponent
+                ),
+                SizedBox(width: 32.0),
+                opponent != null 
+                  ? PlayerStatContainer(
+                  activePlayer: opponent,
+                  opponent: activePlayer
+                  )
+                  : ContentText(text: "No opponent present"),
+                SizedBox(width: 32.0),
+                ContentText(text: "Game ends: ${gameController.game.endTimeAsString}"),
+              ],
             ),
           ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            top: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              // The main sidebar 
-              child: MainSidebarWidget()
+          Expanded(
+            child: Stack(
+              children: [
+                InteractiveViewer(
+                  constrained: false,
+                  minScale: 0.1,
+                  maxScale: 4,
+                  boundaryMargin: EdgeInsets.symmetric(
+                    vertical: 10000, 
+                    horizontal: 10000
+                  ),
+                  child: SizedBox(
+                    width: 2000,
+                    height: 2000,
+                    child: BoardWidget(
+                      board: gameController.board
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  top: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    // The main sidebar 
+                    child: MainSidebarWidget()
+                  ),
+                ),
+                // The main action sidebar
+              ],
             ),
           ),
-          // The main action sidebar
-          
         ],
+      ),
+    );
+  }
+}
+
+class PlayerStatContainer extends StatelessWidget {
+  const PlayerStatContainer({
+    super.key,
+    required this.opponent,
+    required this.activePlayer,
+  });
+
+  final Player? opponent;
+  final Player activePlayer;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10.0),
+      margin: EdgeInsets.all(6.0),
+      decoration: BoxDecoration(
+        color: opponent == null || activePlayer.totalControlPoints >= opponent!.totalControlPoints
+          ? AppColors.correctBoxGreen
+          : AppColors.wrongBoxRed,
+        borderRadius: AppDimensions.cornerRadius,
+    
+      ),
+      child: Row(
+        children: [
+          PropertyIcon(
+            color: activePlayer.propertyColor,
+            width: 20.0,
+          ),
+          SizedBox(width: 12.0),
+          Text(
+            "${activePlayer.totalControlPoints} control points, ${activePlayer.propertyCount} properties",
+            style: TextStyle(
+              color: AppColors.opaqueWhite,
+            )
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MainMenuItem extends StatelessWidget {
+  final String text;
+  final Function() onTap;
+  const MainMenuItem({
+    required this.text,
+    required this.onTap,
+    super.key
+  });
+
+  final color = AppColors.darkBlue;
+  final hoverColor = AppColors.blue;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        width: 220,
+        child: ListTile(  
+          title: Text(
+            text,
+            style: TextStyle(
+              color: AppColors.opaqueWhite,
+              fontSize: 18.0,
+              fontWeight: .bold
+            ),
+            textAlign: .center
+          ),
+          tileColor: color,
+          hoverColor: hoverColor,
+          onTap: onTap,
+        ),
       ),
     );
   }
