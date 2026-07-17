@@ -21,6 +21,19 @@ class Player {
     return propertyToPlace != null;
   }
 
+  int get propertyCount => properties.length;
+
+  int get totalControlPoints {
+    int total = 0;
+    if (properties.isNotEmpty) {
+      for (Property property in properties) {
+        total += property.controlPoints;
+      }
+    }
+
+    return total;
+  }
+
   factory Player.fromJson(Map<String, dynamic> json) {
     return Player(
       id: json["id"],
@@ -44,8 +57,5 @@ class Player {
       "propertyToPlace": propertyToPlace?.toJson()
     };
   }
-
-  
-
 }
 
