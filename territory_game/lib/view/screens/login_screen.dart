@@ -52,7 +52,8 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 4.0),
               EntryField(
                 hideText: false,
-                controller: emailController),
+                controller: emailController
+              ),
               SizedBox(height: 40.0),
               Row(
                 mainAxisAlignment: .start,

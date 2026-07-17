@@ -131,8 +131,10 @@ class PropertiesTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Property> playerProperties = context.watch<GameController>().activePlayer.properties;
-    final propertyToPlace = context.watch<GameController>().activePlayer.propertyToPlace;
+    final gameController = context.watch<GameController>();
+    final activePlayer = gameController.activePlayer;
+    final playerProperties = activePlayer.properties;
+    final propertyToPlace = activePlayer.propertyToPlace;
 
     return Consumer<GameController>(
       builder: (context, gameController, child) {
@@ -271,7 +273,6 @@ class HealthStat extends StatelessWidget {
         ContentText(
           text: "$health",  
         ),
-       
       ],
     );
   }

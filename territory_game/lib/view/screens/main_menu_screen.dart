@@ -30,7 +30,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   @override
   Widget build(BuildContext context) {
     final firebaseAuth = context.watch<FirebaseAuthService>();
-
     
     GameController initializeGameController(Game game) {
       final timer = TimerService(
@@ -62,7 +61,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     }
 
     Player createPlayerWithOppositeColor(Game game) {
-      final opponentColor = game.players[0].propertyColor;
+      final opponentColor = game.players.values.first.propertyColor;
 
       return Player(
         id: firebaseAuth.activeUser!.id,
@@ -74,6 +73,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
     void onGameChosen(Map<String, dynamic> gameData) async {                 
       final game = Game.fromJson(gameData);
+      print(game.players.keys.map((playerId) => "${game.players[playerId]!.id}: CP: ${game.players[playerId]!.totalControlPoints}, Properties: ${game.players[playerId]!.properties}"));
       final gameController = initializeGameController(game);
 
       if (game.containsPlayerWithId(firebaseAuth.activeUser!.id)) {       
@@ -82,6 +82,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         final newPlayer = createPlayerWithOppositeColor(game);
         print("New player id: ${newPlayer.id}");
         await gameController.addPlayerToGame(newPlayer);
+        print(game.players.keys.map((playerId) => "${game.players[playerId]!.id}: CP: ${game.players[playerId]!.totalControlPoints}, Properties: ${game.players[playerId]!.properties}"));
         pushToGameScreen(gameController);
       }
     }
@@ -212,8 +213,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                           return Container();
                         }
                         
-                        for (Map<String, dynamic> player in currentGameData["players"]) {
-                          if (player["id"] == firebaseAuth.activeUser!.id) {
+                        for (String playerId in currentGameData["players"].keys) {
+                          if (playerId == firebaseAuth.activeUser!.id) {
                             return Container();
                           }
                         }

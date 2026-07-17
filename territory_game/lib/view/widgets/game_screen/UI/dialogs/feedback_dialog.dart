@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
@@ -58,8 +59,6 @@ class FeedbackDialog extends StatelessWidget {
               ),
             ),
             onPressed: () async {
-              // Clear the current user's answers from the quiz
-             
               // Save the questions to a global question history
               gameController.saveToQuestionHistory(quiz.questions);
               // Load a new Property object with the ownerId, quiz data and score
@@ -68,11 +67,13 @@ class FeedbackDialog extends StatelessWidget {
                 quiz: quiz, 
                 health: quizFeedback.totalScore, 
               );
-              // Add that property to the current player' propertyToPlace attribute;
+              // Add that property to the current player's propertyToPlace attribute;
               await gameController.setPropertyToPlace(newProperty);
               // Return to the GameScreen
               if (context.mounted) {
                 Navigator.pop(context);
+                
+                // Clear the current user's answers from the quiz
                 quiz.userAnswers.clear(); 
               }
             }
@@ -254,8 +255,8 @@ class FeedbackListItem extends StatelessWidget {
           padding: EdgeInsets.all(20.0),
           decoration: BoxDecoration(
             color: userAnswerText == correctAnswerText 
-              ? const Color.fromARGB(177, 74, 113, 57)
-              : const Color.fromARGB(185, 113, 57, 57),
+              ? AppColors.correctBoxGreen
+              : AppColors.wrongBoxRed,
             borderRadius: BorderRadius.circular(15.0),
           ),
           child: Column(

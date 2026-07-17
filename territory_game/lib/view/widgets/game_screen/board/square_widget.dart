@@ -35,7 +35,8 @@ class _SquareWidgetState extends State<SquareWidget> {
           context.read<GameController>().placeProperty(
             details.data, 
             row: widget.square.row, 
-            col: widget.square.col);
+            col: widget.square.col
+          );
         },
         builder: (context, property, rejected) {
           return Container(

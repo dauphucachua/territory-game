@@ -8,6 +8,10 @@ class FirebaseAuthService extends ChangeNotifier {
   final db = FirebaseFirestore.instance;
   GameUser? activeUser;
 
+  FirebaseAuthService({
+    this.activeUser,
+  });
+
   Future<void> login(String email, String password) async {
     final credential = await firebaseAuth.signInWithEmailAndPassword(
       email: email, 
