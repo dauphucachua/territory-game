@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/subject.dart';
@@ -7,7 +8,7 @@ class Game {
   final String id;
   final DateTime startTime;
   final DateTime endTime;
-  final List<Player> players;
+  final Map<String, Player> players;
   final Board board;
   final Subject subject;
   final Topic topic;
@@ -22,16 +23,21 @@ class Game {
     required this.topic
   });
 
+  String get endTimeAsString => DateFormat.yMMMMd().add_jm().format(endTime);
+
   factory Game.fromJson(Map<String, dynamic> json) {
+    Map<String, Player> players = {};
+    if (json["players"] != null) {
+      for (String id in json["players"].keys) {
+      players[id] = Player.fromJson(json["players"][id]);
+      }
+    }
+    
     return Game(
       id: json["id"],
       startTime: DateTime.parse(json["startTime"]),
       endTime: DateTime.parse(json["endTime"]),
-      players: json["players"] != null 
-        ? List<Player>.from(json["players"].map(
-          (player) => Player.fromJson(player)
-          )) 
-        : [],
+      players: json["players"] != null ? players : {},
       board: Board.fromJson(json["board"]),
       subject: Subject.fromJson(json["subject"]),
       topic: Topic.fromJson(json["topic"])
@@ -39,11 +45,16 @@ class Game {
   }
     
   Map<String, dynamic> toJson() {
+    var playersMap = {};
+    for (String id in players.keys) {
+      playersMap[id] = players[id]!.toJson();
+    }
+
     return {
       "id": id,
       "startTime": startTime.toString(),
       "endTime": endTime.toString(),
-      "players": players.map((player) => player.toJson()),
+      "players": playersMap,
       "board": board.toJson(),
       "subject": subject.toJson(),
       "topic": topic.toJson()
@@ -53,13 +64,13 @@ class Game {
   /// Adds a player to the players list if the game is not at max capacity.
   void addPlayer(Player player) {
     if (players.length < 2) {
-      players.add(player);
+      players[player.id] = player;
     } else {
       print("Game at max capacity.");
     }
   }
-
+  
   bool containsPlayerWithId (String userId) {
-      return players.any((player) => player.id == userId);
+      return players.keys.any((playerId) => playerId == userId);
   }
 }

@@ -27,12 +27,12 @@ class _BoardWidgetState extends State<BoardWidget> {
   /// The build method returns a GridView, where each item of the Grid is a SquareWidget object.
   @override
   Widget build(BuildContext context) {
-    final playerList = context.watch<GameController>().game.players;
+    final playerMap = context.watch<GameController>().game.players;
     
     Color getPropertyColorFromOwner(Property property) {
-      for (Player player in playerList) {
-        if (player.id == property.ownerId) {
-          return player.propertyColor;
+      for (String playerId in playerMap.keys) {
+        if (playerId == property.ownerId) {
+          return playerMap[playerId]!.propertyColor;
         }
       }
       throw "No matching player ID.";

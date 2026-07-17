@@ -84,7 +84,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
       final game = Game(
         id: newGameId,
         board: board,
-        players: [player],
+        players: {player.id: player},
         subject: selectedSubject!,
         topic: selectedTopic!, 
         startTime: startTime,
@@ -92,6 +92,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
       );
 
       print("Game object initialized id: ${game.id}");
+      print("Player ID in game: ${game.players[player.id]!.id}");
   
       // Add gameId to the active user's activeGameIds List.
       widget.firebaseAuth.activeUser!.addGameId(newGameId);
