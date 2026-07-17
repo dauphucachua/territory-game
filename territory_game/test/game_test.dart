@@ -21,16 +21,16 @@ void main() {
     startTime: DateTime.now(),
     endTime: DateTime.now().add(Duration(days: 1000)),
     id: "gameid123",
-    players: [
-      Player(
-        id: "playerid123",
+    players: {
+      "id1": Player(
+        id: "id1",
         propertyColor: Colors.black,
       ),
-      Player(
-        id: "playerid456",
+      "id2": Player(
+        id: "id2",
         propertyColor: Colors.white,
       ),
-    ],
+    },
     subject: Subject(
       name: "subject A",
       questionTypes: ["questionType1", "questionType2"],
@@ -42,9 +42,14 @@ void main() {
   );
 
   test("containsPlayerWithId", () {
-    String userId = "playerid123";
+    String userId = "id1";
     expect(testGame.containsPlayerWithId(userId), true);
     String userId2 = "falseid";
     expect(testGame.containsPlayerWithId(userId2), false);
+  });
+
+  test("toJson", () {
+    final gameJson = testGame.toJson();
+    print(gameJson.toString());
   });
 }
