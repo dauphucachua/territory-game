@@ -25,8 +25,7 @@ class GameController extends ChangeNotifier {
   Game game; 
   StreamSubscription? gameSubscription; 
   final FirebaseFirestore db = FirebaseFirestore.instance; 
-  late final Player activePlayer = game.players.where(
-    (player) => player.id == firebaseAuth.activeUser!.id).first;
+  
 
   GameController({
     required this.firebaseAuth,
@@ -34,6 +33,7 @@ class GameController extends ChangeNotifier {
     required this.timer,
     required this.game
   });
+
 
   Subject get subject => game.subject;
   Topic get topic => game.topic;
@@ -44,6 +44,10 @@ class GameController extends ChangeNotifier {
   List<List<dynamic>> get boardState => game.board.state;
   DateTime get endTime => game.endTime;
   GameUser get activeUser => firebaseAuth.activeUser!;
+  Player get activePlayer => game.players[activeUser.id]!;
+  Player? get opponent => game.players.length > 1 ? game.players.values.where(
+    (player) => player.id != activeUser.id).first : null;
+  
 
   Future<void> listenForStateUpdates() async {
     final DocumentReference gameRef = db.collection("games").doc(game.id);
@@ -85,9 +89,9 @@ class GameController extends ChangeNotifier {
   /// Places a property at the coordinate indicated by the x and y parameters.
   Future<void> placeProperty(Property property, {required int row, required int col}) async {
     if (boardState[row][col] == null) {
-      boardState[row][col] = property;
       property.row = row;
       property.col = col;
+      boardState[row][col] = property;
       _removePropertyToPlace();
       _addToPlayerProperties(property);
       notifyListeners();
