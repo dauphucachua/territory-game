@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/player.dart';
+import 'package:territory_game/model/property.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/board/board_widget.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/main_sidebar_widget.dart';
@@ -19,6 +20,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+
   @override
   void initState() {
     super.initState();
@@ -35,11 +37,13 @@ class _GameScreenState extends State<GameScreen> {
       backgroundColor: AppColors.backgroundCream,
       body: Column(
         children: [
+          // This is the top bar, which has a menu and a display of game statistics
           Container(
             height: 50,
             color: AppColors.darkBlue,
             child: Row(
               children: [
+                // Menu button
                 PopupMenuButton(
                   icon: Icon(
                     Icons.menu,
@@ -50,6 +54,7 @@ class _GameScreenState extends State<GameScreen> {
                   shadowColor: Colors.black,
                   offset: Offset(0, 50),
                   itemBuilder: (context) {
+                    // Menu list
                     return [
                       PopupMenuItem(
                         child: MainMenuItem(
@@ -70,27 +75,32 @@ class _GameScreenState extends State<GameScreen> {
                   },
                 ),
                 SizedBox(width: 32.0),
+                // Display names of players in game
                 ContentText(text: "activePlayer.displayName vs opponent.displayName"),
                 SizedBox(width: 32.0),
+                // Player statistic boxes for displaying number of control points per player
                 PlayerStatContainer(
-                activePlayer: activePlayer, 
-                opponent: opponent
+                  activePlayer: activePlayer, 
+                  opponent: opponent
                 ),
                 SizedBox(width: 32.0),
                 opponent != null 
                   ? PlayerStatContainer(
-                  activePlayer: opponent,
-                  opponent: activePlayer
+                    activePlayer: opponent,
+                    opponent: activePlayer
                   )
                   : ContentText(text: "No opponent present"),
                 SizedBox(width: 32.0),
+                // Game end time - countdown can be implemented here optionally
                 ContentText(text: "Game ends: ${gameController.game.endTimeAsString}"),
               ],
             ),
           ),
+          // Main screen area 
           Expanded(
             child: Stack(
               children: [
+                // Interactive viewer covering the board and the play area
                 InteractiveViewer(
                   constrained: false,
                   minScale: 0.1,
