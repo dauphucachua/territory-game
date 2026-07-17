@@ -33,16 +33,16 @@ class Property {
       } else {
         return "The Dojo";
       }
-    } throw "The property has not been placed.";
+    } throw "The property has not been placed (Board Area Failure).";
   }
 
   int get controlPoints {
     switch (boardArea) {
-      case "The Pit": 10;
-      case "The Battleground": 5;
-      case "The Arena": 2;
-      case "The Dojo": 1;
-    } throw "The property has not been placed.";
+      case "The Pit": return 10;
+      case "The Battleground": return 5;
+      case "The Arena": return 2;
+      case "The Dojo": return 1;
+    } throw "The property has not been placed (Control Points Failure).";
   } 
 
   factory Property.fromJson(Map<String, dynamic> json) {
