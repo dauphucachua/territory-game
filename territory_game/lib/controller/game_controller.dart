@@ -60,13 +60,21 @@ class GameController extends ChangeNotifier {
     });
   }
 
+  Future<void> updateFirestoreActiveUserDoc() async {
+    await db.collection("users").doc(activeUser.id).set(activeUser.toJson());
+  }
+
+  Future<void> updateFirestoreGameDoc() async {
+    await db.collection("games").doc(game.id).set(game.toJson());
+  }
+
   Future<void> addPlayerToGame(Player player) async {
     if (activeUser.id == player.id) {
       game.addPlayer(player);
       activeUser.addGameId(game.id);
       notifyListeners();
-      await db.collection("users").doc(activeUser.id).set(activeUser.toJson());
-      await db.collection("games").doc(game.id).set(game.toJson());
+      await updateFirestoreGameDoc();
+      await updateFirestoreActiveUserDoc();
     } else {
       throw "Authorized user ID does not match Player object ID.";
     }
@@ -75,7 +83,7 @@ class GameController extends ChangeNotifier {
   Future<void> setPropertyToPlace(Property property) async {
     activePlayer.propertyToPlace = property;
     notifyListeners();
-    await db.collection("games").doc(game.id).set(game.toJson());
+    await updateFirestoreGameDoc();
   } 
   
   void _removePropertyToPlace() {
@@ -95,7 +103,7 @@ class GameController extends ChangeNotifier {
       _removePropertyToPlace();
       _addToPlayerProperties(property);
       notifyListeners();
-      await db.collection("games").doc(game.id).set(game.toJson());
+      await updateFirestoreGameDoc();
     } else {
       print("Square is occupied.");
     }
@@ -108,6 +116,31 @@ class GameController extends ChangeNotifier {
     } else {
       print("You can't attack this property.");
     }
+  }
+
+  /// 
+  Future<void> battle(int attackerScore) async {
+    final attacker = game.battle.attacker;
+    final defender = game.battle.defender;
+    
+    if (attacker == null || defender == null) {
+      throw "The battling properties are not set.";
+    }
+    
+    final attackingPlayer = game.players[attacker.ownerId];
+    final defendingPlayer = game.players[defender.ownerId];
+
+    if (attackerScore > defender.health) {
+      defender.ownerId = attacker.ownerId;
+      defender.health = attackerScore;
+      attackingPlayer!.addToProperties(defender);
+      defendingPlayer!.removeFromProperties(defender);
+    } else {
+      attacker.health ~/= 2;
+    }
+
+    notifyListeners();
+    await updateFirestoreGameDoc();
   }
 
   /// Gets a Quiz object with the specified parameters from the active chatbot.
