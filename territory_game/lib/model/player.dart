@@ -57,5 +57,13 @@ class Player {
       "propertyToPlace": propertyToPlace?.toJson()
     };
   }
+
+  void addToProperties(Property property) {
+    properties.add(property);
+  }
+
+  void removeFromProperties(Property property) {
+    properties.remove(property);
+  }
 }
 
