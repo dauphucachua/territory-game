@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:territory_game/model/battle.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/subject.dart';
@@ -10,10 +11,11 @@ class Game {
   final DateTime endTime;
   final Map<String, Player> players;
   final Board board;
+  final Battle battle = Battle();
   final Subject subject;
   final Topic topic;
 
-  const Game({
+  Game({
     required this.id,
     required this.startTime,
     required this.endTime,
