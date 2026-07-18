@@ -8,15 +8,18 @@ import 'package:territory_game/model/quiz_models/question_models/multiple_choice
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
+import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.dart';
 
 /// A dialog box showing the quiz feedback and scores provided by the chatbot model.
 class FeedbackDialog extends StatelessWidget {
   final Quiz quiz;
   final QuizFeedback quizFeedback;
+  final QuizMode mode;
 
   const FeedbackDialog({
     required this.quiz,
-    required this.quizFeedback,  
+    required this.quizFeedback,
+    required this.mode,  
     super.key
   });
 
@@ -37,7 +40,7 @@ class FeedbackDialog extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: selectLayout(gameController, quiz, quizFeedback),
+            child: selectLayout(quiz, quizFeedback, mode),
           ),
            SizedBox(
           height: 20.0,
@@ -49,7 +52,7 @@ class FeedbackDialog extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                "Exit and place property",
+                mode == .creation ? "Exit and place property" : "Finish attack",
                 style: TextStyle(
                   color: const Color.fromARGB(141, 255, 255, 255),
                   fontSize: 20.0,
@@ -59,22 +62,28 @@ class FeedbackDialog extends StatelessWidget {
               ),
             ),
             onPressed: () async {
-              // Save the questions to a global question history
-              gameController.saveToQuestionHistory(quiz.questions);
-              // Load a new Property object with the ownerId, quiz data and score
-              final newProperty = Property(
-                ownerId: gameController.activePlayer.id, 
-                quiz: quiz, 
-                health: quizFeedback.totalScore, 
-              );
-              // Add that property to the current player's propertyToPlace attribute;
-              await gameController.setPropertyToPlace(newProperty);
-              // Return to the GameScreen
-              if (context.mounted) {
-                Navigator.pop(context);
-                
-                // Clear the current user's answers from the quiz
-                quiz.userAnswers.clear(); 
+              if (mode == .creation) {
+                // Save the questions to a global question history
+                gameController.saveToQuestionHistory(quiz.questions);
+                // Load a new Property object with the ownerId, quiz data and score
+                final newProperty = Property(
+                  ownerId: gameController.activePlayer.id, 
+                  quiz: quiz, 
+                  health: quizFeedback.totalScore, 
+                );
+                // Add that property to the current player's propertyToPlace attribute;
+                await gameController.setPropertyToPlace(newProperty);
+                // Return to the GameScreen
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  // Clear the current user's answers from the quiz
+                  quiz.userAnswers.clear(); 
+                }
+              } else {
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  gameController.battle(quizFeedback.totalScore);
+                }
               }
             }
           ),
@@ -84,11 +93,12 @@ class FeedbackDialog extends StatelessWidget {
   }
 }
 
-Widget selectLayout(GameController gameController, Quiz quiz, QuizFeedback quizFeedback) {
+Widget selectLayout(Quiz quiz, QuizFeedback quizFeedback, QuizMode mode) {
   if (quiz.type == "multipleChoice") {
     return MultipleChoiceFeedbackLayout( 
       quiz: quiz,
-      quizFeedback: quizFeedback
+      quizFeedback: quizFeedback,
+      mode: mode
     );
   } 
 
@@ -98,20 +108,19 @@ Widget selectLayout(GameController gameController, Quiz quiz, QuizFeedback quizF
 class MultipleChoiceFeedbackLayout extends StatelessWidget {
   final Quiz quiz;
   final QuizFeedback quizFeedback;
+  final QuizMode mode;
 
   const MultipleChoiceFeedbackLayout({
     required this.quiz,
     required this.quizFeedback,
+    required this.mode,
     super.key
   });
 
   // Useful getters
   List<MultipleChoiceQuestion> get questions => List<MultipleChoiceQuestion>.from(quiz.questions);
-  
   int get numQuestions => questions.length;
-  
   List<String> get correctAnswers => List<String>.from(questions.map((question) => question.correctAnswer));
-
   int get numCorrectAnswers {
     int correctCounter = 0;
 
@@ -126,17 +135,12 @@ class MultipleChoiceFeedbackLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Quiz.type will dictate layout again
-    // Column -
-    //    Dynamic title: You got numCorrectAnswers / questions.length correct
-    //    Dynamic subtitle: Score: feedback.score
-    //    Divider()
-    //    Questions and Feedback titles - Row [Text, Text]
-    //    ListView - returns Row[QuestionAnswerItem, FeedbackItem] - vertical scrollable listview
-    //    Exit and place property button - closes dialog, saves quiz questions to config.chatHistory, 
-    //    saves quiz and feedback to user's quiz history
-    //    begins placeProperty process
-    //  
+    final gameController = context.watch<GameController>();
+    int? opponentScore;
+    if (mode == .attack) {
+      opponentScore = gameController.game.battle.defender!.health;
+    }
+
     return Column(
       mainAxisAlignment: .start,
       crossAxisAlignment: .center,
@@ -147,7 +151,13 @@ class MultipleChoiceFeedbackLayout extends StatelessWidget {
           text: "You got $numCorrectAnswers out of $numQuestions correct",
         ),
         SubtitleText(
-          text: "Score: ${quizFeedback.totalScore}"),
+          text: "Your score: ${quizFeedback.totalScore}"
+        ),
+        ? opponentScore != null 
+          ? SubtitleText(
+            text: "Opponent's score: $opponentScore"
+          )
+          : null,
         Divider(),
         Row(
           mainAxisAlignment: .spaceEvenly,

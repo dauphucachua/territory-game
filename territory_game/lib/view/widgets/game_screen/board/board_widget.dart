@@ -56,6 +56,7 @@ class _BoardWidgetState extends State<BoardWidget> {
             area: areaSpecificData["area"],
             points: areaSpecificData["points"]
           );
+          
           final squareProperty = gameController.boardState[row][col];
 
           return SquareWidget(

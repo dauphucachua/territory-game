@@ -7,14 +7,18 @@ import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/feedback_dialog.dart';
 
+enum QuizMode {creation, attack}
+
 /// A dialog box for displaying quizzes.
 /// 
 /// It dynamically selects the correct layout based on the type of quiz that it is passed in its constructor.
 class QuizDialog extends StatelessWidget {
   final Quiz quiz;
+  QuizMode mode;
 
-  const QuizDialog({
+  QuizDialog({
     required this.quiz,
+    this.mode = QuizMode.creation,
     super.key
   });
 
@@ -33,17 +37,18 @@ class QuizDialog extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: selectLayout(quiz)
+        child: selectLayout(quiz, mode)
       ),
     );
   }
 }
 
 /// Facilitates the selection of a quiz layout based on the type of quiz.
-Widget selectLayout(Quiz quiz) {
+Widget selectLayout(Quiz quiz, QuizMode mode) {
   if (quiz.type == "multipleChoice") {
       return MultipleChoiceLayout(
         quiz: quiz,
+        mode: mode
       );
     // } else if (quiz.type == "theory") {
     //   return TheoryLayout(
@@ -62,8 +67,10 @@ Widget selectLayout(Quiz quiz) {
 /// A layout for multiple choice quizzes.
 class MultipleChoiceLayout extends StatefulWidget {
   final Quiz quiz;
+  final QuizMode mode;
   const MultipleChoiceLayout({
     required this.quiz,
+    required this.mode,
     super.key
   });
 
@@ -134,7 +141,8 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
                       value: context.read<GameController>(),
                       child: FeedbackDialog(
                         quiz: widget.quiz,
-                        quizFeedback: quizFeedback
+                        quizFeedback: quizFeedback,
+                        mode: widget.mode
                       )
                     )
                   ); 
@@ -151,34 +159,5 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
     );
   }
 }
-
-// class ChoiceButton extends StatelessWidget {
-//   final String text;
-//   final void Function() onPressed;
-
-//   const ChoiceButton({
-//     required this.text,
-//     required this.onPressed,
-//     super.key
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ElevatedButton(
-//       onPressed: () => onPressed,
-//       style: ElevatedButton.styleFrom(
-//         padding: const EdgeInsets.symmetric(
-//           horizontal: 40.0,
-//           vertical: 10.0
-//         ),
-//         backgroundColor: Colors.blue
-//       ),
-//       child: Text(
-//         text,
-//         textAlign: .center
-//       ),
-//     );
-//   }
-// }
 
 

@@ -53,13 +53,22 @@ class _PropertyWidgetState extends State<PropertyWidget> {
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
+                      gameController.game.battle.setBattlers(
+                        attacker: attacker,
+                        defender: defender
+                      );
                       showDialog(
                         context: context,
-                        builder: (BuildContext context) => QuizDialog(
-                          quiz: defender.quiz,
+                        builder: (BuildContext context) => ChangeNotifierProvider.value(
+                          value: gameController,
+                          child: QuizDialog(
+                            quiz: defender.quiz,
+                            mode: .attack
+                          ),
                         ),
                       ); 
                     },
+                    
                     child: Text("Confirm and begin task", style: TextStyle(color: Colors.blueAccent))
                   ),
                 ],
