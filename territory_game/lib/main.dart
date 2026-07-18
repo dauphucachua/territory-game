@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/firebase_options.dart';
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
-import 'package:territory_game/view/screens/login_screen.dart';import 'package:territory_game/view/screens/main_menu_screen.dart';
+import 'package:territory_game/view/screens/login_screen.dart';
 
 void main() async {
   await Firebase.initializeApp(

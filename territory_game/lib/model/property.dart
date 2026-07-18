@@ -73,7 +73,7 @@ class Property {
 
   /// Returns a string for showing the property on the game board via its checkBoardState() method.
   /// 
-  /// Probably need to create a specialised method for this so a more universal toString() override can be implemented.
+  /// Probably need to create a specialized method for this so a more universal toString() override can be implemented.
   @override
   String toString() {
     return "PROP";
@@ -84,10 +84,10 @@ class Property {
     return ownerId != target.ownerId;
   }
 
-  // Checks if a target property is adjacent to (in the surrounding eight squares) the current property.
+  // Checks if a target property is adjacent to (in the surrounding eight squares of) the current property.
   bool isAdjacentTo(Property target) { 
     Set adjacencyVectors = {
-      (0, 1), (1, 1), (1, 0), (-1, 1), (-1, 0), (-1, -1), (0, -1)
+      (0, 1), (1, 1), (1, 0), (1, -1), (-1, 1), (-1, 0), (-1, -1), (0, -1)
     };
 
     Record vector = (target.row! - row!, target.col! - col!);
