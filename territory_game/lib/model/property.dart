@@ -66,6 +66,11 @@ class Property {
     };
   }
 
+  /// Returns true if property has a position on the board.
+  bool get isPlaced {
+    return row != null && col != null;
+  }
+
   /// Returns a human-readable coordinate from the row and col indices.
   Record get humanCoord {
     return (col! + 1, AppDimensions.boardCols - row!);
