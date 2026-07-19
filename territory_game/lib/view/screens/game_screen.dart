@@ -76,7 +76,11 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 SizedBox(width: 32.0),
                 // Display names of players in game
-                ContentText(text: "activePlayer.displayName vs opponent.displayName"),
+                ContentText(
+                  text: opponent != null 
+                    ? "${activePlayer.displayName} vs ${opponent.displayName}"
+                    : activePlayer.displayName
+                ),
                 SizedBox(width: 32.0),
                 // Player statistic boxes for displaying number of control points per player
                 PlayerStatContainer(

@@ -35,7 +35,9 @@ class _NewGameDialogState extends State<NewGameDialog> {
   Topic? selectedTopic;
   Color? selectedColor;
   DateTime? selectedEndTime;
+  String? selectedDisplayName;
 
+  final nameController = TextEditingController();
   final db = FirebaseFirestore.instance;
   
   final Map<String, Color> propertyColorsMap = {
@@ -54,15 +56,19 @@ class _NewGameDialogState extends State<NewGameDialog> {
     return selectedSubject != null 
       && selectedTopic != null
       && selectedColor != null
-      && selectedEndTime != null;
+      && selectedEndTime != null
+      && selectedDisplayName != null;
+
   }
   
   /// Starts a new game once all necessary selections have been made by the user.
   void startGame() {
     if (allOptionsSelected()) {
+      
       // Convert GameUser into a Player object.
       final player = Player(
         id: widget.firebaseAuth.activeUser!.id,
+        displayName: selectedDisplayName!,
         propertyColor: selectedColor!
       );
 
@@ -243,22 +249,42 @@ class _NewGameDialogState extends State<NewGameDialog> {
                       print(duration);
                     }
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.opaqueWhite,
-                      padding: EdgeInsets.all(8.0)
-                    ), 
-                    onPressed: () => startGame(),
-                    child: Text(
-                      "Start new game",
-                      style: TextStyle(
-                        color: AppColors.darkBlue,
-                        fontSize: 18.0,
+                  SizedBox(height: 32.0),
+                  Row(
+                    mainAxisAlignment: .spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 300,
+                        child: TextField(
+                          controller: nameController,
+                          decoration: InputDecoration(
+                            hintText: "Enter display name",
+                            hintStyle: TextStyle(
+                              color: AppColors.opaqueWhite
+                            ),
+                          ),
+                        ),
                       ),
-                    ), 
+                      
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.opaqueWhite,
+                          padding: EdgeInsets.all(16.0)
+                        ), 
+                        onPressed: () {
+                          selectedDisplayName = nameController.text.trim();
+                          startGame();
+                        },
+                        child: Text(
+                          "Start new game",
+                          style: TextStyle(
+                            color: AppColors.darkBlue,
+                            fontSize: 18.0,
+                          ),
+                        ), 
+                      ),
+                    ],
                   )
-
-                  
                 ],
               ),
             ),

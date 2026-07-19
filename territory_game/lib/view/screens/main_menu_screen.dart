@@ -26,6 +26,8 @@ class MainMenuScreen extends StatefulWidget {
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
   final db = FirebaseFirestore.instance;
+  final nameController = TextEditingController();
+  String? selectedDisplayName;
   
   @override
   Widget build(BuildContext context) {
@@ -65,25 +67,34 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
       return Player(
         id: firebaseAuth.activeUser!.id,
+        displayName: selectedDisplayName!,
         propertyColor: opponentColor == AppColors.propertyBlack 
           ? AppColors.propertyWhite 
           : AppColors.propertyBlack 
       );
     }
 
-    void onGameChosen(Map<String, dynamic> gameData) async {                 
-      final game = Game.fromJson(gameData);
-      print(game.players.keys.map((playerId) => "${game.players[playerId]!.id}: CP: ${game.players[playerId]!.totalControlPoints}, Properties: ${game.players[playerId]!.properties}"));
+    void onGameChosen(Game game) async {                 
       final gameController = initializeGameController(game);
 
       if (game.containsPlayerWithId(firebaseAuth.activeUser!.id)) {       
         pushToGameScreen(gameController);
       } else {
-        final newPlayer = createPlayerWithOppositeColor(game);
-        print("New player id: ${newPlayer.id}");
-        await gameController.addPlayerToGame(newPlayer);
-        print(game.players.keys.map((playerId) => "${game.players[playerId]!.id}: CP: ${game.players[playerId]!.totalControlPoints}, Properties: ${game.players[playerId]!.properties}"));
-        pushToGameScreen(gameController);
+        if (selectedDisplayName != null && selectedDisplayName!.isNotEmpty) {
+          final newPlayer = createPlayerWithOppositeColor(game);
+          await gameController.addPlayerToGame(newPlayer);
+          pushToGameScreen(gameController);
+        } else {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Enter a display name to join a game."
+                ),
+              ),
+            );
+          }
+        }
       }
     }
     
@@ -137,11 +148,28 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             mainAxisAlignment: .center,
             crossAxisAlignment: .center,
             children: [
-              Text("Continue a game"),
+              Row(
+                children: [
+                  Text(
+                    "Continue a game",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: AppColors.darkBlue
+                    )
+                  ),
+                  SizedBox(width: 10),
+                  Icon(
+                    Icons.arrow_right,
+                    color: AppColors.darkBlue
+                  ),
+                ],
+              ),
               SizedBox(height: 10),
+
+              // This is a menu showing the active user's currently active games.
               SizedBox(
                 height: 300,
-                width: 300,
+                width: 450,
                 child: firebaseAuth.activeUser!.activeGameIds.isNotEmpty 
                 ? StreamBuilder(
                   stream: db.collection("games")
@@ -155,26 +183,36 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     final data = snapshot.data!.docs.map((doc) => doc.data()).toList();
 
                     return ListView.builder(
+                      scrollDirection: .vertical,
                       itemCount: data.length,
                       itemBuilder: (context, index) {
                         final currentGameData = Map<String, dynamic>.from(data[index]);
+                        final currentGame = Game.fromJson(currentGameData);
+                        String? opponentName = currentGame.players.keys.map((playerId) {
+                          if (playerId != firebaseAuth.activeUser!.id) {
+                            return currentGame.players[playerId]!.displayName;
+                          }
+                        }).first;
                           
                         return GestureDetector(
-                          onTap: () => onGameChosen(currentGameData),
+                          onTap: () => onGameChosen(currentGame),
                           child: Container(
                             padding: EdgeInsets.all(20),
                             margin: EdgeInsets.all(5),
-                            width: 150.0,
-                            height: 75.0,
+
+                            height: 85.0,
                             decoration: BoxDecoration(
                               color: AppColors.blue,
                               borderRadius: AppDimensions.cornerRadius,
                             ),
-                            child: Row(
+                            child: Column(
                               children: [
-                                ContentText(text: "Ends at: ${currentGameData["endTime"]}")
-                              ]
-                            )
+                                opponentName != null && opponentName.isNotEmpty
+                                  ? ContentText(text: "You vs. $opponentName")
+                                  : ContentText(text: "You vs. unassigned"),
+                                ContentText(text: "Ends: ${currentGame.endTimeAsString}")
+                              ],
+                            ),
                           ),
                         );
                       }
@@ -188,10 +226,39 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 )
               ),
               SizedBox(height: 10),
-              Text("Join an available game"),
+              Row(
+                children: [
+                  Text(
+                    "Join an available game",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: AppColors.darkBlue
+                    )
+                  ),
+                  SizedBox(width: 10),
+                  Icon(
+                    Icons.arrow_right,
+                    color: AppColors.darkBlue
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 400,
+                child: TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    hintText: "Enter display name before joining",
+                    hintStyle: TextStyle(
+                      fontSize: 14
+                    )
+                  )
+                ),
+              ),
+
+              // This is a menu showing games that are available to join.
               SizedBox(
                 height: 300,
-                width: 300,
+                width: 450,
                 child: StreamBuilder(
                   stream: db.collection("games").snapshots(),    
                   builder: (context, snapshot) {
@@ -206,6 +273,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                       itemBuilder: (context, index) {
                         final currentGameData = Map<String, dynamic>.from(data[index]);
 
+                        // Filter out games with no players and games which are full.
                         if (
                           currentGameData["players"].isEmpty
                           || currentGameData["players"].length > 1
@@ -213,31 +281,43 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                           return Container();
                         }
                         
+                        // Filter out games that the active player is already in.
                         for (String playerId in currentGameData["players"].keys) {
                           if (playerId == firebaseAuth.activeUser!.id) {
                             return Container();
                           }
                         }
+
+                        final currentGame = Game.fromJson(currentGameData);
+                        final opponentName = currentGame.players.keys.map((playerId) {
+                          if (playerId != firebaseAuth.activeUser!.id) {
+                            return currentGame.players[playerId]!.displayName;
+                          }
+                        }).first;
                           
-                        return ElevatedButton(
-                          onPressed: () async => onGameChosen(currentGameData),
+                        return GestureDetector(
+                          onTap: () async {
+                            selectedDisplayName = nameController.text.trim();
+                            print(selectedDisplayName);
+                            onGameChosen(currentGame);
+                          },
                           child: Container(
                             padding: EdgeInsets.all(20),
                             margin: EdgeInsets.all(5),
-                            width: 150.0,
-                            height: 75.0,
+                            height: 85.0,
                             decoration: BoxDecoration(
                               color: AppColors.blue,
                               borderRadius: AppDimensions.cornerRadius,
                             ),
-                            child: Row(
+                            child: Column(
                               children: [
+                                ContentText(text: "vs. $opponentName"),
                                 ContentText(text: "Ends at: ${currentGameData["endTime"]}")
                               ],
                             ),
                           ),
                         );
-                      }
+                      },
                     );
                   },
                 ),
