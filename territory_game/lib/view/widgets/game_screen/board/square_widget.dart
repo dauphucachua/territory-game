@@ -31,12 +31,14 @@ class _SquareWidgetState extends State<SquareWidget> {
         // May need to be a callback function
       },
       child: DragTarget<Property>(
-        onAcceptWithDetails: (details) {
-          context.read<GameController>().placeProperty(
-            details.data, 
+        onAcceptWithDetails: (incomingProperty) {
+          if (!incomingProperty.data.isPlaced) {
+            context.read<GameController>().placeProperty(
+            incomingProperty.data, 
             row: widget.square.row, 
             col: widget.square.col
-          );
+            );
+          }
         },
         builder: (context, property, rejected) {
           return Container(
