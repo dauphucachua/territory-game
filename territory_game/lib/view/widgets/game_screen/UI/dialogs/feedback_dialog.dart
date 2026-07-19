@@ -64,7 +64,7 @@ class FeedbackDialog extends StatelessWidget {
             onPressed: () async {
               if (mode == .creation) {
                 // Save the questions to a global question history
-                gameController.saveToQuestionHistory(quiz.questions);
+                gameController.saveToQuestionHistory(quiz.type, quiz.questions);
                 // Load a new Property object with the ownerId, quiz data and score
                 final newProperty = Property(
                   ownerId: gameController.activePlayer.id, 
@@ -79,10 +79,10 @@ class FeedbackDialog extends StatelessWidget {
                   // Clear the current user's answers from the quiz
                   quiz.userAnswers.clear(); 
                 }
-              } else {
+              } else { // mode == .attack
                 if (context.mounted) {
                   Navigator.pop(context);
-                  gameController.battle(quizFeedback.totalScore);
+                  await gameController.battle(quizFeedback.totalScore);
                 }
               }
             }
