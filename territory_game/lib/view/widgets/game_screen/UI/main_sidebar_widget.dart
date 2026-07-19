@@ -81,6 +81,7 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
               )
             ),
             onPressed: () {
+              // If the active player has a property to place, block them from creating a new one.
               activePlayer.mustPlaceProperty 
                 ? ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -110,6 +111,8 @@ class ActivityTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activityHistory = context.watch<GameController>().game.history.activityHistory;
+
     return Column(
       children: [
         SizedBox(
@@ -118,8 +121,35 @@ class ActivityTabContent extends StatelessWidget {
         ),
         Divider(),
         SizedBox(
-          height: 150,
-          child: Text("Activity/chat goes here", style: TextStyle(color: const Color.fromARGB(255, 57, 92, 109),))
+          height: MediaQuery.heightOf(context) - 400,
+          child: Column(
+            children: [
+              ContentText(text: "Activity"),
+              SizedBox(height: 10),
+              Expanded(
+                child: Container(
+                  padding: .all(12.0),
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundCream,
+                    borderRadius: AppDimensions.cornerRadius
+                  ),
+                  child: ListView.builder(
+                    scrollDirection: .vertical,
+                    itemCount: activityHistory.length,
+                    itemBuilder: (context, index) => Padding(
+                      padding: const .all(2.0),
+                      child: Text(
+                        activityHistory[index],
+                        style: TextStyle(
+                          fontSize: 12
+                        )
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -135,70 +165,65 @@ class PropertiesTabContent extends StatelessWidget {
     final activePlayer = gameController.activePlayer;
     final playerProperties = activePlayer.properties;
     final propertyToPlace = activePlayer.propertyToPlace;
+    final playerColor = activePlayer.propertyColor;
 
-    return Consumer<GameController>(
-      builder: (context, gameController, child) {
-        final playerColor = gameController.activePlayer.propertyColor;
-
-        return Column(
+    return Column(
+      children: [
+        ContentText(text: "Property to place"),
+        propertyToPlace == null
+        ? Text(
+          "None\nClick '+ New property' to load a property",
+          style: TextStyle(
+            color: AppColors.opaqueWhite,
+            fontSize: 12,
+            fontStyle: FontStyle.italic
+          ),
+          textAlign: .center,
+        )
+        : Column(
           children: [
-            ContentText(text: "Property to place"),
-            propertyToPlace == null
-            ? Text(
-              "None\nClick '+ New property' to load a property",
+            Draggable(
+              data: propertyToPlace,
+              feedback: PropertyIcon(color: playerColor), // Needs to be player.color             
+              child: PropertyListCard(
+                property: propertyToPlace,
+                iconColor: playerColor
+              ),
+            ),
+            SizedBox(height: 8.0),
+            Text(
+              "Click and drag property to place it",
               style: TextStyle(
                 color: AppColors.opaqueWhite,
                 fontSize: 12,
                 fontStyle: FontStyle.italic
               ),
               textAlign: .center,
-            )
-            : Column(
-              children: [
-                Draggable(
-                  data: propertyToPlace,
-                  feedback: PropertyIcon(color: playerColor), // Needs to be player.color             
-                  child: PropertyListCard(
-                    property: propertyToPlace,
-                    iconColor: playerColor
-                  ),
-                ),
-                SizedBox(height: 8.0),
-                Text(
-                  "Click and drag property to place it",
-                  style: TextStyle(
-                    color: AppColors.opaqueWhite,
-                    fontSize: 12,
-                    fontStyle: FontStyle.italic
-                  ),
-                  textAlign: .center,
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Divider(),
-            SizedBox(
-              height: 400,
-              width: MediaQuery.widthOf(context),
-              child: ListView.builder(
-                scrollDirection: .vertical,
-                itemCount: playerProperties.length,
-                itemBuilder: (context, index) {
-                  final property = playerProperties[index];
-              
-                  return Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: PropertyListCard(
-                      property: property,
-                      iconColor: playerColor
-                    ),
-                  );
-                },       
-              ),
             ),
           ],
-        );
-      }
+        ),
+        SizedBox(height: 10),
+        Divider(),
+        SizedBox(
+          height: 400,
+          width: MediaQuery.widthOf(context),
+          child: ListView.builder(
+            scrollDirection: .vertical,
+            itemCount: playerProperties.length,
+            itemBuilder: (context, index) {
+              final property = playerProperties[index];
+          
+              return Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: PropertyListCard(
+                  property: property,
+                  iconColor: playerColor
+                ),
+              );
+            },       
+          ),
+        ),
+      ],
     );
   }
 }

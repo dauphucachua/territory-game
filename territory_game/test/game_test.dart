@@ -24,10 +24,12 @@ void main() {
     players: {
       "id1": Player(
         id: "id1",
+        displayName: "name1",
         propertyColor: Colors.black,
       ),
       "id2": Player(
         id: "id2",
+        displayName: "name2",
         propertyColor: Colors.white,
       ),
     },
@@ -48,8 +50,11 @@ void main() {
     expect(testGame.containsPlayerWithId(userId2), false);
   });
 
-  test("toJson", () {
+  test("json", () {
     final gameJson = testGame.toJson();
     print(gameJson.toString());
+    final gameObj = Game.fromJson(gameJson);
+    print(gameObj.history.questionHistory);
   });
+  
 }
