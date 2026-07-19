@@ -4,6 +4,7 @@ import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
+import 'package:territory_game/model/history.dart';
 
 class Game {
   final String id;
@@ -11,7 +12,8 @@ class Game {
   final DateTime endTime;
   final Map<String, Player> players;
   final Board board;
-  final Battle battle = Battle();
+  final History history;
+  final Battle battle;
   final Subject subject;
   final Topic topic;
 
@@ -21,9 +23,13 @@ class Game {
     required this.endTime,
     required this.players,
     required this.board,
+    History? history,
+    Battle? battle,
     required this.subject,
     required this.topic
-  });
+  }) 
+    : history = history ?? History(), 
+      battle = battle ?? Battle();
 
   String get endTimeAsString => DateFormat.yMMMMd().add_jm().format(endTime);
 
@@ -41,6 +47,8 @@ class Game {
       endTime: DateTime.parse(json["endTime"]),
       players: json["players"] != null ? players : {},
       board: Board.fromJson(json["board"]),
+      history: History.fromJson(json["history"]),
+      battle: Battle.fromJson(json["battle"]),
       subject: Subject.fromJson(json["subject"]),
       topic: Topic.fromJson(json["topic"])
     );
@@ -58,6 +66,8 @@ class Game {
       "endTime": endTime.toString(),
       "players": playersMap,
       "board": board.toJson(),
+      "history": history.toJson(),
+      "battle": battle.toJson(),
       "subject": subject.toJson(),
       "topic": topic.toJson()
     };
