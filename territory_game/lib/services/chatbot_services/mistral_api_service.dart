@@ -86,7 +86,8 @@ class MistralApiService implements ChatbotApiService {
     Topic topic, 
     String subTopic, 
     String questionType,
-    int questionCount
+    int questionCount,
+    List<String> questionHistory
   ) async {
 
     final ChatCompletionResponse response = await client.chat.create(
@@ -95,7 +96,7 @@ class MistralApiService implements ChatbotApiService {
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
           if (questionType == "multipleChoice") 
-            ChatMessage.user(config.multipleChoicePrompt(topic, subTopic, questionCount))
+            ChatMessage.user(config.multipleChoicePrompt(topic, subTopic, questionCount, questionHistory))
         ],
         reasoningEffort: .high,
         responseFormat: quizSchemas[questionType],

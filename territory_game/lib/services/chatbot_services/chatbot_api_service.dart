@@ -11,7 +11,8 @@ abstract interface class ChatbotApiService {
     Topic topic, 
     String subTopic, 
     String questionType,
-    int questionCount
+    int questionCount,
+    List<String> questionHistory
   );
 
   /// Sends the chatbot a completed quiz via its API and returns feedback as a Map.
