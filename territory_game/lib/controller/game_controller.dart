@@ -34,7 +34,6 @@ class GameController extends ChangeNotifier {
     required this.game
   });
 
-
   Subject get subject => game.subject;
   Topic get topic => game.topic;
   String get topicName => game.topic.name;
@@ -48,7 +47,6 @@ class GameController extends ChangeNotifier {
   Player? get opponent => game.players.length > 1 ? game.players.values.where(
     (player) => player.id != activeUser.id).first : null;
   
-
   Future<void> listenForStateUpdates() async {
     final DocumentReference gameRef = db.collection("games").doc(game.id);
     gameSubscription = gameRef.snapshots().listen((gameState) {
@@ -94,7 +92,7 @@ class GameController extends ChangeNotifier {
     activePlayer.properties.add(property);
   }
 
-  /// Places a property at the coordinate indicated by the x and y parameters.
+  /// Places a property at the 2d list position indicated by the row and col parameters.
   Future<void> placeProperty(Property property, {required int row, required int col}) async {
     if (boardState[row][col] == null) {
       property.row = row;
@@ -102,6 +100,9 @@ class GameController extends ChangeNotifier {
       boardState[row][col] = property;
       _removePropertyToPlace();
       _addToPlayerProperties(property);
+
+      final message = "${activePlayer.displayName} placed a property with ${property.health} health at ${property.humanCoord}.";
+      saveEventMessage(message);
       notifyListeners();
       await updateFirestoreGameDoc();
     } else {
@@ -137,15 +138,26 @@ class GameController extends ChangeNotifier {
       defendingPlayer!.removeFromProperties(defender);
     } else {
       attacker.health ~/= 2;
-    }
 
+      final message = "$attackingPlayer's attack on ${defender.humanCoord} failed. The property at ${attacker.humanCoord} lost half of its health - ${attacker.health} left.";
+      saveEventMessage(message);
+    }
     notifyListeners();
     await updateFirestoreGameDoc();
   }
 
   /// Gets a Quiz object with the specified parameters from the active chatbot.
   Future<Quiz> getQuiz(String subTopic, String questionType, int questionCount) async {
-    Map<String, dynamic>? quizJson = await chatbot.getQuizJson(game.topic, subTopic, questionType, questionCount);
+    final questionHistory = game.history.questionHistory[questionType]!;
+
+    Map<String, dynamic>? quizJson = await chatbot.getQuizJson(
+      game.topic, 
+      subTopic, 
+      questionType, 
+      questionCount,
+      questionHistory
+    );
+
     if (quizJson != null) {
       return Quiz.fromJson(quizJson);
     } else {
@@ -164,8 +176,21 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  void saveToQuestionHistory(List<Question> questions) {
-    List<String> questionStrings = List<String>.from(questions.map((questionObj) => questionObj.question));
-    chatbot.config.chatHistory.addAll(questionStrings);
+  void saveToQuestionHistory(String questionType, List<Question> questions) {
+    game.history.addQuestions(questionType, questions);
+    notifyListeners();
+    updateFirestoreGameDoc();
+  }
+
+  void saveChatMessage(String message) {
+    game.history.addChatMessage(activePlayer, message);
+    notifyListeners();
+    updateFirestoreGameDoc();
+  }
+
+  void saveEventMessage(String event) {
+    game.history.addEvent(event);
+    notifyListeners();
+    updateFirestoreGameDoc();
   }
 }
