@@ -153,11 +153,16 @@ class PlayerStatContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final gameController = context.watch<GameController>();
+    final playerProperties = gameController.getPropertiesByPlayerId(activePlayer.id);
+    final playerControlPoints = gameController.getControlPointsByPlayerId(activePlayer.id);
+    final opponentControlPoints = opponent != null ? gameController.getControlPointsByPlayerId(opponent!.id) : 0;
+
     return Container(
       padding: EdgeInsets.all(10.0),
       margin: EdgeInsets.all(6.0),
       decoration: BoxDecoration(
-        color: opponent == null || activePlayer.totalControlPoints >= opponent!.totalControlPoints
+        color: opponent == null || playerControlPoints >= opponentControlPoints
           ? AppColors.correctBoxGreen
           : AppColors.wrongBoxRed,
         borderRadius: AppDimensions.cornerRadius,
@@ -171,7 +176,7 @@ class PlayerStatContainer extends StatelessWidget {
           ),
           SizedBox(width: 12.0),
           Text(
-            "${activePlayer.totalControlPoints} control points, ${activePlayer.propertyCount} properties",
+            "${activePlayer.totalControlPoints} control points, ${playerProperties.length} properties",
             style: TextStyle(
               color: AppColors.opaqueWhite,
             )

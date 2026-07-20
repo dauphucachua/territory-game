@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/add_property_dialog.dart';
@@ -163,9 +164,10 @@ class PropertiesTabContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
     final activePlayer = gameController.activePlayer;
-    final playerProperties = activePlayer.properties;
     final propertyToPlace = activePlayer.propertyToPlace;
     final playerColor = activePlayer.propertyColor;
+    final playerProperties = gameController.getPropertiesByPlayerId(activePlayer.id);
+   
 
     return Column(
       children: [
@@ -204,7 +206,8 @@ class PropertiesTabContent extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Divider(),
-        SizedBox(
+        playerProperties.isNotEmpty 
+        ? SizedBox(
           height: 400,
           width: MediaQuery.widthOf(context),
           child: ListView.builder(
@@ -222,7 +225,8 @@ class PropertiesTabContent extends StatelessWidget {
               );
             },       
           ),
-        ),
+        )
+        : ContentText(text: "You don't have any properties on the board.")
       ],
     );
   }

@@ -47,6 +47,7 @@ class GameController extends ChangeNotifier {
   Player? get opponent => game.players.length > 1 ? game.players.values.where(
     (player) => player.id != activeUser.id).first : null;
   
+
   Future<void> listenForStateUpdates() async {
     final DocumentReference gameRef = db.collection("games").doc(game.id);
     gameSubscription = gameRef.snapshots().listen((gameState) {
@@ -119,7 +120,7 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  /// 
+  /// Facilitates a battle between two properties.
   Future<void> battle(int attackerScore) async {
     final attacker = game.battle.attacker;
     final defender = game.battle.defender;
@@ -128,23 +129,49 @@ class GameController extends ChangeNotifier {
       throw "The battling properties are not set.";
     }
     
-    final attackingPlayer = game.players[attacker.ownerId];
-    final defendingPlayer = game.players[defender.ownerId];
+    final boardAttacker = boardState[attacker.row!][attacker.col!];
+    final boardDefender = boardState[defender.row!][defender.col!];
 
     if (attackerScore > defender.health) {
-      defender.ownerId = attacker.ownerId;
-      defender.health = attackerScore;
-      attackingPlayer!.addToProperties(defender);
-      defendingPlayer!.removeFromProperties(defender);
+      boardDefender.ownerId = attacker.ownerId;
+      boardDefender.health = attackerScore;
     } else {
-      attacker.health ~/= 2;
+      boardAttacker.health ~/= 2;    
 
-      final message = "$attackingPlayer's attack on ${defender.humanCoord} failed. The property at ${attacker.humanCoord} lost half of its health - ${attacker.health} left.";
+      final attackingPlayer = game.players[attacker.ownerId];
+      final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} failed. The property at ${attacker.humanCoord} lost half of its health - ${attacker.health} left.";
       saveEventMessage(message);
     }
+
     notifyListeners();
     await updateFirestoreGameDoc();
   }
+
+  /// Gets a list of properties that are owned by a single player.
+  List<Property> getPropertiesByPlayerId(String playerId) { 
+    List<Property> properties = [];
+    for (List row in boardState) {
+      for (var item in row) {
+        if (item is Property && item.ownerId == playerId) {
+          properties.add(item);
+        } 
+      }
+    }
+    return properties;
+  }
+
+  /// Gets the amount of control points that a player has.
+  int getControlPointsByPlayerId(String playerId) {
+    List<Property> properties = getPropertiesByPlayerId(playerId);
+    int total = 0;
+    if (properties.isNotEmpty) {
+      for (Property property in properties) {
+        total += property.controlPoints;
+      }
+    }
+    return total;
+  }
+  
 
   /// Gets a Quiz object with the specified parameters from the active chatbot.
   Future<Quiz> getQuiz(String subTopic, String questionType, int questionCount) async {
