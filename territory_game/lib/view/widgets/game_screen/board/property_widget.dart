@@ -7,10 +7,10 @@ import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.d
 import 'package:territory_game/view/widgets/game_screen/property_icon.dart';
 
 class PropertyWidget extends StatefulWidget {
-  Property property;
-  Color color;
+  final Property property;
+  final Color color;
 
-  PropertyWidget({
+  const PropertyWidget({
     required this.property, 
     required this.color,
     super.key
@@ -25,15 +25,36 @@ class _PropertyWidgetState extends State<PropertyWidget> {
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
     Property property = widget.property;
-    
-    if (property.ownerId == gameController.activeUser.id) {
-      return Draggable(
+
+    String buildStatString() {
+      final owner = gameController.game.players[property.ownerId]!.displayName;
+      final health = property.health;
+      final quizType = property.quizType;
+      final subTopic = property.quiz.subTopic;
+      final questionCount = property.quiz.questions.length;
+      final controlPoints = property.controlPoints;
+
+      return "Owner: $owner\nHealth: $health\nQuiz type: $quizType\nSub-topic: $subTopic\nQuestion count: $questionCount\nControl points: $controlPoints";    
+    }
+
+    return Tooltip(
+      message: buildStatString(),
+      verticalOffset: -175.0,
+      padding: .all(15.0),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(214, 25, 32, 33),
+        border: .all(
+          color: const Color.fromARGB(197, 255, 255, 255)
+        ),
+        borderRadius: AppDimensions.cornerRadius,
+      ),
+      child: property.ownerId == gameController.activeUser.id
+      ? Draggable(
         data: widget.property,
         feedback: Text("Attack!", style: TextStyle(color: AppColors.heartRed)), 
         child: PropertyIcon(color: widget.color),
-      );
-    } else {
-      return DragTarget<Property>(
+      )
+      : DragTarget<Property>(
         onAcceptWithDetails: (details) {
           Property attacker = details.data;
           Property defender = property;
@@ -79,8 +100,8 @@ class _PropertyWidgetState extends State<PropertyWidget> {
         builder: (context, property, rejected) {
           return PropertyIcon(color: widget.color);
         }
-      );
-    }
+      ),
+    );
   }
 }
 
