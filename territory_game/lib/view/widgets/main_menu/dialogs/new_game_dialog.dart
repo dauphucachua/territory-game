@@ -15,6 +15,7 @@ import 'package:territory_game/services/chatbot_services/mistral_api_service.dar
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 import 'package:territory_game/services/timer_service/timer_service.dart';
 import 'package:territory_game/view/screens/game_screen.dart';
+import 'package:territory_game/view/screens/game_screen_wrapper.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 
 class NewGameDialog extends StatefulWidget {
@@ -58,7 +59,6 @@ class _NewGameDialogState extends State<NewGameDialog> {
       && selectedColor != null
       && selectedEndTime != null
       && selectedDisplayName != null;
-
   }
   
   /// Starts a new game once all necessary selections have been made by the user.
@@ -133,16 +133,16 @@ class _NewGameDialogState extends State<NewGameDialog> {
       );
 
       // Begin the game timer.
-      gameController.timer.runTimer(() => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(title: Text("The game is over"))));
+      gameController.timer.runTimer(
+        onTimeout: gameController.endGame  
+      );
 
       // Push to the main game screen.
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
             create: (context) => gameController,
-            child: const GameScreen()
+            child: const GameScreenWrapper()
           ),
         ),
       );
@@ -150,7 +150,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Make sure all options are selected."),
-        )
+        ),
       );
     }
   }
@@ -273,6 +273,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                         ), 
                         onPressed: () {
                           selectedDisplayName = nameController.text.trim();
+                          Navigator.pop(context);
                           startGame();
                         },
                         child: Text(
