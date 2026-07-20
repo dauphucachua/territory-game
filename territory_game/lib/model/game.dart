@@ -16,6 +16,7 @@ class Game {
   final Battle battle;
   final Subject subject;
   final Topic topic;
+  bool isActive;
 
   Game({
     required this.id,
@@ -26,7 +27,8 @@ class Game {
     History? history,
     Battle? battle,
     required this.subject,
-    required this.topic
+    required this.topic,
+    this.isActive = true
   }) 
     : history = history ?? History(), 
       battle = battle ?? Battle();
@@ -50,10 +52,12 @@ class Game {
       history: History.fromJson(json["history"]),
       battle: Battle.fromJson(json["battle"]),
       subject: Subject.fromJson(json["subject"]),
-      topic: Topic.fromJson(json["topic"])
+      topic: Topic.fromJson(json["topic"]),
+      isActive: json["isActive"] == "true"
     );
   }
-    
+  
+  /// Return a json-friendly Map representation of the Game object.
   Map<String, dynamic> toJson() {
     var playersMap = {};
     for (String id in players.keys) {
@@ -69,7 +73,8 @@ class Game {
       "history": history.toJson(),
       "battle": battle.toJson(),
       "subject": subject.toJson(),
-      "topic": topic.toJson()
+      "topic": topic.toJson(),
+      "isActive": isActive.toString()
     };
   }
 

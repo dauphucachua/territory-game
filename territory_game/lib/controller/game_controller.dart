@@ -46,6 +46,7 @@ class GameController extends ChangeNotifier {
   Player get activePlayer => game.players[activeUser.id]!;
   Player? get opponent => game.players.length > 1 ? game.players.values.where(
     (player) => player.id != activeUser.id).first : null;
+  bool get gameIsActive => game.isActive;
   
 
   Future<void> listenForStateUpdates() async {
@@ -203,21 +204,35 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  void saveToQuestionHistory(String questionType, List<Question> questions) {
+  /// Saves a set of questions to a global question history for the game.
+  Future<void> saveToQuestionHistory(String questionType, List<Question> questions) async {
     game.history.addQuestions(questionType, questions);
     notifyListeners();
-    updateFirestoreGameDoc();
+    await updateFirestoreGameDoc();
   }
 
-  void saveChatMessage(String message) {
+  /// Saves a chat message to the activity history.
+  Future<void> saveChatMessage(String message) async {
     game.history.addChatMessage(activePlayer, message);
     notifyListeners();
-    updateFirestoreGameDoc();
+    await updateFirestoreGameDoc();
   }
 
-  void saveEventMessage(String event) {
+  /// Saves an event message to the activity history.
+  Future<void> saveEventMessage(String event) async {
     game.history.addEvent(event);
     notifyListeners();
-    updateFirestoreGameDoc();
+    await updateFirestoreGameDoc();
+  }
+
+  Future<void> endGame() async {
+    print("endGame reached");
+    print(gameIsActive);
+    game.isActive = false;
+    print(gameIsActive);
+    activeUser.activeGameIds.remove(game.id);
+    notifyListeners(); 
+    await updateFirestoreActiveUserDoc();
+    await updateFirestoreGameDoc();
   }
 }
