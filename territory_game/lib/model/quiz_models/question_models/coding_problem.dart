@@ -31,4 +31,10 @@ class CodingProblem extends Question {
       "outputExample": outputExample
     };
   }
+
+  /// Returns a string version of the question.
+  @override
+  String toString() {
+    return "id: $id\nquestion: $question\ninputExample: $inputExample\noutputExample: $outputExample";
+  }
 }
