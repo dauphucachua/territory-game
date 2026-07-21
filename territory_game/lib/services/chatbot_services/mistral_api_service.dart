@@ -29,23 +29,25 @@ class MistralApiService implements ChatbotApiService {
           "type": "string",
           "description": "Return the sub-topic provided in the prompt"
         }, 
-        "questions": {"type": "array"},
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "integer",
-              "description": "The chronological number of the question in the set."
-              },
-            "question": {"type": "string"},
-            "correctAnswer": {"type": "string"},
-            "distractors": {
-              "type": "array",
-              "items": {"type": "string"} 
-            }         
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "description": "The chronological number of the question in the set."
+                },
+              "question": {"type": "string"},
+              "correctAnswer": {"type": "string"},
+              "distractors": {
+                "type": "array",
+                "items": {"type": "string"},
+              }, 
+            },       
           },
-        }
-      }
+        },
+      },
     ),
     "codingProblem": ResponseFormatJsonSchema(
       name: "codingProblem",
@@ -58,20 +60,32 @@ class MistralApiService implements ChatbotApiService {
           "type": "string",
           "description": "Return the sub-topic provided in the prompt",
         },
-        "question": {
-          "type": "string",
-          "description": "The Leetcode / Codewars style question."},
-        "inputExample": {
-          "type": "string",
-          "description": "Provide an example of the type of input the user can expect to receive for problem."
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "description": "The chronological number of the question in the set",
+              },
+              "question": {
+                "type": "string",
+                "description": "The Leetcode / Codewars style question."
+              },
+              "inputExample": {
+                "type": "string",
+                "description": "Provide an example of the type of input the user can expect to receive for the problem."
+              },
+              "outputExample": {
+                "type": "string",
+                "description": "Provide an example of the type of output that the problem expects the user to produce."
+              }, 
+            },
+          },
         },
-        "outputExample": {
-          "type": "string",
-          "description": "Provide an example of the type of output that the problem expects the user to produce."
-        },
-          
-      }
-    )
+      },
+    ),
   };
 
   // A Map of feedback schemas, for use with various quiz types.
@@ -90,11 +104,11 @@ class MistralApiService implements ChatbotApiService {
                 },
                 "feedback": {"type": "string"},
                 "score": {"type": "integer"},
-            }
-          }       
-        }
-      }
-    )
+            },
+          },       
+        },
+      },
+    ),
   };
 
   // Configuration giving access to prompt templates and chat history.

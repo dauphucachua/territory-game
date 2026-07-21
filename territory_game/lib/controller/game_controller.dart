@@ -196,7 +196,6 @@ class GameController extends ChangeNotifier {
   /// Gets a QuizFeedback object based on a completed quiz from the active chatbot.
   Future<QuizFeedback> getFeedback(Quiz quiz) async {
     Map<String, dynamic>? quizFeedbackJson = await chatbot.getFeedbackJson(quiz);
-    print(quizFeedbackJson.toString());
     if (quizFeedbackJson != null) {
       return QuizFeedback.fromJson(quizFeedbackJson);
     } else {
