@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/model/board.dart';
+import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/game_user.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
@@ -10,6 +12,8 @@ import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
+
+import 'dummy_gamecontroller.dart';
 
 void main() {
 
@@ -49,28 +53,54 @@ void main() {
     config: ChatbotConfig());
   chatbotProvider.addChatbot(mistralClient);
   
-  final board = Board(
-    cols: 10,
-    rows: 10
+  Topic topic = Topic(
+    name: "Functions",
+    subTopics: ["Mutability", "Iteration"],
+    week: 1
   );
 
-  final player = Player(
-    id: "666"
+  Game testGame = Game(
+    board: Board(
+      cols: 10,
+      rows: 10,
+    ),
+    startTime: DateTime.now(),
+    endTime: DateTime.now().add(Duration(days: 1000)),
+    id: "gameid123",
+    players: {
+      "id1": Player(
+        id: "id1",
+        displayName: "name1",
+        propertyColor: Colors.black,
+      ),
+      "id2": Player(
+        id: "id2",
+        displayName: "name2",
+        propertyColor: Colors.white,
+      ),
+    },
+    subject: Subject(
+      name: "Introduction to Programming",
+      questionTypes: ["multipleChoice", "codingProblem"],
+      topics: [
+        topic
+      ],
+    ),
+    topic: topic
   );
 
-  final gameController = GameController(
-    player: player,
+
+  final gameController = DummyGameController(
     chatbotProvider: chatbotProvider, 
-    board: board, 
-    subject: subject, 
-    topic: subject.topics[0]
+    game: testGame
   );
   
   test("multipleChoice test", () async {
-    Topic topic = subject.topics[0];
-    String subTopic = topic.subTopics[0];
-    String questionType = "multipleChoice";
-    int questionCount = 2;
+    final topic = subject.topics[0];
+    final subTopic = topic.subTopics[0];
+    final questionType = "multipleChoice";
+    final questionCount = 2;
+    final List<String> questionHistory = [];
 
     print("Hello");
 
@@ -78,7 +108,8 @@ void main() {
       topic, 
       subTopic, 
       questionType, 
-      questionCount
+      questionCount,
+      questionHistory
     ); 
     
     if (quiz != null) {
@@ -90,6 +121,29 @@ void main() {
 
     var quizTwo = await gameController.getQuiz(subTopic, questionType, questionCount);
     print(quizTwo);
+  });
+
+  test("codingProblem test", () async {
+    final topic = gameController.game.topic;
+    final subTopic = gameController.game.topic.subTopics[0];
+    final questionType = gameController.game.subject.questionTypes[1];
+    final questionCount = 1;
+    final List<String> questionHistory = [];
+
+    final quiz = await chatbotProvider.chatbot.getQuizJson(
+      topic,
+      subTopic,
+      questionType,
+      questionCount,
+      questionHistory
+    );
+
+    if (quiz != null) {
+      Quiz quizObj = Quiz.fromJson(quiz);
+      print(quizObj.questions);
+    } else {
+      print("Quiz null");
+    }
   });
 
   test("getFeedback test", () async {
@@ -107,6 +161,7 @@ void main() {
 
     Quiz mockQuiz = Quiz(
       type: "multipleChoice",
+      subTopic: "Assignment",
       questions: [mockQuestion1, mockQuestion2],
     );
 
@@ -122,11 +177,5 @@ void main() {
     expect(quizFeedback.results[1].id, 2);
     expect(quizFeedback.results[1].score, 0);
     expect(quizFeedback.results[1].feedback.isNotEmpty, true);
-
-    
-
-
-
-
   });
 }
