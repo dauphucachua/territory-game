@@ -23,18 +23,46 @@ class ChatbotConfig {
     Make sure that there is never more than one correct answer in the choices you provide. All distractors MUST be false.
     Feedback should explain briefly what makes an answer correct, and if the user got the answer wrong, why their answer was wrong.
     Feedback should be around 1 - 2 sentences for multiple choice.
+
+    ---- Coding problem instructions:
+    Coding problems should be written in the style of the exercises found on websites like Leetcode, Codewars, Hackerrank, etc.
+    Your feedback should provide a score out of 100 for the user's submission. 
+    Prioritize good code practices in your marking, which means considering:
+    Proper syntax
+    Indentation
+    Space complexity
+    Time complexity
+    Unnecessary repetition
+    Readability
+    and more...
+
+    Solutions should rarely get 100 points, but if one is really perfect, full marks can be awarded.
+    In the explanation, you should always justify why the grade you gave was chosen, and what could have been done differently to achieve a higher grade
+    
   """;
 
   /// A template for a prompt that requests a multiple choice quiz.
   String multipleChoicePrompt(Topic topic, String subTopic, int questionCount, List<String> questionHistory) {
     return """
 
-      The topic is $topic. 
+      The topic is ${topic.name}. 
       The sub-topic is $subTopic.
-      The amount of questions required is $questionCount.
+      The number of questions required is $questionCount.
       The question history on this sub-topic is $questionHistory. 
       Return a multiple choice quiz that follows the provided schema and is sufficiently different from the material in the chat history. 
       
+    """;
+  }
+
+  /// A template for a prompt that requests a coding problem.
+  String codingProblemPrompt(Topic topic, String subTopic, List<String> questionHistory) {
+    return """
+    
+    The topic is ${topic.name}. 
+    The sub-topic is $subTopic.
+    The question history on this sub-topic is $questionHistory. 
+    Return a coding problem that follows the provided schema and is sufficiently different from the material in the chat history.
+
     """;
   } 
 
@@ -42,7 +70,7 @@ class ChatbotConfig {
   String feedbackPrompt(Quiz quiz) {
     return """
 
-    This is the data for a quiz that the user has just completed.
+    This is the data for a ${quiz.type} quiz that the user has just completed.
     ${quiz.toStringForFeedbackPrompt()}
     Provide the score and feedback as instructed in the system prompt, following the provided schema.
     
