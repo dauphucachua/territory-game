@@ -47,6 +47,31 @@ class MistralApiService implements ChatbotApiService {
         }
       }
     ),
+    "codingProblem": ResponseFormatJsonSchema(
+      name: "codingProblem",
+      schema: {
+        "quizType": {
+          "type": "string",
+          "description": "The value must be: codingProblem. It describes the quiz type."
+        },
+        "subTopic": {
+          "type": "string",
+          "description": "Return the sub-topic provided in the prompt",
+        },
+        "question": {
+          "type": "string",
+          "description": "The Leetcode / Codewars style question."},
+        "inputExample": {
+          "type": "string",
+          "description": "Provide an example of the type of input the user can expect to receive for problem."
+        },
+        "outputExample": {
+          "type": "string",
+          "description": "Provide an example of the type of output that the problem expects the user to produce."
+        },
+          
+      }
+    )
   };
 
   // A Map of feedback schemas, for use with various quiz types.
@@ -97,6 +122,8 @@ class MistralApiService implements ChatbotApiService {
           ChatMessage.system(config.programmingSystemPrompt),
           if (questionType == "multipleChoice") 
             ChatMessage.user(config.multipleChoicePrompt(topic, subTopic, questionCount, questionHistory))
+          else if (questionType == "codingProblem")
+            ChatMessage.user(config.codingProblemPrompt(topic, subTopic, questionHistory))
         ],
         reasoningEffort: .high,
         responseFormat: quizSchemas[questionType],
