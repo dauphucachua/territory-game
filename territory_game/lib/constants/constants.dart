@@ -13,6 +13,7 @@ class AppColors {
   static const propertyWhite = Colors.white;
   static const backgroundCream = Color.fromARGB(255, 217, 213, 206);
   static const correctBoxGreen = Color.fromARGB(177, 74, 113, 57);
+  static const midBoxYellow = Color.fromARGB(191, 255, 197, 8);
   static const wrongBoxRed = Color.fromARGB(185, 113, 57, 57);
 }
 

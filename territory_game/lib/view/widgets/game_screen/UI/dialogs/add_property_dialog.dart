@@ -74,11 +74,10 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             ),
             // Question type choice ListView
             ScrollableHorizontalListView(
-              cardData: getCardDataList(gameController.subject.questionTypes as List<String>), 
+              cardData: getCardDataList(gameController.subject.questionTypes), 
               onTapCallback: (String questionType) => setState(() {selectedQuestionType = questionType;})
             ),
             Spacer(),
-            
             Row(
               mainAxisAlignment: .end,
               children: [
@@ -103,7 +102,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                       Quiz newQuiz = await gameController.getQuiz(
                         selectedSubtopic,
                         selectedQuestionType,
-                        5 // Temporarily hardcoded while buttons not implemented
+                        selectedQuestionType == "multipleChoice" ? 5 : 1 // Temporarily hardcoded while buttons not implemented
                       );
                       if (context.mounted) {
                         Navigator.pop(context);
