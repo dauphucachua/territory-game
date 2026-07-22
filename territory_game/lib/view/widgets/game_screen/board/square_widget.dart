@@ -34,9 +34,9 @@ class _SquareWidgetState extends State<SquareWidget> {
         onAcceptWithDetails: (incomingProperty) {
           if (!incomingProperty.data.isPlaced) {
             context.read<GameController>().placeProperty(
-            incomingProperty.data, 
-            row: widget.square.row, 
-            col: widget.square.col
+              incomingProperty.data, 
+              row: widget.square.row, 
+              col: widget.square.col
             );
           }
         },

@@ -176,7 +176,7 @@ class PlayerStatContainer extends StatelessWidget {
           ),
           SizedBox(width: 12.0),
           Text(
-            "${activePlayer.totalControlPoints} control points, ${playerProperties.length} properties",
+            "$playerControlPoints control points, $playerProperties properties",
             style: TextStyle(
               color: AppColors.opaqueWhite,
             )

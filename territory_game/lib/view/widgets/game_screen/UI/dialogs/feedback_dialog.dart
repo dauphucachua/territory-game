@@ -159,7 +159,7 @@ class FeedbackLayout extends StatelessWidget {
     final gameController = context.watch<GameController>();
     int? opponentScore;
     if (mode == .attack) {
-      opponentScore = gameController.game.battle.defender!.health;
+      opponentScore = gameController.activePlayer.activeBattle!.defender!.health;
     }
 
     return Column(

@@ -27,15 +27,15 @@ void main() {
 
   Player player = Player(
     id: "1",
+    displayName: "name",
     propertyColor: Colors.black,
-    properties: [],
     propertyToPlace: null
   );
 
   test("json", () {
     final playerJson = player.toJson();
     final playerObj = Player.fromJson(playerJson);
-    print(playerObj.properties);
+    print(playerObj.activeBattle);
   });
 }
   
