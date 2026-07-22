@@ -257,11 +257,16 @@ class _NewGameDialogState extends State<NewGameDialog> {
                         width: 300,
                         child: TextField(
                           controller: nameController,
+                          style: TextStyle(
+                            color: AppColors.opaqueWhite
+                          ),
                           decoration: InputDecoration(
+                            
                             hintText: "Enter display name",
                             hintStyle: TextStyle(
                               color: AppColors.opaqueWhite
                             ),
+                            
                           ),
                         ),
                       ),
