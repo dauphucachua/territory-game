@@ -52,6 +52,7 @@ class Property {
       ownerId: json["ownerId"],
       quiz: Quiz.fromJson(json["quiz"]),
       health: json["health"],
+      isBattling: json["isBattling"] == "true",
       row: json["row"],
       col: json["col"],
     );
@@ -63,6 +64,7 @@ class Property {
       "ownerId": ownerId,
       "quiz": quiz.toJson(),
       "health": health,
+      "isBattling": isBattling.toString(),
       "row": row,
       "col": col
     };
@@ -102,9 +104,11 @@ class Property {
     return (adjacencyVectors.contains(vector));      
   }
 
-  // Combines the results of isEnemyOf and isAdjacentTo to decide if the current property can attack the target one.
+  /// Combines the results of isEnemyOf and isAdjacentTo to decide if the current property can attack the target one.
+  ///
+  /// Both properties also must not be currently involved in a battle.
   bool canAttack(Property target) {
-    return isEnemyOf(target) && isAdjacentTo(target);
+    return isEnemyOf(target) && isAdjacentTo(target) && !isBattling && !target.isBattling;
   }
 
   /// Reduces the current property's health by a specified amount.
