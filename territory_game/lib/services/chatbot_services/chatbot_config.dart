@@ -18,12 +18,24 @@ class ChatbotConfig {
     Requests will be made for content with varying difficulty levels. 
     Bear in mind that this application is designed for students at a first-year university level.
     Therefore, the difficulty of 'hard' questions should still be fairly low.
+
+    ---- Coding problem instructions:
     'Easy' questions should be based around fundamentals and allow user to practice and study with simple processes.
     'Medium' questions should include some more complex concepts but still be fundamentally simplistic.
     'Hard' questions should be complex in both content and process, but should not go past what a first-year university student should know.
-    Questions should never be long - always be concise with the instructions. A maximum of 6 - 7 sentences is appropriate. 
+    Questions should never be too long - always be concise with the instructions. A maximum of 6 - 7 sentences is appropriate.
+     Coding problems should be written in the style of the exercises found on websites like Leetcode, Codewars, Hackerrank, etc.
+
+    ---- Multiple choice instructions:
+    Ensure that distractors are always plausible and are never joke answers. 
+    Scores for multiple choice should be 20 points per correct answer. So, 1 correct answer = 20 points, and 5 correct = 100.
+    Always defer to the correctAnswer provided in the prompt. The user's answer must be an EXACT SYNTACTICAL MATCH to the correct answer. Pay close attention to this. 
+    Make sure that there is never more than one correct answer in the choices you provide. All distractors MUST be false.
+    Feedback should explain briefly what makes an answer correct, and if the user got the answer wrong, why their answer was wrong.
+    Feedback should be around 1 - 2 sentences for multiple choice.
+      
+    """;
     
-  """;
 
   /// A template for a prompt that requests a multiple choice quiz.
   String multipleChoicePrompt(Topic topic, String subTopic, int questionCount, List<String> questionHistory, String difficulty) {
@@ -35,15 +47,7 @@ class ChatbotConfig {
       The requested difficulty is $difficulty.
       The question history on this sub-topic is $questionHistory. 
       Return a multiple choice quiz that follows the provided schema and is sufficiently different from the material in the chat history. 
-
-      ---- Multiple choice instructions:
-    Ensure that distractors are always plausible and are never joke answers. 
-    Scores for multiple choice should be 10 points per correct answer. So, 1 correct answer = 10 points, and 5 correct = 50.
-    Always defer to the correctAnswer provided in the prompt. The user's answer must be an EXACT SYNTACTICAL MATCH to the correct answer. Pay close attention to this. 
-    Make sure that there is never more than one correct answer in the choices you provide. All distractors MUST be false.
-    Feedback should explain briefly what makes an answer correct, and if the user got the answer wrong, why their answer was wrong.
-    Feedback should be around 1 - 2 sentences for multiple choice.
-      
+    
     """;
   }
 
@@ -56,8 +60,6 @@ class ChatbotConfig {
     The question history on this sub-topic is $questionHistory. 
     The requested difficulty is $difficulty.
     Return a coding problem that follows the provided schema and is sufficiently different from the material in the chat history.
-    
-    Coding problems should be written in the style of the exercises found on websites like Leetcode, Codewars, Hackerrank, etc.
 
     """;
   } 
@@ -82,7 +84,7 @@ class ChatbotConfig {
     Style conventions
     and more...
 
-    Solutions should rarely get 100 points, but if one is really perfect, full marks can be awarded. 
+    For coding problems, solutions should rarely get 100 points, but if one is really perfect, full marks can be awarded. 
     Make sure you award marks for getting parts of the solution right even if the code doesn't run properly. You should award marks like an examiner would.
     In the explanation, you should always justify why the grade you gave was chosen, and what could have been done differently to achieve a higher grade.
     Feedback should be specific and detailed for coding problems. Try to educate the user on their mistakes as much as possible, with context and conventions.
