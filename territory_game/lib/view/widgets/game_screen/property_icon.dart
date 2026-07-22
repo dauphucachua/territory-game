@@ -24,7 +24,9 @@ class PropertyIcon extends StatelessWidget {
       ),
       width: width,
       height: height,
-      child: Center(child: child)
+      child: Center(
+        child: child
+      )
       
     );
   }

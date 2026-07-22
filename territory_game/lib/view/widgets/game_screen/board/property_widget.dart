@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/battle.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.dart';
 import 'package:territory_game/view/widgets/game_screen/property_icon.dart';
@@ -33,9 +34,11 @@ class _PropertyWidgetState extends State<PropertyWidget> {
       final subTopic = property.quiz.subTopic;
       final questionCount = property.quiz.questions.length;
       final controlPoints = property.controlPoints;
+      final battling = property.isBattling ? "Yes" : "No";
 
-      return "Owner: $owner\nHealth: $health\nQuiz type: $quizType\nSub-topic: $subTopic\nQuestion count: $questionCount\nControl points: $controlPoints";    
+      return "Owner: $owner\nHealth: $health\nQuiz type: $quizType\nSub-topic: $subTopic\nQuestion count: $questionCount\nControl points: $controlPoints\nCurrently battling: $battling";    
     }
+    
 
     return Tooltip(
       message: buildStatString(),
@@ -52,7 +55,16 @@ class _PropertyWidgetState extends State<PropertyWidget> {
       ? Draggable(
         data: widget.property,
         feedback: Text("Attack!", style: TextStyle(color: AppColors.heartRed)), 
-        child: PropertyIcon(color: widget.color),
+        child: PropertyIcon(
+          color: widget.color,
+          child: widget.property.isBattling 
+            ? Icon(
+                Icons.close,
+                size: 100,
+                color: const Color.fromARGB(238, 199, 21, 21)
+              )
+            : null
+        ),
       )
       : DragTarget<Property>(
         onAcceptWithDetails: (details) {
@@ -60,6 +72,7 @@ class _PropertyWidgetState extends State<PropertyWidget> {
           Property defender = property;
           if (attacker.canAttack(defender)) {
             showDialog(
+              barrierDismissible: false,
               context: context, 
               builder: (BuildContext context) => AlertDialog(
                 title: Text("Attack initiated", textAlign: .center),
@@ -74,11 +87,9 @@ class _PropertyWidgetState extends State<PropertyWidget> {
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      gameController.game.battle.setBattlers(
-                        attacker: attacker,
-                        defender: defender
-                      );
+                      gameController.setBattle(attacker, defender);
                       showDialog(
+                        barrierDismissible: false,
                         context: context,
                         builder: (BuildContext context) => ChangeNotifierProvider.value(
                           value: gameController,
@@ -89,7 +100,6 @@ class _PropertyWidgetState extends State<PropertyWidget> {
                         ),
                       ); 
                     },
-                    
                     child: Text("Confirm and begin task", style: TextStyle(color: Colors.blueAccent))
                   ),
                 ],
@@ -98,7 +108,16 @@ class _PropertyWidgetState extends State<PropertyWidget> {
           }
         },
         builder: (context, property, rejected) {
-          return PropertyIcon(color: widget.color);
+          return PropertyIcon(
+            color: widget.color,
+            child: widget.property.isBattling 
+              ? Icon(
+                Icons.close,
+                size: 100,
+                color: const Color.fromARGB(238, 199, 21, 21)
+              )
+              : null
+          );
         }
       ),
     );
