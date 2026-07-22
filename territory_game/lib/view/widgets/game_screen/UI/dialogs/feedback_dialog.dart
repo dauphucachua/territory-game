@@ -344,7 +344,8 @@ class FeedbackListItem extends StatelessWidget {
                     ),
                   ),
                 SizedBox(height: 10),
-                SingleChildScrollView(
+                quizType == "codingProblem" 
+                ? SingleChildScrollView(
                   scrollDirection: .vertical,
                   child: SmoothMarkdown(
                     data: feedbackText,
@@ -355,7 +356,8 @@ class FeedbackListItem extends StatelessWidget {
                       )
                     ),
                   ),
-                ),
+                )
+                : ContentText(text: feedbackText),
                 SizedBox(height: 10),
                 Text(
                   "Score: $questionScore",
