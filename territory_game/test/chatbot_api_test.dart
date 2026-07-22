@@ -12,7 +12,6 @@ import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
-
 import 'dummy_gamecontroller.dart';
 
 void main() {

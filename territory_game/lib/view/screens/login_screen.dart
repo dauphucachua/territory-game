@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
-import 'package:territory_game/model/game_user.dart';
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 import 'package:territory_game/view/screens/main_menu_screen.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';

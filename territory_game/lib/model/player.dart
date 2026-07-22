@@ -1,8 +1,6 @@
 import 'dart:ui';
-
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/model/battle.dart';
-import 'package:territory_game/model/game_user.dart';
 import 'package:territory_game/model/property.dart';
 
 class Player {

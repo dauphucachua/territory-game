@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:territory_game/model/game.dart';
 
 /// A data model for the users who play the game.
 class GameUser {

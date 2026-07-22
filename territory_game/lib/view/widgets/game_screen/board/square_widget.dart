@@ -6,6 +6,7 @@ import 'package:territory_game/model/square.dart';
 import 'package:territory_game/view/widgets/game_screen/board/property_widget.dart';
 
 /// This widget embodies a square of the game board.
+// ignore: must_be_immutable
 class SquareWidget extends StatefulWidget {
   final Square square;
   final Color color;

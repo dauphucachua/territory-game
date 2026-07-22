@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/player.dart';
-import 'package:territory_game/model/property.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/board/board_widget.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/main_sidebar_widget.dart';
@@ -176,7 +175,7 @@ class PlayerStatContainer extends StatelessWidget {
           ),
           SizedBox(width: 12.0),
           Text(
-            "$playerControlPoints control points, $playerProperties properties",
+            "$playerControlPoints control points, ${playerProperties.length} properties",
             style: TextStyle(
               color: AppColors.opaqueWhite,
             )

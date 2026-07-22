@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class PropertyIcon extends StatelessWidget {
   final double width;
   final double height;

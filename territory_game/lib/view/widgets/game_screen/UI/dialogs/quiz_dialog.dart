@@ -17,6 +17,7 @@ enum QuizMode {creation, attack}
 /// A dialog box for displaying quizzes.
 /// 
 /// It dynamically selects the correct layout based on the type of quiz that it is passed in its constructor.
+// ignore: must_be_immutable
 class QuizDialog extends StatelessWidget {
   final Quiz quiz;
   QuizMode mode;

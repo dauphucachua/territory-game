@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
-import 'package:territory_game/model/battle.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.dart';
 import 'package:territory_game/view/widgets/game_screen/property_icon.dart';

@@ -67,6 +67,7 @@ class Quiz {
     if (questions.length == userAnswers.length) {
       final result = {};
       
+      // ignore: dead_code
       for (int i = 0; i < questions.length; i++) {
         final questionNo = questions[i].id;
         final question = questions[i].question;

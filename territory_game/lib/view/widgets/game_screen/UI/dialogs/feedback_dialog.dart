@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/property.dart';
-import 'package:territory_game/model/quiz_models/coding_question_feedback.dart';
-import 'package:territory_game/model/quiz_models/question_feedback.dart';
 import 'package:territory_game/model/quiz_models/question_models/coding_problem.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
