@@ -64,7 +64,10 @@ class _GameScreenState extends State<GameScreen> {
                       PopupMenuItem(
                         child: MainMenuItem(
                           text: "Home",
-                          onTap: () => Navigator.pop(context),
+                          onTap: () => Navigator.popUntil(
+                            context, 
+                            ModalRoute.withName("/mainMenu")
+                          )
                         ),
                       ),
                        PopupMenuItem(
@@ -72,7 +75,9 @@ class _GameScreenState extends State<GameScreen> {
                           text: "Logout",
                           onTap: () {
                             gameController.firebaseAuth.logout();
-                            Navigator.of(context).popUntil((route) => route.isFirst);
+                            Navigator.of(context).popUntil(
+                              (route) => route.isFirst
+                            );
                           },
                         ),
                       ),

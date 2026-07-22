@@ -54,6 +54,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     void pushToGameScreen(GameController gameController) {
       Navigator.of(context).push(
         MaterialPageRoute(
+          settings: RouteSettings(name: "/gameScreen"),
           builder: (context) => ChangeNotifierProvider(
             create: (context) => gameController,
             child: const GameScreen()

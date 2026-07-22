@@ -142,9 +142,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
+                                settings: RouteSettings(name: "/mainMenu"),
                                 builder: (context) => ChangeNotifierProvider.value(
                                   value: context.read<FirebaseAuthService>(),
-                                  child: MainMenuScreen()
+                                  child: MainMenuScreen(),
+                                  
                                 )
                               )
                             );
