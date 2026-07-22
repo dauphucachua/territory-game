@@ -21,6 +21,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
   String selectedQuestionType = "";
   String selectedDifficulty = "";
   final difficulties = ["Easy", "Medium", "Hard"];
+  bool _isLoading = false;
 
   List<SelectionCardData> getCardDataList(List<String> titles) {
     // also needs a bodies parameter
@@ -66,7 +67,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             ScrollableHorizontalListView(
               selectedTitle: selectedSubtopic,
               cardData: getCardDataList(gameController.subTopics),
-              onTapCallback: (String subTopic) => setState(() {selectedSubtopic = subTopic;}),
+              onTapCallback: (String subTopic) => setState(() => selectedSubtopic = subTopic),
             ),
             SizedBox(height: 10.0),
             Divider(),
@@ -86,7 +87,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             SizedBox(height: 20.0),
             // Second subtitle
             SubtitleText(
-              text: "Select a question type",
+              text: "Select a difficulty",
             ),
             ScrollableHorizontalListView(
               height: 100,
@@ -99,7 +100,8 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
               mainAxisAlignment: .end,
               children: [
                 // Start quiz button
-                ElevatedButton(      
+                _isLoading ? LoaderWithText(text: "Getting quiz from chatbot...")
+                : ElevatedButton(      
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 57, 92, 109),
                     elevation: 2.0,
@@ -116,12 +118,14 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                   onPressed: () async { // Still to refactor
                     // Close dialog
                     if (selectedSubtopic.isNotEmpty && selectedQuestionType.isNotEmpty) {
+                      setState(() => _isLoading = true);
                       Quiz newQuiz = await gameController.getQuiz(
                         selectedSubtopic,
                         selectedQuestionType,
                         selectedQuestionType == "multipleChoice" ? 5 : 1,
                         selectedDifficulty // Temporarily hardcoded while buttons not implemented
                       );
+                      setState(() => _isLoading = false);
                       if (context.mounted) {
                         Navigator.pop(context);
                         showDialog(

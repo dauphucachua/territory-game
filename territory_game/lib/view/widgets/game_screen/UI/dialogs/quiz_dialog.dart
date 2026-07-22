@@ -86,6 +86,7 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
   int currentQuestionIndex = 0;
   // Stores the answers selected by the user and automatically sorts them by key (question ID).
   SortedMap<int, String> userAnswers = SortedMap(Ordering.byKey());
+  bool _isLoading = false;
 
   
   
@@ -149,17 +150,15 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
                   color: AppColors.opaqueWhite
                   ),
                 ),
-                onPressed: () => setState(() {
-                  currentQuestionIndex--; 
-                })
+                onPressed: () => setState(() => currentQuestionIndex--) 
               ),
-            ElevatedButton(
+            _isLoading ? LoaderWithText(text: "Getting feedback from chatbot... ") 
+            : ElevatedButton(
               style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.blue,
                   padding: .all(24.0)
                 ),
-              child: Text(
-                currentQuestion.id < questions.length ? "Next question" : "Finish quiz",
+               child: Text(currentQuestion.id < questions.length ? "Next question" : "Finish quiz",
                 style: TextStyle(
                   fontSize: 18,
                   color: AppColors.opaqueWhite
@@ -169,7 +168,9 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
                 if (userAnswers.length == questions.length) {
                   widget.quiz.storeUserAnswers(userAnswers);
                   // widget.gameController
+                  setState(() => _isLoading = true);
                   final quizFeedback = await gameController.getFeedback(widget.quiz);
+                  setState(() => _isLoading = false);
                   if (context.mounted) {
                     Navigator.pop(context);
                     showDialog(
@@ -189,7 +190,7 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
                     currentQuestionIndex++;
                   });
                 }
-              }
+              },
             ),
           ],
         ),
@@ -217,7 +218,8 @@ class _CodingQuizLayoutState extends State<CodingQuizLayout> {
   int currentQuestionIndex = 0;
   // Stores the answers selected by the user and automatically sorts them by key (question ID).
   SortedMap<int, String> userAnswers = SortedMap(Ordering.byKey());
-  // Configures the setting for the code text field widget.
+  bool _isLoading = false;
+  // Configures the settings for the code text field widget.
   final codeController = CodeController(
     text: "# Write your code here",
     language: python,
@@ -300,7 +302,8 @@ class _CodingQuizLayoutState extends State<CodingQuizLayout> {
                   ),
                 ),
                 SizedBox(height: 32.0),
-                ElevatedButton(
+                _isLoading == true ? LoaderWithText(text: "Getting feedback from chatbot...")
+                : ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: .all(18.0)
                   ),
@@ -309,7 +312,9 @@ class _CodingQuizLayoutState extends State<CodingQuizLayout> {
                     if (userAnswers.length == questions.length) {
                       widget.quiz.storeUserAnswers(userAnswers);
                       // widget.gameController
+                      setState(() => _isLoading = true);
                       final quizFeedback = await gameController.getFeedback(widget.quiz);
+                      setState(() => _isLoading = false);
                       if (context.mounted) {
                         Navigator.pop(context);
                         showDialog(

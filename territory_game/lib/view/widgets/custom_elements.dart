@@ -81,3 +81,21 @@ class CloseWindowButton extends StatelessWidget {
   }
 }
 
+class LoaderWithText extends StatelessWidget {
+  final String text;
+  const LoaderWithText({
+    required this.text,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        ContentText(text: text),
+        SizedBox(width: 12.0),
+        CircularProgressIndicator()
+      ]
+    );
+  }
+}
