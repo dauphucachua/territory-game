@@ -5,6 +5,7 @@ import 'package:territory_game/firebase_options.dart';
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 import 'package:territory_game/view/screens/login_screen.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
