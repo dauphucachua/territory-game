@@ -181,7 +181,7 @@ class GameController extends ChangeNotifier {
   
 
   /// Gets a Quiz object with the specified parameters from the active chatbot.
-  Future<Quiz> getQuiz(String subTopic, String questionType, int questionCount) async {
+  Future<Quiz> getQuiz(String subTopic, String questionType, int questionCount, String difficulty) async {
     final questionHistory = game.history.questionHistory[questionType]!;
 
     Map<String, dynamic>? quizJson = await chatbot.getQuizJson(
@@ -189,7 +189,8 @@ class GameController extends ChangeNotifier {
       subTopic, 
       questionType, 
       questionCount,
-      questionHistory
+      questionHistory,
+      difficulty
     );
 
     if (quizJson != null) {

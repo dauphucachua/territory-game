@@ -6,6 +6,7 @@ import 'package:territory_game/model/quiz_models/question_models/question.dart';
 class Quiz {
   final String type;
   final String subTopic;
+  final String difficulty;
   final List<Question> questions; // This should be List<Question>, having type issues, need to return to this
   List<String> userAnswers;
   
@@ -13,6 +14,7 @@ class Quiz {
     required this.type,
     required this.subTopic,
     required this.questions,
+    required this.difficulty,
     List<String>? userAnswers
   }) : userAnswers = userAnswers ?? [];
   
@@ -36,6 +38,7 @@ class Quiz {
     return Quiz(
       type: json["quizType"],
       subTopic: json["subTopic"],
+      difficulty: json["difficulty"],
       questions: typeSelector(json["quizType"])
     );
   }
@@ -45,6 +48,7 @@ class Quiz {
     return {
       "quizType": type,
       "subTopic": subTopic,
+      "difficulty": difficulty,
       "questions": questions.map((question) {
         switch (type) {
           case "multipleChoice": 
@@ -104,8 +108,9 @@ class Quiz {
 
   @override toString() {
     return """
-      Quiz type: $type\n
-      Questions: $questions\n
+      Quiz type: $type
+      Difficulty: $difficulty
+      Questions: $questions
     """;
   }
 

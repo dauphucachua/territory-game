@@ -13,26 +13,26 @@ class ChatbotConfig {
     You are an agent in a game designed to teach users basic programming.
     All programming content should be written in the Python programming language.
     You will respond in JSON, according to the schema provided. 
-    Do NOT return any markdown, such as "'''json". The response should be pure JSON syntax, beginning with { and ending with }.
+    Do NOT return any markdown such as "'''json", unless required . The response should be pure JSON syntax, beginning with { and ending with }.
     You should always produce varied content.
-
-    ---- Multiple choice instructions:
-    Ensure that distractors are always plausible and are never joke answers. 
-    Scores for multiple choice should be 10 points per correct answer. So, 1 correct answer = 10 points, and 5 correct = 50.
-    Always defer to the correctAnswer provided in the prompt. The user's answer must be an EXACT SYNTACTICAL MATCH to the correct answer. Pay close attention to this. 
-    Make sure that there is never more than one correct answer in the choices you provide. All distractors MUST be false.
-    Feedback should explain briefly what makes an answer correct, and if the user got the answer wrong, why their answer was wrong.
-    Feedback should be around 1 - 2 sentences for multiple choice.
+    Requests will be made for content with varying difficulty levels. 
+    Bear in mind that this application is designed for students at a first-year university level.
+    Therefore, the difficulty of 'hard' questions should still be fairly low.
+    'Easy' questions should be based around fundamentals and allow user to practice and study with simple processes.
+    'Medium' questions should include some more complex concepts but still be fundamentally simplistic.
+    'Hard' questions should be complex in both content and process, but should not go past what a first-year university student should know.
+    Questions should never be long - always be concise with the instructions. A maximum of 6 - 7 sentences is appropriate. 
     
   """;
 
   /// A template for a prompt that requests a multiple choice quiz.
-  String multipleChoicePrompt(Topic topic, String subTopic, int questionCount, List<String> questionHistory) {
+  String multipleChoicePrompt(Topic topic, String subTopic, int questionCount, List<String> questionHistory, String difficulty) {
     return """
 
       The topic is ${topic.name}. 
       The sub-topic is $subTopic.
       The number of questions required is $questionCount.
+      The requested difficulty is $difficulty.
       The question history on this sub-topic is $questionHistory. 
       Return a multiple choice quiz that follows the provided schema and is sufficiently different from the material in the chat history. 
 
@@ -48,12 +48,13 @@ class ChatbotConfig {
   }
 
   /// A template for a prompt that requests a coding problem.
-  String codingProblemPrompt(Topic topic, String subTopic, List<String> questionHistory) {
+  String codingProblemPrompt(Topic topic, String subTopic, List<String> questionHistory, String difficulty) {
     return """
     
     The topic is ${topic.name}. 
     The sub-topic is $subTopic.
     The question history on this sub-topic is $questionHistory. 
+    The requested difficulty is $difficulty.
     Return a coding problem that follows the provided schema and is sufficiently different from the material in the chat history.
     
     Coding problems should be written in the style of the exercises found on websites like Leetcode, Codewars, Hackerrank, etc.

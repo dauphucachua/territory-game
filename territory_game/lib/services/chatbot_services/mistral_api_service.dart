@@ -27,8 +27,12 @@ class MistralApiService implements ChatbotApiService {
         },
         "subTopic": {
           "type": "string",
-          "description": "Return the sub-topic provided in the prompt"
+          "description": "Return the sub-topic provided in the prompt."
         }, 
+        "difficulty": {
+          "type": "string",
+          "description": "Return the difficulty that was provided in the prompt."
+        },
         "questions": {
           "type": "array",
           "items": {
@@ -60,6 +64,10 @@ class MistralApiService implements ChatbotApiService {
           "type": "string",
           "description": "Return the sub-topic provided in the prompt",
         },
+        "difficulty": {
+          "type": "string",
+          "description": "Return the difficulty that was provided in the prompt."
+        },
         "questions": {
           "type": "array",
           "items": {
@@ -71,15 +79,15 @@ class MistralApiService implements ChatbotApiService {
               },
               "question": {
                 "type": "string",
-                "description": "The Leetcode / Codewars style question."
+                "description": "The Leetcode / Codewars style question ONLY."
               },
               "inputExample": {
                 "type": "string",
-                "description": "Provide an example of the type of input the user can expect to receive for the problem."
+                "description": "This is an example of the type of input the user can expect to receive for the problem."
               },
               "outputExample": {
                 "type": "string",
-                "description": "Provide an example of the type of output that the problem expects the user to produce."
+                "description": "This is an example of the type of output that the problem expects the user to produce."
               }, 
             },
           },
@@ -131,7 +139,7 @@ class MistralApiService implements ChatbotApiService {
                 },
                 "feedback": {
                   "type": "string",
-                  "description": "Your feedback describing any mistakes, misunderstanding, context, and providing an example solution"
+                  "description": "Your feedback describing any mistakes, misunderstanding, context, and providing an example solution in Python markdown."
                 },
                 "score": {"type": "integer"},
             },
@@ -156,18 +164,19 @@ class MistralApiService implements ChatbotApiService {
     String subTopic, 
     String questionType,
     int questionCount,
-    List<String> questionHistory
+    List<String> questionHistory,
+    String difficulty
   ) async {
 
     final ChatCompletionResponse response = await client.chat.create(
       request: ChatCompletionRequest(
-        model: models[0],
+        model: models[1],
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
           if (questionType == "multipleChoice") 
-            ChatMessage.user(config.multipleChoicePrompt(topic, subTopic, questionCount, questionHistory))
+            ChatMessage.user(config.multipleChoicePrompt(topic, subTopic, questionCount, questionHistory, difficulty))
           else if (questionType == "codingProblem")
-            ChatMessage.user(config.codingProblemPrompt(topic, subTopic, questionHistory))
+            ChatMessage.user(config.codingProblemPrompt(topic, subTopic, questionHistory, difficulty))
         ],
         reasoningEffort: .high,
         responseFormat: quizSchemas[questionType],
@@ -188,7 +197,7 @@ class MistralApiService implements ChatbotApiService {
   Future<Map<String, dynamic>?> getFeedbackJson(Quiz quiz) async {
     final ChatCompletionResponse response = await client.chat.create(
       request: ChatCompletionRequest(
-        model: models[0],
+        model: models[1],
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
           ChatMessage.user(config.feedbackPrompt(quiz))
