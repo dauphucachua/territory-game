@@ -15,6 +15,7 @@ class AppColors {
   static const correctBoxGreen = Color.fromARGB(177, 74, 113, 57);
   static const midBoxYellow = Color.fromARGB(137, 255, 197, 8);
   static const wrongBoxRed = Color.fromARGB(185, 113, 57, 57);
+  static const selectedBlue = Color.fromARGB(255, 69, 99, 136); 
 }
 
 class AppDimensions {

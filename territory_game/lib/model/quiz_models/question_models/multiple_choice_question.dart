@@ -2,10 +2,14 @@ import 'package:territory_game/model/quiz_models/question_models/question.dart';
 
 /// A data model for the multiple choice question type.
 class MultipleChoiceQuestion extends Question {
+  // The correct answer to the question.
   final String correctAnswer;
+  // The wrong answers to the question.
   final List<String> distractors;
+  // A randomized list of the multiple choice options - initialized late to allow fixed-order storage for consistency with setState()
+  late final List<String> allAnswersRandomized = getRandomizedAnswers();
 
-  const MultipleChoiceQuestion({
+  MultipleChoiceQuestion({
     required super.id, 
     required super.question,
     required this.correctAnswer,
@@ -14,6 +18,7 @@ class MultipleChoiceQuestion extends Question {
 
   /// Returns all answers as a List with the correct answer at position 0.
   List<String> get allAnswers => [correctAnswer, ...distractors];
+  
 
   /// Loads a MultipleChoiceQuestion object from a JSON structure.
   factory MultipleChoiceQuestion.fromJson(Map<String, dynamic> json) {
@@ -25,6 +30,7 @@ class MultipleChoiceQuestion extends Question {
     );
   }
 
+  /// Returns a JSON-friendly Map representation of the question.
   Map<String, dynamic> toJson() {
     return {
       "id": id,

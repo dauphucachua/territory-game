@@ -86,17 +86,22 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
   int currentQuestionIndex = 0;
   // Stores the answers selected by the user and automatically sorts them by key (question ID).
   SortedMap<int, String> userAnswers = SortedMap(Ordering.byKey());
+
+  
   
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
     final questions = List<MultipleChoiceQuestion>.from(widget.quiz.questions);
     final currentQuestion = questions[currentQuestionIndex];
+    final randomizedAnswers = currentQuestion.allAnswersRandomized;
+    
 
     /// Adds a user answer to the userAnswers Map.
     void logUserAnswer(String answer) {
-      userAnswers[currentQuestion.id] = answer;
-      print(userAnswers);
+      setState(() {
+        userAnswers[currentQuestion.id] = answer;
+      });
     }
 
     return Column(
@@ -104,53 +109,81 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
         TitleText(text: "Question ${currentQuestion.id}"),
         SizedBox(height: 25),
         SubtitleText(text: currentQuestion.question),
-          
-        ...currentQuestion.getRandomizedAnswers().map((answer) {
+
+         // The multiple choice options in clickable containers 
+        ...randomizedAnswers.map((answer) {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
               onTap: () => logUserAnswer(answer),
               child: Container(
+                padding: .all(20.0),
                 decoration: BoxDecoration(
-                  color: AppColors.blue
+                  color: userAnswers[currentQuestion.id] == answer 
+                    ? AppColors.selectedBlue 
+                    : AppColors.blue,
+                  borderRadius: AppDimensions.cornerRadius
                 ),
                 child: ContentText(text: answer),
               ),
             ),
           );
         }),
+        SizedBox(height: 40),
+
+        // The next and previous question buttons
         Row(
           mainAxisAlignment: .center,
           spacing: 50,
           children: [
             if (currentQuestionIndex > 0)
               ElevatedButton(
-                child: Text("Previous question"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blue,
+                  padding: .all(24.0)
+                ),
+                child: Text(
+                  "Previous question",
+                  style: TextStyle(
+                  fontSize: 18,
+                  color: AppColors.opaqueWhite
+                  ),
+                ),
                 onPressed: () => setState(() {
                   currentQuestionIndex--; 
                 })
               ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blue,
+                  padding: .all(24.0)
+                ),
               child: Text(
-                currentQuestion.id < questions.length ? "Next question" : "Finish quiz"
+                currentQuestion.id < questions.length ? "Next question" : "Finish quiz",
+                style: TextStyle(
+                  fontSize: 18,
+                  color: AppColors.opaqueWhite
+                ),
               ),
               onPressed: () async {
                 if (userAnswers.length == questions.length) {
                   widget.quiz.storeUserAnswers(userAnswers);
                   // widget.gameController
                   final quizFeedback = await gameController.getFeedback(widget.quiz);
-                  Navigator.pop(context);
-                  showDialog(
-                    context: context,
-                    builder: (newContext) => ChangeNotifierProvider.value(
-                      value: context.read<GameController>(),
-                      child: FeedbackDialog(
-                        quiz: widget.quiz,
-                        quizFeedback: quizFeedback,
-                        mode: widget.mode
-                      )
-                    )
-                  ); 
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    showDialog(
+                      context: context,
+                      builder: (newContext) => ChangeNotifierProvider.value(
+                        value: context.read<GameController>(),
+                        child: FeedbackDialog(
+                          quiz: widget.quiz,
+                          quizFeedback: quizFeedback,
+                          mode: widget.mode
+                        ),
+                      ),
+                    );
+                  }
                 } else {
                   setState(() {
                     currentQuestionIndex++;
