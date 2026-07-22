@@ -39,7 +39,7 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
         mainAxisAlignment: .start,
         spacing: 5,
         children: [
-          // Top tabs - need converted to buttons with a currentTab variable
+          // Top tabs
           Row(
             mainAxisAlignment: .spaceEvenly,
             children: [
@@ -64,10 +64,9 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
             ],
           ),
           Divider(),
-          activeTab == TabStatus.activityTab ? ActivityTabContent() : PropertiesTabContent(),
-          Spacer(),
+          activeTab == TabStatus.activityTab ? Expanded(child: ActivityTabContent()) : Expanded(child: PropertiesTabContent()),
           Divider(),
-          SizedBox(height: 20),           
+          SizedBox(height: 10),           
           ElevatedButton(      
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 57, 92, 109),
@@ -98,8 +97,8 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
                   )
                 );
             }
-          ),
-          SizedBox(height: 10)
+          ), 
+          SizedBox(height: 30)
         ],
       ),
     );
@@ -244,7 +243,7 @@ class PropertiesTabContent extends StatelessWidget {
         Divider(),
         playerProperties.isNotEmpty 
         ? SizedBox(
-          height: 400,
+          height: 350,
           width: MediaQuery.widthOf(context),
           child: ListView.builder(
             scrollDirection: .vertical,

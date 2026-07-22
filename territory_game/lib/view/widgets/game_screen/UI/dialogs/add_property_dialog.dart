@@ -19,6 +19,8 @@ class AddPropertyDialog extends StatefulWidget {
 class _AddPropertyDialogState extends State<AddPropertyDialog> {
   String selectedSubtopic = "";
   String selectedQuestionType = "";
+  String selectedDifficulty = "";
+  final difficulties = ["Easy", "Medium", "Hard"];
 
   List<SelectionCardData> getCardDataList(List<String> titles) {
     // also needs a bodies parameter
@@ -62,6 +64,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             SubtitleText(text: "Select a sub-topic"),
             // Sub-topic selection ListView
             ScrollableHorizontalListView(
+              selectedTitle: selectedSubtopic,
               cardData: getCardDataList(gameController.subTopics),
               onTapCallback: (String subTopic) => setState(() {selectedSubtopic = subTopic;}),
             ),
@@ -74,8 +77,22 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             ),
             // Question type choice ListView
             ScrollableHorizontalListView(
+              height: 100,
+              selectedTitle: selectedQuestionType,
               cardData: getCardDataList(gameController.subject.questionTypes), 
-              onTapCallback: (String questionType) => setState(() {selectedQuestionType = questionType;})
+              onTapCallback: (String questionType) => setState(() => selectedQuestionType = questionType)
+            ),
+            Divider(),
+            SizedBox(height: 20.0),
+            // Second subtitle
+            SubtitleText(
+              text: "Select a question type",
+            ),
+            ScrollableHorizontalListView(
+              height: 100,
+              selectedTitle: selectedDifficulty,
+              cardData: getCardDataList(difficulties), 
+              onTapCallback: (String difficulty) => setState(() => selectedDifficulty = difficulty)
             ),
             Spacer(),
             Row(
@@ -102,7 +119,8 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                       Quiz newQuiz = await gameController.getQuiz(
                         selectedSubtopic,
                         selectedQuestionType,
-                        selectedQuestionType == "multipleChoice" ? 5 : 1 // Temporarily hardcoded while buttons not implemented
+                        selectedQuestionType == "multipleChoice" ? 5 : 1,
+                        selectedDifficulty // Temporarily hardcoded while buttons not implemented
                       );
                       if (context.mounted) {
                         Navigator.pop(context);
@@ -146,13 +164,15 @@ class SelectionCardData {
 
 class SelectionCard extends StatelessWidget { 
   final String title;
+  bool isSelected;
   final String? body;
   final void Function() onTap;
   final double width;
   
   
-  const SelectionCard({
+  SelectionCard({
     required this.title,
+    this.isSelected = false,
     this.body,
     required this.onTap,
     this.width = 150, 
@@ -164,7 +184,7 @@ class SelectionCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(),
       child: Card(
-        color: const Color.fromARGB(255, 57, 92, 109),
+        color: isSelected ? Color.fromARGB(255, 82, 132, 157) : Color.fromARGB(255, 57, 92, 109),
         elevation: 2.0,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -202,11 +222,13 @@ class ScrollableHorizontalListView extends StatelessWidget {
   final List<SelectionCardData> cardData;
   final double height;
   final void Function(String) onTapCallback;
+  String? selectedTitle;
  
- const ScrollableHorizontalListView({
+ ScrollableHorizontalListView({
     required this.cardData,
     this.height = 150,
     required this.onTapCallback,
+    this.selectedTitle,
     super.key,
   });
 
@@ -233,6 +255,7 @@ class ScrollableHorizontalListView extends StatelessWidget {
               child: SelectionCard(
                 title: title,
                 body: body,
+                isSelected: title == selectedTitle,
                 onTap: () => onTapCallback(title)
               ),
             );
