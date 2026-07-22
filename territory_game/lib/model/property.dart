@@ -8,6 +8,7 @@ class Property {
   String ownerId;
   Quiz quiz;
   int health;
+  bool isBattling;
   int? row;
   int? col;
   
@@ -15,6 +16,7 @@ class Property {
     required this.ownerId,
     required this.quiz,
     required this.health,
+    this.isBattling = false,
     this.row,
     this.col
   });

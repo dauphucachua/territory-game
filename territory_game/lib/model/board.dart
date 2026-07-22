@@ -1,3 +1,4 @@
+import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/property.dart';
 
 /// A data model for the game board.
@@ -17,6 +18,18 @@ class Board {
     ), 
     growable: false
   );
+
+  int getControlPointsByPlayer(Player player) {
+    int points = 0;
+    for (List row in state) {
+      for (var item in row) {
+        if (item is Property && item.ownerId == player.id) {
+          points += item.controlPoints;
+        }
+      }
+    }
+    return points;
+  }
 
   /// Loads a board state from a JSON file.
   factory Board.fromJson(Map<String, dynamic> json) {

@@ -90,9 +90,6 @@ class GameController extends ChangeNotifier {
     activePlayer.propertyToPlace = null;
   }
 
-  void _addToPlayerProperties(Property property) {
-    activePlayer.properties.add(property);
-  }
 
   /// Places a property at the 2d list position indicated by the row and col parameters.
   Future<void> placeProperty(Property property, {required int row, required int col}) async {
@@ -101,7 +98,7 @@ class GameController extends ChangeNotifier {
       property.col = col;
       boardState[row][col] = property;
       _removePropertyToPlace();
-      _addToPlayerProperties(property);
+
 
       final message = "${activePlayer.displayName} placed a property with ${property.health} health at ${property.humanCoord}.";
       saveEventMessage(message);
@@ -123,8 +120,8 @@ class GameController extends ChangeNotifier {
 
   /// Facilitates a battle between two properties.
   Future<void> battle(int attackerScore) async {
-    final attacker = game.battle.attacker;
-    final defender = game.battle.defender;
+    final attacker = activePlayer.activeBattle!.attacker;
+    final defender = activePlayer.activeBattle!.defender;
     
     if (attacker == null || defender == null) {
       throw "The battling properties are not set.";
