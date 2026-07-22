@@ -19,11 +19,17 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  final transformationController = TransformationController();
 
   @override
   void initState() {
     super.initState();
     context.read<GameController>().listenForStateUpdates();
+    transformationController.value.setEntry(0, 0, 0.3);
+    transformationController.value.setEntry(1, 1, 0.3);
+    transformationController.value.setEntry(2, 2, 0.3);
+    transformationController.value.setEntry(0, 3, 350);
+    transformationController.value.setEntry(1, 3, 60);
   }
 
   @override
@@ -105,6 +111,7 @@ class _GameScreenState extends State<GameScreen> {
               children: [
                 // Interactive viewer covering the board and the play area
                 InteractiveViewer(
+                  transformationController: transformationController,
                   constrained: false,
                   minScale: 0.1,
                   maxScale: 4,
