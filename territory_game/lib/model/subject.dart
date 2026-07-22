@@ -37,28 +37,39 @@ class Subject {
     "name": "Introduction to Programming",
     "topics": [
       {
-          "name": "Variables",
+          "name": "Week 1: Python and basic data types",
           "week": 1,
           "subTopics": [
-              "Naming",
-              "Conventions",
-              "Values"
+              "Python syntax",
+              "Style conventions",
+              "Variables",
+              "Strings",
+              "Booleans",
+              "Operators",
+              "Floats and integers",
+              "Lists",
+              "Tuples",
+              "Sets",
+              "Dictionaries"
           ]
       },
       {
-          "name": "Functions",
+          "name": "Week 2: Control flow",
           "week": 2,
           "subTopics": [
-              "Scope",
-              "Iteration"
+              "Conditions",
+              "For loops",
+              "While loops",
+              "Iterators",
+              "Generators",
+              "List comprehensions",
+              
           ]
       },
     ],
     "questionTypes": [
         "multipleChoice",
-        "theory",
         "codingProblem",
-        "codingExercise"
     ]
   };
 
