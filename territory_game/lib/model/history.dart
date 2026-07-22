@@ -25,7 +25,7 @@ class History {
     final codingProblemList = List<String>.from(json["questionHistory"]["codingProblem"]);
     questionHistory["multipleChoice"] = multipleChoiceList;
     questionHistory["codingProblem"] = codingProblemList;
-    
+
     final activityHistory = List<String>.from(json["activityHistory"]);
 
     return History(
@@ -51,7 +51,7 @@ class History {
   // Adds a chat message to the activity history.
   void addChatMessage(Player author, String message) {
     final currentTime = DateFormat.jm().format(DateTime.now());
-    final post = "$currentTime: $author: $message";
+    final post = "$currentTime: ${author.displayName}: $message";
     activityHistory.add(post);
   }
 

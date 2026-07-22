@@ -65,8 +65,9 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
           ),
           Divider(),
           activeTab == TabStatus.activityTab ? ActivityTabContent() : PropertiesTabContent(),
+          Spacer(),
           Divider(),
-          Spacer(),                
+          SizedBox(height: 20),           
           ElevatedButton(      
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 57, 92, 109),
@@ -106,23 +107,25 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
 }
 
 class ActivityTabContent extends StatelessWidget {
-  const ActivityTabContent({
+  ActivityTabContent({
     super.key,
   });
 
+  final chatController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    final activityHistory = context.watch<GameController>().game.history.activityHistory;
+    final gameController = context.watch<GameController>();
+    final activityHistory = gameController.game.history.activityHistory;
+
+    Future<void> submitChatMessage() async {
+      await gameController.saveChatMessage(chatController.text.trim());
+    }
 
     return Column(
       children: [
         SizedBox(
-          height: 100,
-          child: Text("Active selection goes here", style: TextStyle(color: const Color.fromARGB(255, 57, 92, 109),)),
-        ),
-        Divider(),
-        SizedBox(
-          height: MediaQuery.heightOf(context) - 400,
+          height: MediaQuery.heightOf(context) - 300,
           child: Column(
             children: [
               ContentText(text: "Activity"),
@@ -149,6 +152,39 @@ class ActivityTabContent extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: chatController,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.opaqueWhite
+                      ),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: AppColors.opaqueWhite,
+                          )
+                        ),
+                        hintText: "Enter chat message",
+                        hintStyle: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.opaqueWhite
+                        )
+                      )
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.send,
+                      color: const Color.fromARGB(255, 110, 133, 151)
+                    ),
+                    onPressed: () => submitChatMessage()
+                  )
+                ],
+              )
             ],
           ),
         ),
