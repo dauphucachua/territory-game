@@ -15,10 +15,10 @@ class CodingProblem extends Question {
   /// Loads a CodingProblem object from a JSON file.
   factory CodingProblem.fromJson(Map<String, dynamic> json) {
     return CodingProblem(
-      id: json["id"],
-      question: json["question"],
-      inputExample: json["inputExample"],
-      outputExample: json["outputExample"]
+      id: json["id"] ?? 0,
+      question: json["question"] ?? "The model did not produce a question.",
+      inputExample: json["inputExample"] ?? "Input example missing",
+      outputExample: json["outputExample"] ?? "Output example missing"
     );  
   }
 

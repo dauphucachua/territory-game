@@ -100,6 +100,7 @@ void main() {
     final questionType = "multipleChoice";
     final questionCount = 2;
     final List<String> questionHistory = [];
+    final difficulty = "Easy";
 
     print("Hello");
 
@@ -108,7 +109,8 @@ void main() {
       subTopic, 
       questionType, 
       questionCount,
-      questionHistory
+      questionHistory,
+      difficulty
     ); 
     
     if (quiz != null) {
@@ -118,7 +120,7 @@ void main() {
       print("Quiz null");
     }
 
-    var quizTwo = await gameController.getQuiz(subTopic, questionType, questionCount);
+    var quizTwo = await gameController.getQuiz(subTopic, questionType, questionCount, difficulty);
     print(quizTwo);
   });
 
@@ -128,13 +130,15 @@ void main() {
     final questionType = gameController.game.subject.questionTypes[1];
     final questionCount = 1;
     final List<String> questionHistory = [];
+    final difficulty = "Easy";
 
     final quiz = await chatbotProvider.chatbot.getQuizJson(
       topic,
       subTopic,
       questionType,
       questionCount,
-      questionHistory
+      questionHistory,
+      difficulty
     );
 
     if (quiz != null) {
@@ -161,6 +165,7 @@ void main() {
     Quiz mockQuiz = Quiz(
       type: "multipleChoice",
       subTopic: "Assignment",
+      difficulty: "Easy",
       questions: [mockQuestion1, mockQuestion2],
     );
 

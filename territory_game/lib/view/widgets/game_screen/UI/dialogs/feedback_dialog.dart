@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import "package:flutter_smooth_markdown/flutter_smooth_markdown.dart";
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
@@ -47,9 +48,7 @@ class FeedbackDialog extends StatelessWidget {
               quizFeedback: quizFeedback,   
             ),
           ),
-           SizedBox(
-          height: 20.0,
-          ),
+          SizedBox(height: 20.0),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 84, 104, 138) 
@@ -193,7 +192,7 @@ class FeedbackLayout extends StatelessWidget {
         ),
         SizedBox(height: 10),
         SizedBox(
-          height: 400, 
+          height: 500, 
           child: ScrollConfiguration(
             behavior: ScrollConfiguration.of(context).copyWith(
               dragDevices: {
@@ -241,7 +240,6 @@ class FeedbackListItem extends StatelessWidget {
   final String userAnswerText;
   final String feedbackText;
   String? correctAnswerText;
-  String? exampleSolution;
   final int questionScore;
   List<String>? distractors;
 
@@ -251,7 +249,6 @@ class FeedbackListItem extends StatelessWidget {
     required this.userAnswerText,
     required this.feedbackText,
     this.correctAnswerText,
-    this.exampleSolution,
     required this.questionScore,
     this.distractors,
     super.key
@@ -318,7 +315,7 @@ class FeedbackListItem extends StatelessWidget {
                       color: AppColors.opaqueWhite
                     ),
                   ),
-                  ContentText(text: userAnswerText),
+                  ContentText(text: userAnswerText)
                 ],
               )
             ],
@@ -335,58 +332,40 @@ class FeedbackListItem extends StatelessWidget {
             color: getFeedbackBoxColor(),
             borderRadius: BorderRadius.circular(15.0),
           ),
-          child: Column(
-            children: [
-              if (quizType == "multipleChoice")
+          child: Expanded(
+            child: Column(
+              children: [
+                if (quizType == "multipleChoice")
+                  Text(
+                    "You answered: '$userAnswerText'",
+                    style: TextStyle(
+                      color: const Color.fromARGB(144, 255, 255, 255),
+                      fontSize: 18.0
+                    ),
+                  ),
+                SizedBox(height: 10),
+                SingleChildScrollView(
+                  scrollDirection: .vertical,
+                  child: SmoothMarkdown(
+                    data: feedbackText,
+                    styleSheet: MarkdownStyleSheet.dark(
+                      baseStyle: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.opaqueWhite
+                      )
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
                 Text(
-                  "You answered: '$userAnswerText'",
+                  "Score: $questionScore",
                   style: TextStyle(
                     color: const Color.fromARGB(144, 255, 255, 255),
                     fontSize: 18.0
                   ),
                 ),
-              SizedBox(height: 10),
-              ContentText(text: feedbackText),
-              SizedBox(height: 10),
-              Text(
-                "Score: $questionScore",
-                style: TextStyle(
-                  color: const Color.fromARGB(144, 255, 255, 255),
-                  fontSize: 18.0
-                ),
-              ),
-              if (quizType == "codingProblem" && exampleSolution != null) 
-                Column(
-                  children: [
-                    SizedBox(
-                      height: 24.0,  
-                    ),
-                    Container(
-                      width: 600,
-                      padding: .all(20.0),
-                      decoration: BoxDecoration(
-                        color: AppColors.blue,
-                        borderRadius: AppDimensions.cornerRadius,
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Example solution",
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              color: AppColors.opaqueWhite,
-                            )
-                          ),
-                          SizedBox(height: 10),
-                          ContentText(
-                            text: exampleSolution!
-                          )
-                        ]
-                      )
-                    )
-                  ]
-                )
-            ],
+              ],
+            ),
           ),
         ),
       ],
