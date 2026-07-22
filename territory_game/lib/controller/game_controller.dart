@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:territory_game/model/battle.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/player.dart';
@@ -80,6 +81,7 @@ class GameController extends ChangeNotifier {
     }
   }
 
+  /// Sets the propertyToPlace field for the active player.
   Future<void> setPropertyToPlace(Property property) async {
     activePlayer.propertyToPlace = property;
     notifyListeners();
@@ -89,7 +91,6 @@ class GameController extends ChangeNotifier {
   void _removePropertyToPlace() {
     activePlayer.propertyToPlace = null;
   }
-
 
   /// Places a property at the 2d list position indicated by the row and col parameters.
   Future<void> placeProperty(Property property, {required int row, required int col}) async {
@@ -109,13 +110,17 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  /// Facilitates an attack from one selected property to a target one.
-  void attack(Property attacker, Property target, int damage) {
-    if (attacker.canAttack(target)) {
-      target.takeDamage(damage);
-    } else {
-      print("You can't attack this property.");
-    }
+  Future<void> setBattle(Property attacker, Property defender) async {
+    activePlayer.activeBattle = Battle(
+      attacker: attacker,
+      defender: defender
+    );
+    
+    attacker.isBattling = true;
+    defender.isBattling = true;
+
+    // saveEventMessage calls notifyListeners and updates Firestore, so these don't need to be repeated.
+    await saveEventMessage("${activePlayer.displayName}'s property at ${attacker.humanCoord} is attacking ${defender.humanCoord}");
   }
 
   /// Facilitates a battle between two properties.
@@ -140,6 +145,10 @@ class GameController extends ChangeNotifier {
       final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} failed. The property at ${attacker.humanCoord} lost half of its health - ${attacker.health} left.";
       saveEventMessage(message);
     }
+
+    boardAttacker.isBattling = false;
+    boardDefender.isBattling = false;
+    activePlayer.activeBattle = null;
 
     notifyListeners();
     await updateFirestoreGameDoc();
