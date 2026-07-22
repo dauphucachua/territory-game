@@ -93,6 +93,10 @@ class MistralApiService implements ChatbotApiService {
     "multipleChoice": ResponseFormatJsonSchema(
       name: "multipleChoiceFeedback",
       schema: {
+        "quizType": {
+          "type": "string",
+          "description": "This value must be: multipleChoice. It describes the quiz type."
+        },
         "results": {
           "type": "array",
           "items": {
@@ -103,6 +107,32 @@ class MistralApiService implements ChatbotApiService {
                   "description": "The chronological number of the question in the set",
                 },
                 "feedback": {"type": "string"},
+                "score": {"type": "integer"},
+            },
+          },       
+        },
+      },
+    ),
+    "codingProblem": ResponseFormatJsonSchema(
+      name: "codingProblemFeedback",
+      schema: {
+        "quizType": {
+          "type": "string",
+          "description": "The value must be: codingProblem. This is the quiz type." 
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+               "id": {
+                  "type": "integer",
+                  "description": "The chronological number of the question in the set",
+                },
+                "feedback": {
+                  "type": "string",
+                  "description": "Your feedback describing any mistakes, misunderstanding, context, and providing an example solution"
+                },
                 "score": {"type": "integer"},
             },
           },       
