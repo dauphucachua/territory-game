@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/property.dart';
+import 'package:territory_game/model/quiz_models/coding_question_feedback.dart';
+import 'package:territory_game/model/quiz_models/question_feedback.dart';
+import 'package:territory_game/model/quiz_models/question_models/coding_problem.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
@@ -40,7 +43,11 @@ class FeedbackDialog extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: selectLayout(quiz, quizFeedback, mode),
+            child: FeedbackLayout(
+              mode: mode,
+              quiz: quiz,
+              quizFeedback: quizFeedback,   
+            ),
           ),
            SizedBox(
           height: 20.0,
@@ -93,24 +100,31 @@ class FeedbackDialog extends StatelessWidget {
   }
 }
 
-Widget selectLayout(Quiz quiz, QuizFeedback quizFeedback, QuizMode mode) {
-  if (quiz.type == "multipleChoice") {
-    return MultipleChoiceFeedbackLayout( 
-      quiz: quiz,
-      quizFeedback: quizFeedback,
-      mode: mode
-    );
-  } 
+// Widget selectLayout(Quiz quiz, QuizFeedback quizFeedback, QuizMode mode) {
+//   if (quiz.type == "multipleChoice") {
+//     return FeedbackLayout( 
+//       quiz: quiz,
+//       quizFeedback: quizFeedback,
+//       mode: mode
+//     );
+//   } else if (quiz.type == "codingProblem") {
+//     return CodingProblemFeedbackLayout(
+//       quiz: quiz,
+//       quizFeedback: quizFeedback,
+//       mode: mode
+//     );
+//   }
+  
 
-  throw "Quiz type not found / not recognised";
-}
+//   throw "Quiz type not found / not recognised";
+// }
 
-class MultipleChoiceFeedbackLayout extends StatelessWidget {
+class FeedbackLayout extends StatelessWidget {
   final Quiz quiz;
   final QuizFeedback quizFeedback;
   final QuizMode mode;
 
-  const MultipleChoiceFeedbackLayout({
+  const FeedbackLayout({
     required this.quiz,
     required this.quizFeedback,
     required this.mode,
@@ -118,7 +132,14 @@ class MultipleChoiceFeedbackLayout extends StatelessWidget {
   });
 
   // Useful getters
-  List<MultipleChoiceQuestion> get questions => List<MultipleChoiceQuestion>.from(quiz.questions);
+  dynamic get questions { 
+    if (quiz.type == "multipleChoice") {
+      return List<MultipleChoiceQuestion>.from(quiz.questions);
+    } else if (quiz.type == "codingProblem") {
+      return List<CodingProblem>.from(quiz.questions);
+    }
+  }
+
   int get numQuestions => questions.length;
   List<String> get correctAnswers => List<String>.from(questions.map((question) => question.correctAnswer));
   int get numCorrectAnswers {
@@ -147,9 +168,10 @@ class MultipleChoiceFeedbackLayout extends StatelessWidget {
 
       children: [
         SizedBox(height: 20),
-        TitleText(
-          text: "You got $numCorrectAnswers out of $numQuestions correct",
-        ),
+        if (quiz.type == "multipleChoice")
+          TitleText(
+            text: "You got $numCorrectAnswers out of $numQuestions correct",
+          ),
         SubtitleText(
           text: "Your score: ${quizFeedback.totalScore}"
         ),
@@ -185,15 +207,25 @@ class MultipleChoiceFeedbackLayout extends StatelessWidget {
               itemCount: numQuestions,
               scrollDirection: .vertical,
               itemBuilder: (context, index) {
+                final results = quizFeedback.results;
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: FeedbackListItem(
+                  child: quiz.type == "multipleChoice" 
+                  ? FeedbackListItem(
+                    quizType: quiz.type,
                     correctAnswerText: correctAnswers[index],
-                    feedbackText: quizFeedback.results[index].feedback,
-                    questionScore: quizFeedback.results[index].score.toString(),
+                    feedbackText: results[index].feedback,
+                    questionScore: results[index].score,
                     questionText: questions[index].question,
                     userAnswerText: quiz.userAnswers[index],
                     distractors: questions[index].distractors
+                  )
+                  : FeedbackListItem(
+                    quizType: quiz.type,
+                    feedbackText: results[index].feedback,
+                    questionScore: results[index].score,
+                    questionText: questions[index].question,
+                    userAnswerText: quiz.userAnswers[index],
                   ),
                 );
               },
@@ -206,22 +238,46 @@ class MultipleChoiceFeedbackLayout extends StatelessWidget {
 }
 
 class FeedbackListItem extends StatelessWidget {
+  final String quizType;
   final String questionText;
   final String userAnswerText;
   final String feedbackText;
-  final String correctAnswerText;
-  final String questionScore;
-  final List<String> distractors;
+  String? correctAnswerText;
+  String? exampleSolution;
+  final int questionScore;
+  List<String>? distractors;
 
-  const FeedbackListItem({
+  FeedbackListItem({
+    required this.quizType,
     required this.questionText,
     required this.userAnswerText,
     required this.feedbackText,
-    required this.correctAnswerText,
+    this.correctAnswerText,
+    this.exampleSolution,
     required this.questionScore,
-    required this.distractors,
+    this.distractors,
     super.key
   });
+  
+  Color getFeedbackBoxColor() {
+    if (quizType == "multipleChoice") {
+      if (userAnswerText == correctAnswerText) {
+        return AppColors.correctBoxGreen;
+      } else {
+        return AppColors.wrongBoxRed;
+      }
+    } else if (quizType == "codingProblem") {
+      if (questionScore > 75) {
+        return AppColors.correctBoxGreen;
+      } else if (questionScore > 40) {
+        return AppColors.midBoxYellow;
+      } else {
+        return AppColors.wrongBoxRed;
+      }
+    }
+
+    throw ("Quiz type not recognized."); 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -239,8 +295,9 @@ class FeedbackListItem extends StatelessWidget {
             children: [
               ContentText(text: questionText),
               Divider(color: const Color.fromARGB(26, 193, 193, 193)),
-              ...[correctAnswerText, ...distractors].map((item) => Text(
-                item,
+              if (quizType == "multipleChoice" && distractors != null && correctAnswerText != null)
+               ...[correctAnswerText, ...distractors!].map((item) => Text(
+                item!,
                 style: item == correctAnswerText 
                 ? TextStyle(
                   color: Colors.green,
@@ -250,8 +307,21 @@ class FeedbackListItem extends StatelessWidget {
                 : TextStyle(
                   color: const Color.fromARGB(144, 255, 255, 255),
                   fontSize: 15
-                  ) 
-                )
+                  ), 
+                ),
+              )
+              else if (quizType == "codingProblem")
+              Column(
+                children: [
+                  Text(
+                    "Your answer",
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: AppColors.opaqueWhite
+                    ),
+                  ),
+                  ContentText(text: userAnswerText),
+                ],
               )
             ],
           ),
@@ -264,20 +334,19 @@ class FeedbackListItem extends StatelessWidget {
           width: 600,
           padding: EdgeInsets.all(20.0),
           decoration: BoxDecoration(
-            color: userAnswerText == correctAnswerText 
-              ? AppColors.correctBoxGreen
-              : AppColors.wrongBoxRed,
+            color: getFeedbackBoxColor(),
             borderRadius: BorderRadius.circular(15.0),
           ),
           child: Column(
             children: [
-              Text(
-                "You answered: '$userAnswerText'",
-                style: TextStyle(
-                  color: const Color.fromARGB(144, 255, 255, 255),
-                  fontSize: 18.0
+              if (quizType == "multipleChoice")
+                Text(
+                  "You answered: '$userAnswerText'",
+                  style: TextStyle(
+                    color: const Color.fromARGB(144, 255, 255, 255),
+                    fontSize: 18.0
+                  ),
                 ),
-              ),
               SizedBox(height: 10),
               ContentText(text: feedbackText),
               SizedBox(height: 10),
@@ -286,8 +355,39 @@ class FeedbackListItem extends StatelessWidget {
                 style: TextStyle(
                   color: const Color.fromARGB(144, 255, 255, 255),
                   fontSize: 18.0
+                ),
+              ),
+              if (quizType == "codingProblem" && exampleSolution != null) 
+                Column(
+                  children: [
+                    SizedBox(
+                      height: 24.0,  
+                    ),
+                    Container(
+                      width: 600,
+                      padding: .all(20.0),
+                      decoration: BoxDecoration(
+                        color: AppColors.blue,
+                        borderRadius: AppDimensions.cornerRadius,
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Example solution",
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: AppColors.opaqueWhite,
+                            )
+                          ),
+                          SizedBox(height: 10),
+                          ContentText(
+                            text: exampleSolution!
+                          )
+                        ]
+                      )
+                    )
+                  ]
                 )
-              )
             ],
           ),
         ),
