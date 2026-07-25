@@ -62,31 +62,25 @@ class Quiz {
     };
   }
 
-  /// Returns a Map pairing the question and user answers that should be related to each other.
+  /// Adds the question set from another quiz to the current one.
   /// 
-  /// This may be useless after the creation of the toStringForFeedbackPrompt() method, will review later.
-  /// The loose <dynamic, dynamic> type is also sloppy and needs reviewed if not useless.
-  Map<dynamic, dynamic> get questionAnswerMap {
-
-    if (questions.length == userAnswers.length) {
-      final result = {};
-      
-      // ignore: dead_code
-      for (int i = 0; i < questions.length; i++) {
-        final questionNo = questions[i].id;
-        final question = questions[i].question;
-        final userAnswer = userAnswers[i]; 
-        
-        result["question $questionNo"] = {
-          "question": question,
-          "userAnswer": userAnswer 
-        };
-
-        return result;
+  /// This is designed to be used when a player strengthens one of their properties.
+  void addQuestionsFromQuiz(Quiz newQuiz) {
+    if (
+      subTopic == newQuiz.subTopic
+      && type == newQuiz.type
+      && difficulty == newQuiz.difficulty
+    ) {
+      final lastQuestionId = questions.last.id;
+      for (Question question in newQuiz.questions) {
+        question.id += lastQuestionId;
       }
-    }  
-
-    throw "Number of questions != number of answers";
+      
+      questions.addAll(newQuiz.questions);
+    } else {
+      throw "Quizzes do not share enough attributes to be merged.";
+    }
+    
   }
 
 

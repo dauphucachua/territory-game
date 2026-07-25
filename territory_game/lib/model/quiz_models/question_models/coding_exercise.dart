@@ -4,7 +4,7 @@ import 'package:territory_game/model/quiz_models/question_models/question.dart';
 class CodingExercise extends Question {
   final List<String> steps;
 
-  const CodingExercise({
+  CodingExercise({
     required super.id,
     required super.question,
     required this.steps

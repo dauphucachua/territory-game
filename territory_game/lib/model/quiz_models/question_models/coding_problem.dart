@@ -5,7 +5,7 @@ class CodingProblem extends Question {
   final String inputExample;
   final String outputExample;
 
-  const CodingProblem({
+  CodingProblem({
     required super.id,
     required super.question,
     required this.inputExample,

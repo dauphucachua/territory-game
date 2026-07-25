@@ -17,11 +17,13 @@ class FeedbackDialog extends StatelessWidget {
   final Quiz quiz;
   final QuizFeedback quizFeedback;
   final QuizMode mode;
+  Property? propertyToStrengthen;
 
-  const FeedbackDialog({
+  FeedbackDialog({
     required this.quiz,
     required this.quizFeedback,
     required this.mode,  
+    this.propertyToStrengthen,
     super.key
   });
 
@@ -56,7 +58,11 @@ class FeedbackDialog extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                mode == .creation ? "Exit and place property" : "Finish attack",
+                switch (mode) {
+                  .creation => "Exit and place property",
+                  .attack => "Finish attack",
+                  .strengthen => "Strengthen property"
+                },
                 style: TextStyle(
                   color: const Color.fromARGB(141, 255, 255, 255),
                   fontSize: 20.0,
@@ -83,10 +89,19 @@ class FeedbackDialog extends StatelessWidget {
                   // Clear the current user's answers from the quiz
                   quiz.userAnswers.clear(); 
                 }
-              } else { // mode == .attack
+              } else if (mode == .attack) { 
                 if (context.mounted) {
                   Navigator.pop(context);
                   await gameController.battle(quizFeedback.totalScore);
+                }
+              } else { // mode == .strengthen
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  await gameController.strengthenProperty(
+                    propertyToStrengthen!, 
+                    quiz, 
+                    quizFeedback.totalScore
+                  );
                 }
               }
             }

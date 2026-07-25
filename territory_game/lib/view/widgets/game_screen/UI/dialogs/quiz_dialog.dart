@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:sortedmap/sortedmap.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
+import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/question_models/coding_problem.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
@@ -12,7 +13,7 @@ import 'package:territory_game/view/widgets/game_screen/UI/dialogs/feedback_dial
 import "package:flutter_highlight/themes/monokai-sublime.dart";
 import 'package:highlight/languages/python.dart';
 
-enum QuizMode {creation, attack}
+enum QuizMode {creation, attack, strengthen}
 
 /// A dialog box for displaying quizzes.
 /// 
@@ -21,10 +22,12 @@ enum QuizMode {creation, attack}
 class QuizDialog extends StatelessWidget {
   final Quiz quiz;
   QuizMode mode;
+  Property? propertyToStrengthen;
 
   QuizDialog({
     required this.quiz,
     this.mode = QuizMode.creation,
+    this.propertyToStrengthen,
     super.key
   });
 
@@ -43,23 +46,25 @@ class QuizDialog extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(40.0),
-        child: selectLayout(quiz, mode)
+        child: selectLayout(quiz, mode, propertyToStrengthen)
       ),
     );
   }
 }
 
 /// Facilitates the selection of a quiz layout based on the type of quiz.
-Widget selectLayout(Quiz quiz, QuizMode mode) {
+Widget selectLayout(Quiz quiz, QuizMode mode, Property? propertyToStrengthen) {
   if (quiz.type == "multipleChoice") {
       return MultipleChoiceLayout(
         quiz: quiz,
-        mode: mode
+        mode: mode,
+        propertyToStrengthen: propertyToStrengthen,
       );
     } else if (quiz.type == "codingProblem" || quiz.type == "codingExercise") {
       return CodingQuizLayout(
         quiz: quiz,
-        mode: mode
+        mode: mode,
+        propertyToStrengthen: propertyToStrengthen,
       );
     } else {
       print("Quiz type not recognised.");
@@ -71,10 +76,12 @@ Widget selectLayout(Quiz quiz, QuizMode mode) {
 class MultipleChoiceLayout extends StatefulWidget {
   final Quiz quiz;
   final QuizMode mode;
-  
-  const MultipleChoiceLayout({
+  Property? propertyToStrengthen;
+
+  MultipleChoiceLayout({
     required this.quiz,
     required this.mode,
+    this.propertyToStrengthen,
     super.key
   });
 
@@ -180,7 +187,8 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
                         child: FeedbackDialog(
                           quiz: widget.quiz,
                           quizFeedback: quizFeedback,
-                          mode: widget.mode
+                          mode: widget.mode,
+                          propertyToStrengthen: widget.propertyToStrengthen,
                         ),
                       ),
                     );
@@ -202,10 +210,12 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
 class CodingQuizLayout extends StatefulWidget {
   final Quiz quiz;
   final QuizMode mode;
+  Property? propertyToStrengthen;
 
-  const CodingQuizLayout({
+  CodingQuizLayout({
     required this.quiz,
     required this.mode,
+    this.propertyToStrengthen,
     super.key,
 
   });
@@ -324,7 +334,8 @@ class _CodingQuizLayoutState extends State<CodingQuizLayout> {
                             child: FeedbackDialog(
                               quiz: widget.quiz,
                               quizFeedback: quizFeedback,
-                              mode: widget.mode
+                              mode: widget.mode,
+                              propertyToStrengthen: widget.propertyToStrengthen,
                             ),
                           ),
                         ); 

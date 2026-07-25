@@ -2,7 +2,7 @@ import 'package:territory_game/model/quiz_models/question_models/question.dart';
 
 /// A data model for the theory question type.
 class TheoryQuestion extends Question {
-  const TheoryQuestion({
+  TheoryQuestion({
     required super.id,
     required super.question
   });

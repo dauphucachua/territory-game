@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/property.dart';
+import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.dart';
 import 'package:territory_game/view/widgets/game_screen/property_icon.dart';
 
@@ -21,10 +23,13 @@ class PropertyWidget extends StatefulWidget {
 }
 
 class _PropertyWidgetState extends State<PropertyWidget> {
+  bool _isLoading = false;
+  
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
     Property property = widget.property;
+    
 
     String buildStatString() {
       final owner = gameController.game.players[property.ownerId]!.displayName;
@@ -37,7 +42,6 @@ class _PropertyWidgetState extends State<PropertyWidget> {
 
       return "Owner: $owner\nHealth: $health\nQuiz type: $quizType\nSub-topic: $subTopic\nQuestion count: $questionCount\nControl points: $controlPoints\nCurrently battling: $battling";    
     }
-    
 
     return Tooltip(
       message: buildStatString(),
@@ -54,15 +58,61 @@ class _PropertyWidgetState extends State<PropertyWidget> {
       ? Draggable(
         data: widget.property,
         feedback: Text("Attack!", style: TextStyle(color: AppColors.heartRed)), 
-        child: PropertyIcon(
-          color: widget.color,
-          child: widget.property.isBattling 
-            ? Icon(
-                Icons.close,
-                size: 100,
-                color: const Color.fromARGB(238, 199, 21, 21)
+        child: GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text("Strengthen property?"),
+                content: _isLoading 
+                ? LoaderWithText(text: "Getting quiz from chatbot...")
+                : Text("Strengthen your property by answering questions on the same topic"),
+                actions: [
+                  TextButton(
+                    child: Text("Cancel"),
+                    onPressed: () => Navigator.pop(context)
+                  ),
+                  TextButton(
+                    child: Text("Confirm and begin quiz"),
+                    onPressed: () async {
+                      setState(() => _isLoading = true);
+                      final newQuiz = await gameController.getQuiz(
+                        widget.property.quiz.subTopic,
+                        widget.property.quiz.type,
+                        widget.property.quiz.questions.length,
+                        widget.property.quiz.difficulty
+                      );
+                      setState(() => _isLoading = false);
+
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => ChangeNotifierProvider.value(
+                            value: gameController,
+                            child: QuizDialog(
+                              quiz: newQuiz,
+                              mode: .strengthen,
+                              propertyToStrengthen: widget.property,
+                            )
+                          )
+                        );
+                      }
+                    }
+                  )
+                ], 
               )
-            : null
+            );
+          },
+          child: PropertyIcon(
+            color: widget.color,
+            child: widget.property.isBattling 
+              ? Icon(
+                  Icons.close,
+                  size: 100,
+                  color: const Color.fromARGB(238, 199, 21, 21)
+                )
+              : null
+          ),
         ),
       )
       : DragTarget<Property>(

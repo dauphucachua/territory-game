@@ -101,15 +101,22 @@ class GameController extends ChangeNotifier {
       _removePropertyToPlace();
 
 
-      final message = "${activePlayer.displayName} placed a property with ${property.health} health at ${property.humanCoord}.";
-      saveEventMessage(message);
-      notifyListeners();
-      await updateFirestoreGameDoc();
-    } else {
-      print("Square is occupied.");
-    }
+    final message = "${activePlayer.displayName} placed a property with ${property.health} health at ${property.humanCoord}.";
+    saveEventMessage(message);
+    notifyListeners();
+    await updateFirestoreGameDoc();
+    return true;
   }
 
+  /// Strengthens a property by adding to its health and storing a new set of questions.
+  Future<void> strengthenProperty(Property property, Quiz newQuiz, int newQuizScore) async {
+    property.quiz.addQuestionsFromQuiz(newQuiz);
+    property.health += newQuizScore;
+    notifyListeners();
+    await updateFirestoreGameDoc();
+  }
+
+  /// Sets two properties in the roles of attacker and defender in the attacking player's activeBattle field.
   Future<void> setBattle(Property attacker, Property defender) async {
     activePlayer.activeBattle = Battle(
       attacker: attacker,
