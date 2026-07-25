@@ -26,6 +26,7 @@ void main() {
       questions: [CodingProblem(id: 1, question: "Test question", inputExample: "input", outputExample: "output")],
       subTopic: "Subtopic",
       type: "codingProblem",
+      difficulty: "Easy"
     ),
     row: 1,
     col: 1
@@ -38,6 +39,7 @@ void main() {
       questions: [CodingProblem(id: 1, question: "Test question", inputExample: "input", outputExample: "output")],
       subTopic: "Subtopic",
       type: "codingProblem",
+      difficulty: "Easy"
     ),
     row: 2,
     col: 2
@@ -50,6 +52,7 @@ void main() {
       questions: [CodingProblem(id: 1, question: "Test question", inputExample: "input", outputExample: "output")],
       subTopic: "Subtopic",
       type: "codingProblem",
+      difficulty: "Easy"
     ),
     row: 3,
     col: 3
@@ -62,6 +65,7 @@ void main() {
       questions: [CodingProblem(id: 1, question: "Test question", inputExample: "input", outputExample: "output")],
       subTopic: "Subtopic",
       type: "codingProblem",
+      difficulty: "Easy"
     ),
     row: 4,
     col: 4
