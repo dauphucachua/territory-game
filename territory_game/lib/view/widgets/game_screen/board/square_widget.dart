@@ -26,19 +26,32 @@ class SquareWidget extends StatefulWidget {
 class _SquareWidgetState extends State<SquareWidget> {
   @override
   Widget build(BuildContext context) {
+    final gameController = context.watch<GameController>();
     return GestureDetector(
       onTap: () {
         // Clicking on square behaviour here
         // May need to be a callback function
       },
       child: DragTarget<Property>(
-        onAcceptWithDetails: (incomingProperty) {
+        onAcceptWithDetails: (incomingProperty) async {
           if (!incomingProperty.data.isPlaced) {
-            context.read<GameController>().placeProperty(
-              incomingProperty.data, 
-              row: widget.square.row, 
-              col: widget.square.col
-            );
+            if (
+              !await gameController.placeProperty(
+                incomingProperty.data, 
+                row: widget.square.row, 
+                col: widget.square.col
+              )
+            ) {
+
+              if (context.mounted) {
+                final propertySubTopic = incomingProperty.data.quiz.subTopic;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("The $propertySubTopic limit for ${widget.square.area} is already full - choose a different board area.")
+                  )
+                );
+              }
+            }
           }
         },
         builder: (context, property, rejected) {

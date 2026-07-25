@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:territory_game/model/battle.dart';
@@ -49,7 +48,7 @@ class GameController extends ChangeNotifier {
     (player) => player.id != activeUser.id).first : null;
   bool get gameIsActive => game.isActive;
   
-
+  /// Opens a stream subscription to the Firestore document for the current game.
   Future<void> listenForStateUpdates() async {
     final DocumentReference gameRef = db.collection("games").doc(game.id);
     gameSubscription = gameRef.snapshots().listen((gameState) {
@@ -61,14 +60,17 @@ class GameController extends ChangeNotifier {
     });
   }
 
+  /// Updates the document with the active user's id on Firestore.
   Future<void> updateFirestoreActiveUserDoc() async {
     await db.collection("users").doc(activeUser.id).set(activeUser.toJson());
   }
 
+  /// Updates the document with the current game's id on Firestore.
   Future<void> updateFirestoreGameDoc() async {
     await db.collection("games").doc(game.id).set(game.toJson());
   }
 
+  /// Adds a player to the game.
   Future<void> addPlayerToGame(Player player) async {
     if (activeUser.id == player.id) {
       game.addPlayer(player);
@@ -88,18 +90,69 @@ class GameController extends ChangeNotifier {
     await updateFirestoreGameDoc();
   } 
   
+  /// Reverts the activePlayer's propertyToPlace field to null.
   void _removePropertyToPlace() {
     activePlayer.propertyToPlace = null;
   }
 
-  /// Places a property at the 2d list position indicated by the row and col parameters.
-  Future<void> placeProperty(Property property, {required int row, required int col}) async {
-    if (boardState[row][col] == null) {
-      property.row = row;
-      property.col = col;
-      boardState[row][col] = property;
-      _removePropertyToPlace();
+  /// Gets the current count of sub-topics within a board area.
+  /// 
+  /// This is used for checking if a Property's placement will surpass the sub-topic limit for the intended area.
+  Map<String, Map<String, int>> subTopicCountPerArea() {
+    final subTopicCounts = {};
 
+    for (String subTopic in topic.subTopics) {
+      subTopicCounts[subTopic] = {
+        "The Dojo": 0,
+        "The Arena": 0,
+        "The Battleground": 0,
+        "The Pit": 0
+      };
+    }
+    
+    for (List row in boardState) {
+      for (var item in row) {
+        if (item is Property) {
+          final propertySubTopic = item.quiz.subTopic;
+          final propertyArea = item.boardArea;
+          subTopicCounts[propertySubTopic][propertyArea] += 1;
+        }
+      }
+    }
+
+    return Map<String, Map<String, int>>.from(subTopicCounts);
+  }
+
+  /// Checks if an area of the board will surpass the sub-topic limit if the incoming property is added.
+  bool subTopicLimitSurpassed(Property property, {required int row, required int col}) {
+    final intendedArea = board.getBoardArea(row, col);
+    final subTopic = property.quiz.subTopic;
+    final limits = board.areaLimits;
+    final currentAreaCounts = subTopicCountPerArea();
+
+    if (currentAreaCounts[subTopic]![intendedArea]! + 1 > limits[intendedArea]!) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /// Places a property at the 2d list position indicated by the row and col parameters.
+  Future<bool> placeProperty(Property property, {required int row, required int col}) async {
+    if (subTopicLimitSurpassed(property, row: row, col: col)) {
+      print("Area too full of this sub-topic");
+      return false;
+    }
+
+    if (boardState[row][col] != null) {
+      print("Square is occupied.");
+      return false;
+    }
+
+    property.row = row;
+    property.col = col;
+    boardState[row][col] = property;
+    _removePropertyToPlace();
 
     final message = "${activePlayer.displayName} placed a property with ${property.health} health at ${property.humanCoord}.";
     saveEventMessage(message);
@@ -141,15 +194,17 @@ class GameController extends ChangeNotifier {
     
     final boardAttacker = boardState[attacker.row!][attacker.col!];
     final boardDefender = boardState[defender.row!][defender.col!];
+    final attackingPlayer = game.players[attacker.ownerId];
 
     if (attackerScore > defender.health) {
       boardDefender.ownerId = attacker.ownerId;
       boardDefender.health = attackerScore;
+      final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} was successful. It now belongs to ${attackingPlayer.displayName} and has $attackerScore health";
+      saveEventMessage(message);
     } else {
       boardAttacker.health ~/= 2;    
 
-      final attackingPlayer = game.players[attacker.ownerId];
-      final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} failed. The property at ${attacker.humanCoord} lost half of its health - ${attacker.health} left.";
+      final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} failed. The property at ${attacker.humanCoord} lost half of its health - ${boardAttacker.health} left.";
       saveEventMessage(message);
     }
 
@@ -185,7 +240,6 @@ class GameController extends ChangeNotifier {
     }
     return total;
   }
-  
 
   /// Gets a Quiz object with the specified parameters from the active chatbot.
   Future<Quiz> getQuiz(String subTopic, String questionType, int questionCount, String difficulty) async {
@@ -238,6 +292,7 @@ class GameController extends ChangeNotifier {
     await updateFirestoreGameDoc();
   }
 
+  /// Ends the current game.
   Future<void> endGame() async {
     print("endGame reached");
     print(gameIsActive);

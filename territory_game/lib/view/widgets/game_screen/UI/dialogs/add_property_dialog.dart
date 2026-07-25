@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
@@ -23,20 +24,39 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
   final difficulties = ["Easy", "Medium", "Hard"];
   bool _isLoading = false;
 
-  List<SelectionCardData> getCardDataList(List<String> titles) {
-    // also needs a bodies parameter
-    // titles - come from gameController.subTopics or gameController.subject.questionTypes
-    // bodies - comes from somewhere unimplemented so far, will be 
-    // should probably create a SubTopic class so that both title and body of card can be derived solely from there
-    // can also look into zip() style functions for pairing titles to bodies
-
-    List<SelectionCardData> cardData = (titles.map((title) => SelectionCardData(title: title))).toList();
-    return cardData;
-  }
-  
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
+    
+    Widget getCardDataBody(String subTopic) {
+      Map subTopicCount = gameController.subTopicCountPerArea();
+      Map currentSubTopicCount = subTopicCount[subTopic];
+
+      return Column(
+        children: [
+          for (String area in currentSubTopicCount.keys) 
+            Text(
+              "$area: ${currentSubTopicCount[area]}/${gameController.game.board.areaLimits[area]}",
+              style: TextStyle(
+                color: AppColors.opaqueWhite,
+                fontSize: 12
+              ),
+            )
+        ]
+      );
+    }
+    
+    List<SelectionCardData> getCardDataList(List<String> titles) {
+      List<SelectionCardData> cardData = (titles.map((title) => SelectionCardData(
+        title: title, 
+        body: gameController.subTopics.contains(title)
+          ? getCardDataBody(title)
+          : null
+      ))).toList();
+      return cardData;
+    }
+
+    
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -158,7 +178,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
 
 class SelectionCardData {
   final String title;
-  final String? body;
+  final Widget? body;
 
   const SelectionCardData({
     required this.title,
@@ -169,7 +189,7 @@ class SelectionCardData {
 class SelectionCard extends StatelessWidget { 
   final String title;
   bool isSelected;
-  final String? body;
+  final Widget? body;
   final void Function() onTap;
   final double width;
   
@@ -210,7 +230,7 @@ class SelectionCard extends StatelessWidget {
                   Column(
                     children: [
                       Divider(),
-                      Text(body!)
+                      body!
                     ]
                   ) 
               ],
@@ -252,7 +272,7 @@ class ScrollableHorizontalListView extends StatelessWidget {
           itemCount: cardData.length,
           itemBuilder: (context, index) {
             String title = cardData[index].title;
-            String? body = cardData[index].body;
+            Widget? body = cardData[index].body;
     
             return Padding(
               padding: const EdgeInsets.all(8.0),
