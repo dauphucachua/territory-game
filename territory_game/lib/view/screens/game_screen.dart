@@ -7,6 +7,7 @@ import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/board/board_widget.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/main_sidebar_widget.dart';
 import 'package:territory_game/view/widgets/game_screen/property_icon.dart';
+import 'package:territory_game/view/widgets/rules_dialog.dart';
 
 /// This is the main game screen. 
 /// 
@@ -70,7 +71,16 @@ class _GameScreenState extends State<GameScreen> {
                           )
                         ),
                       ),
-                       PopupMenuItem(
+                      PopupMenuItem(
+                        child: MainMenuItem(
+                          text: "Rules",
+                          onTap: () => showDialog(
+                            context: context,
+                            builder: (context) => RulesDialog()
+                          ),
+                        ),
+                      ),
+                      PopupMenuItem(
                         child: MainMenuItem(
                           text: "Logout",
                           onTap: () {
@@ -79,8 +89,9 @@ class _GameScreenState extends State<GameScreen> {
                               (route) => route.isFirst
                             );
                           },
-                        ),
+                        ),   
                       ),
+                      
                     ];
                   },
                 ),

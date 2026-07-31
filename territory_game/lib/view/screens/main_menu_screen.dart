@@ -13,6 +13,7 @@ import 'package:territory_game/services/timer_service/timer_service.dart';
 import 'package:territory_game/view/screens/game_screen.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/main_menu/dialogs/new_game_dialog.dart';
+import 'package:territory_game/view/widgets/rules_dialog.dart';
 
 
 class MainMenuScreen extends StatefulWidget {
@@ -115,7 +116,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   color: AppColors.blue,
                   fontSize: 25.0,
                   fontWeight: FontWeight.w800,
-                )
+                ),
               ),
               Column(
                 mainAxisAlignment: .center,
@@ -128,11 +129,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                       builder: (context) => NewGameDialog(
                         firebaseAuth: firebaseAuth,
                       ),
-                    )
+                    ),
                   ),
                   MainMenuButton(
                     text: "Rules",
-                    onPressed: () {} // RulesScreen
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => RulesDialog()
+                    ) // RulesScreen
                   ),
                   MainMenuButton(
                     text: "Logout",
