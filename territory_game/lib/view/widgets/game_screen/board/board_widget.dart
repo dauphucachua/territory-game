@@ -57,6 +57,7 @@ class _BoardWidgetState extends State<BoardWidget> {
           );
           
           final squareProperty = gameController.boardState[row][col];
+          AlignmentGeometry? scorePosition = getScorePositionFromIndex(index);
 
           return SquareWidget(
             square: squareData,
@@ -65,8 +66,10 @@ class _BoardWidgetState extends State<BoardWidget> {
             ? PropertyWidget(
                 color: getPropertyColorFromOwner(squareProperty),
                 property: squareProperty,
+                size: 500
             )
             : null,
+            scorePosition: scorePosition
           );
         }
       )
@@ -98,5 +101,45 @@ class _BoardWidgetState extends State<BoardWidget> {
     return data;
   }
 
+  /// Returns an AlignmentGeometry position if the square @ index should have its control point value 
+  /// displayed on it.
+  AlignmentGeometry? getScorePositionFromIndex(int index) {
+    final bool isTopLeft = index == 0
+      || index == 22
+      || index == 33
+      || index == 44;
+
+    final bool isBottomRight = index == 55
+      || index == 66
+      || index == 77
+      || index == 99;
+
+    final bool isTopRight = index == 9
+      || index == 27
+      || index == 36
+      || index == 45;
+
+    final bool isBottomLeft = index == 54
+      || index == 63
+      || index == 72
+      || index == 90;
+    
+    if (isTopLeft) {
+      return AlignmentGeometry.topLeft;
+    }
+    if (isTopRight) {
+      return AlignmentGeometry.topRight;
+    }
+    if (isBottomLeft) {
+      return AlignmentGeometry.bottomLeft;
+    }
+    if (isBottomRight) {
+      return AlignmentGeometry.bottomRight;
+    }
+    return null;
+
+    
+    }
+  }
+
   
-}

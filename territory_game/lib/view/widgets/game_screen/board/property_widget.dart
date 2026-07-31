@@ -11,10 +11,12 @@ import 'package:territory_game/view/widgets/game_screen/property_icon.dart';
 class PropertyWidget extends StatefulWidget {
   final Property property;
   final Color color;
+  final double size;
 
   const PropertyWidget({
     required this.property, 
     required this.color,
+    required this.size,
     super.key
   });
 
@@ -24,7 +26,7 @@ class PropertyWidget extends StatefulWidget {
 
 class _PropertyWidgetState extends State<PropertyWidget> {
   bool _isLoading = false;
-  
+
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
@@ -108,7 +110,7 @@ class _PropertyWidgetState extends State<PropertyWidget> {
             child: widget.property.isBattling 
               ? Icon(
                   Icons.close,
-                  size: 100,
+                  size: widget.size,
                   color: const Color.fromARGB(238, 199, 21, 21)
                 )
               : null
