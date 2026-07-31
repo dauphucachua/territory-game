@@ -149,6 +149,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                       if (context.mounted) {
                         Navigator.pop(context);
                         showDialog(
+                          barrierDismissible: false,
                           context: context,
                           builder: (newContext) => ChangeNotifierProvider.value(
                             value: context.read<GameController>(),

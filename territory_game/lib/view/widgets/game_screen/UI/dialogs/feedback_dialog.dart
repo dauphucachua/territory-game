@@ -32,6 +32,7 @@ class FeedbackDialog extends StatelessWidget {
     final gameController = context.watch<GameController>();
 
     return Dialog(
+      
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0)
       ),
@@ -185,13 +186,10 @@ class FeedbackLayout extends StatelessWidget {
             text: "You got $numCorrectAnswers out of $numQuestions correct",
           ),
         SubtitleText(
-          text: "Your score: ${quizFeedback.totalScore}"
+          text: opponentScore != null
+          ? "Your score: ${quizFeedback.totalScore} | Opponent's health: $opponentScore"
+          : "Your score: ${quizFeedback.totalScore}"
         ),
-        ? opponentScore != null 
-          ? SubtitleText(
-            text: "Opponent's score: $opponentScore"
-          )
-          : null,
         Divider(),
         Row(
           mainAxisAlignment: .spaceEvenly,
