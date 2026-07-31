@@ -27,11 +27,6 @@ void main() {
         displayName: "name1",
         propertyColor: Colors.black,
       ),
-      "id2": Player(
-        id: "id2",
-        displayName: "name2",
-        propertyColor: Colors.white,
-      ),
     },
     subject: Subject(
       name: "subject A",
@@ -42,6 +37,12 @@ void main() {
     ),
     topic: topic
   );
+  test("json", () {
+    final gameJson = testGame.toJson();
+    print(gameJson.toString());
+    final gameObj = Game.fromJson(gameJson);
+    print(gameObj.history.questionHistory);
+  });
 
   test("containsPlayerWithId", () {
     String userId = "id1";
@@ -50,11 +51,32 @@ void main() {
     expect(testGame.containsPlayerWithId(userId2), false);
   });
 
-  test("json", () {
-    final gameJson = testGame.toJson();
-    print(gameJson.toString());
-    final gameObj = Game.fromJson(gameJson);
-    print(gameObj.history.questionHistory);
+  group("addPlayer", () {
+    final player2 = Player(
+      id: "id2",
+      displayName: "name2",
+      propertyColor: Colors.white,
+    );
+
+    final player3 = Player(
+      id: "id3",
+      displayName: "name3",
+      propertyColor: Colors.white,
+    );
+    
+    test("addPlayer", () {
+      testGame.addPlayer(player2);
+      expect(testGame.players.length, 2);
+    });
+
+    test("addPlayer - blocks when list is full already", () {
+      testGame.addPlayer(player3);
+      expect(testGame.players.length, 2);
+    });
   });
+
+  
+
+
   
 }

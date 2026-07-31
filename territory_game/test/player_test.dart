@@ -15,11 +15,12 @@ void main() {
           id: 1, 
           question: "Question 1", 
           distractors: ["d1", "d2" ], 
-          correctAnswer: "Question 1"
+          correctAnswer: "Question 1",
         )
       ],
       subTopic: "Subtopic",
       type: "multipleChoice",
+      difficulty: "Easy"
     ),
     row: 1,
     col: 1
@@ -37,5 +38,20 @@ void main() {
     final playerObj = Player.fromJson(playerJson);
     print(playerObj.activeBattle);
   });
+
+  group("mustPlaceProperty", () {
+    test("mustPlaceProperty - true", () {
+      player.propertyToPlace = testProperty;
+      expect(player.mustPlaceProperty, true
+    );
+  });
+
+    test("mustPlaceProperty - false", () {
+      player.propertyToPlace = null;
+      expect(player.mustPlaceProperty, false);
+    });
+  });
+
+  
 }
   

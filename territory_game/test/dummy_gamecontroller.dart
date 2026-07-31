@@ -3,7 +3,6 @@ import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
-import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_service.dart';

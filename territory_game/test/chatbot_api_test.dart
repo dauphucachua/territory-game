@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game.dart';
-import 'package:territory_game/model/game_user.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/quiz_models/question_models/multiple_choice_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';

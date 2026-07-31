@@ -12,13 +12,16 @@ void main() {
       questions: [TheoryQuestion(id: 1, question: "Test question")],
       subTopic: "Subtopic",
       type: "theory",
+      difficulty: "Easy"
     ),
     row: 1,
-    col: 1
+    col: 1,
   );
 
   test("get humanCoord", () {
     final coord = testProperty.humanCoord;
     expect(coord, (2, 9));
   });
+
+  
 }

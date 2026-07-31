@@ -4,7 +4,6 @@ import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/question_models/coding_problem.dart';
-import 'package:territory_game/model/quiz_models/question_models/theory_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 
 void main() {
