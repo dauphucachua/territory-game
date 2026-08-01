@@ -15,6 +15,11 @@ class _GameScreenWrapperState extends State<GameScreenWrapper> {
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
+    final gameEndTime = gameController.game.endTime;
+
+    if (DateTime.now().isAfter(gameEndTime)) {
+      gameController.endGame();
+    }
 
     return ChangeNotifierProvider.value(
       value: gameController,

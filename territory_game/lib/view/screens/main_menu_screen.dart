@@ -10,7 +10,7 @@ import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 import 'package:territory_game/services/timer_service/timer_service.dart';
-import 'package:territory_game/view/screens/game_screen.dart';
+import 'package:territory_game/view/screens/game_screen_wrapper.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/main_menu/dialogs/new_game_dialog.dart';
 import 'package:territory_game/view/widgets/rules_dialog.dart';
@@ -58,7 +58,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           settings: RouteSettings(name: "/gameScreen"),
           builder: (context) => ChangeNotifierProvider(
             create: (context) => gameController,
-            child: const GameScreen()
+            child: const GameScreenWrapper()
           ),
         ),
       );

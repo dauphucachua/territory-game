@@ -294,10 +294,7 @@ class GameController extends ChangeNotifier {
 
   /// Ends the current game.
   Future<void> endGame() async {
-    print("endGame reached");
-    print(gameIsActive);
     game.isActive = false;
-    print(gameIsActive);
     activeUser.activeGameIds.remove(game.id);
     notifyListeners(); 
     await updateFirestoreActiveUserDoc();
