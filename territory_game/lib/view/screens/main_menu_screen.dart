@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import "package:collection/collection.dart";
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/game.dart';
@@ -85,6 +86,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         if (selectedDisplayName != null && selectedDisplayName!.isNotEmpty) {
           final newPlayer = createPlayerWithOppositeColor(game);
           await gameController.addPlayerToGame(newPlayer);
+          print(gameController.game.players);
           pushToGameScreen(gameController);
         } else {
           if (context.mounted) {
@@ -193,30 +195,35 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                       itemBuilder: (context, index) {
                         final currentGameData = Map<String, dynamic>.from(data[index]);
                         final currentGame = Game.fromJson(currentGameData);
-                        String? opponentName = currentGame.players.keys.map((playerId) {
-                          if (playerId != firebaseAuth.activeUser!.id) {
-                            return currentGame.players[playerId]!.displayName;
-                          }
-                        }).first;
-                          
-                        return GestureDetector(
-                          onTap: () => onGameChosen(currentGame),
-                          child: Container(
-                            padding: EdgeInsets.all(20),
-                            margin: EdgeInsets.all(5),
+                        List<String> playerIds = currentGame.players.keys.toList();
+                        String? opponentId = playerIds.firstWhereOrNull(
+                          (playerId) => playerId != firebaseAuth.activeUser!.id
+                        );
 
-                            height: 85.0,
-                            decoration: BoxDecoration(
-                              color: AppColors.blue,
-                              borderRadius: AppDimensions.cornerRadius,
-                            ),
-                            child: Column(
-                              children: [
-                                opponentName != null && opponentName.isNotEmpty
-                                  ? ContentText(text: "You vs. $opponentName")
-                                  : ContentText(text: "You vs. unassigned"),
-                                ContentText(text: "Ends: ${currentGame.endTimeAsString}")
-                              ],
+                        return MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () => onGameChosen(currentGame),
+                            
+                            child: Container(
+                              padding: EdgeInsets.all(20),
+                              margin: EdgeInsets.all(5),
+                          
+                              height: 100.0,
+                              decoration: BoxDecoration(
+                                color: AppColors.blue,
+                                borderRadius: AppDimensions.cornerRadius,
+                              ),
+                              child: Column(
+                                children: [
+                                  opponentId != null
+                                    ? ContentText(text: "You vs. ${currentGame.players[opponentId]!.displayName}")
+                                    : ContentText(text: "You vs. unassigned"),
+                                  ContentText(text: currentGame.topic.name),
+                                  ContentText(text: "Ends: ${currentGame.endTimeAsString}"),
+                                  
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -294,31 +301,39 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         }
 
                         final currentGame = Game.fromJson(currentGameData);
-                        final opponentName = currentGame.players.keys.map((playerId) {
-                          if (playerId != firebaseAuth.activeUser!.id) {
-                            return currentGame.players[playerId]!.displayName;
-                          }
-                        }).first;
+                        List<String> playerIds = currentGame.players.keys.toList();
+                        String? opponentId = playerIds.firstWhereOrNull(
+                          (playerId) => playerId != firebaseAuth.activeUser!.id
+                        );
+                        String? opponentName;
+                        if (opponentId != null) {
+                          opponentName = currentGame.players[opponentId]!.displayName;
+                        }
+                
                           
-                        return GestureDetector(
-                          onTap: () async {
-                            selectedDisplayName = nameController.text.trim();
-                            print(selectedDisplayName);
-                            onGameChosen(currentGame);
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(20),
-                            margin: EdgeInsets.all(5),
-                            height: 85.0,
-                            decoration: BoxDecoration(
-                              color: AppColors.blue,
-                              borderRadius: AppDimensions.cornerRadius,
-                            ),
-                            child: Column(
-                              children: [
-                                ContentText(text: "vs. $opponentName"),
-                                ContentText(text: "Ends at: ${currentGameData["endTime"]}")
-                              ],
+                        return MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () async {
+                              selectedDisplayName = nameController.text.trim();
+                              print(selectedDisplayName);
+                              onGameChosen(currentGame);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(20),
+                              margin: EdgeInsets.all(5),
+                              height: 100.0,
+                              decoration: BoxDecoration(
+                                color: AppColors.blue,
+                                borderRadius: AppDimensions.cornerRadius,
+                              ),
+                              child: Column(
+                                children: [
+                                  ContentText(text: "vs. $opponentName"),
+                                  ContentText(text: currentGame.topic.name),
+                                  ContentText(text: "Ends at: ${currentGameData["endTime"]}")
+                                ],
+                              ),
                             ),
                           ),
                         );

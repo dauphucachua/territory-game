@@ -97,10 +97,23 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 SizedBox(width: 32.0),
                 // Display names of players in game
-                ContentText(
-                  text: opponent != null 
-                    ? "${activePlayer.displayName} vs ${opponent.displayName}"
-                    : activePlayer.displayName
+                Column(
+                  mainAxisAlignment: .center,
+                  crossAxisAlignment: .start,
+                  children: [
+                    ContentText(
+                      text: opponent != null 
+                        ? "${activePlayer.displayName} vs ${opponent.displayName}"
+                        : activePlayer.displayName
+                    ),
+                    Text(
+                      gameController.topicName,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: const Color.fromARGB(136, 255, 255, 255)
+                      )
+                    )
+                  ],
                 ),
                 SizedBox(width: 32.0),
                 // Player statistic boxes for displaying number of control points per player
@@ -115,9 +128,11 @@ class _GameScreenState extends State<GameScreen> {
                     opponent: activePlayer
                   )
                   : ContentText(text: "No opponent present"),
-                SizedBox(width: 32.0),
+               
+                Spacer(),
                 // Game end time - countdown can be implemented here optionally
                 ContentText(text: "Game ends: ${gameController.game.endTimeAsString}"),
+                SizedBox(width: 50.0)
               ],
             ),
           ),
