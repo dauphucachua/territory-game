@@ -13,7 +13,6 @@ class Game {
   final Map<String, Player> players;
   final Board board;
   final History history;
-  final Battle battle;
   final Subject subject;
   final Topic topic;
   bool isActive;
@@ -25,13 +24,11 @@ class Game {
     required this.players,
     required this.board,
     History? history,
-    Battle? battle,
     required this.subject,
     required this.topic,
     this.isActive = true
   }) 
-    : history = history ?? History(), 
-      battle = battle ?? Battle();
+    : history = history ?? History();
 
   String get endTimeAsString => DateFormat.yMMMMd().add_jm().format(endTime);
 
@@ -50,7 +47,6 @@ class Game {
       players: json["players"] != null ? players : {},
       board: Board.fromJson(json["board"]),
       history: History.fromJson(json["history"]),
-      battle: Battle.fromJson(json["battle"]),
       subject: Subject.fromJson(json["subject"]),
       topic: Topic.fromJson(json["topic"]),
       isActive: json["isActive"] == "true"
@@ -71,7 +67,6 @@ class Game {
       "players": playersMap,
       "board": board.toJson(),
       "history": history.toJson(),
-      "battle": battle.toJson(),
       "subject": subject.toJson(),
       "topic": topic.toJson(),
       "isActive": isActive.toString()
