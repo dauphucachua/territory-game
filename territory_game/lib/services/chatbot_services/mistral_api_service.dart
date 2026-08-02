@@ -110,13 +110,13 @@ class MistralApiService implements ChatbotApiService {
           "items": {
             "type": "object",
             "properties": {
-               "id": {
-                  "type": "integer",
-                  "description": "The chronological number of the question in the set",
-                },
-                "feedback": {"type": "string"},
-                "score": {"type": "integer"},
-            },
+              "id": {
+                "type": "integer",
+                "description": "The chronological number of the question in the set",
+              },
+              "feedback": {"type": "string"},
+              "score": {"type": "integer"},
+          },
           },       
         },
       },
@@ -133,15 +133,18 @@ class MistralApiService implements ChatbotApiService {
           "items": {
             "type": "object",
             "properties": {
-               "id": {
-                  "type": "integer",
-                  "description": "The chronological number of the question in the set",
-                },
-                "feedback": {
-                  "type": "string",
-                  "description": "Your feedback describing any mistakes, misunderstanding, context, and providing an example solution in Python markdown."
-                },
-                "score": {"type": "integer"},
+              "id": {
+                "type": "integer",
+                "description": "The chronological number of the question in the set",
+              },
+              "feedback": {
+                "type": "string",
+                "description": "Your feedback describing any mistakes, misunderstanding, context, and providing an example solution in Python markdown."
+              },
+              "score": {
+                "type": "integer",
+                "description": "A score out of 100 for the user's answer to the question."
+              },
             },
           },       
         },

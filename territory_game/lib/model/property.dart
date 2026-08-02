@@ -24,6 +24,15 @@ class Property {
   int get questionCount => quiz.questions.length;
   String get quizType => quiz.type;
   
+  bool get hasPerfectHealth {
+    if (quiz.type == "multipleChoice" && quiz.questions.length * 20 == health) {
+      return true;
+    } else if (quiz.type == "codingProblem" && quiz.questions.length * 100 == health) {
+      return true;
+    }
+    return false;
+  }
+  
   String get boardArea {
     if (row != null && col != null) {
       if (row! >= 4 && row! <= 5 && col! >= 4 && col! <= 5) {
@@ -110,12 +119,4 @@ class Property {
   bool canAttack(Property target) {
     return isEnemyOf(target) && isAdjacentTo(target) && !isBattling && !target.isBattling;
   }
-
-  /// Reduces the current property's health by a specified amount.
-  void takeDamage(int amount) {
-    health -= amount;
-    print("$ownerId's property took $amount damage. $health health remaining");
-  }
-
-
 }

@@ -73,7 +73,7 @@ class ChatbotConfig {
     Provide the score and feedback, following the provided schema.
 
 
-    Your feedback should provide a score out of 100 for the user's submission. 
+    Your feedback should provide a score out of 100 for EACH QUESTION of the user's submission.
     Prioritize good code practices in your marking, which means considering:
     Proper syntax
     Indentation
@@ -88,7 +88,7 @@ class ChatbotConfig {
     Make sure you award marks for getting parts of the solution right even if the code doesn't run properly. You should award marks like an examiner would.
     In the explanation, you should always justify why the grade you gave was chosen, and what could have been done differently to achieve a higher grade.
     Feedback should be specific and detailed for coding problems. Try to educate the user on their mistakes as much as possible, with context and conventions.
-    ALWAYS INCLUDE AN EXAMPLE SOLUTION IN CODE.
+    ALWAYS INCLUDE AN EXAMPLE SOLUTION IN PYTHON MARKDOWN CODE.
     
     
     """;

@@ -261,6 +261,29 @@ class GameController extends ChangeNotifier {
     }
   }
 
+  /// Adds a difficult bonus question to an existing quiz for when a property has an unbeatable perfect score
+  Future<void> addBonusQuestionToQuiz(Quiz quiz) async {
+    final questionHistory = game.history.questionHistory[quiz.type]!;
+
+    Map<String, dynamic>? bonusQuestionJson = await chatbot.getQuizJson(
+      game.topic, 
+      quiz.subTopic, 
+      quiz.type, 
+      1,
+      questionHistory,
+      "Hard"
+    );
+
+    Quiz? bonusQuestion;
+    if (bonusQuestionJson != null) {
+      bonusQuestion = Quiz.fromJson(bonusQuestionJson);
+    } else {
+      throw "Failed to get quiz from chatbot";
+    }
+
+    quiz.addQuestionsFromQuiz(bonusQuestion);
+  }
+
   /// Gets a QuizFeedback object based on a completed quiz from the active chatbot.
   Future<QuizFeedback> getFeedback(Quiz quiz) async {
     Map<String, dynamic>? quizFeedbackJson = await chatbot.getFeedbackJson(quiz);

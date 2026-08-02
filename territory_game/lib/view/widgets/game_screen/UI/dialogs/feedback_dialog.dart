@@ -87,17 +87,19 @@ class FeedbackDialog extends StatelessWidget {
                 // Return to the GameScreen
                 if (context.mounted) {
                   Navigator.pop(context);
-                  // Clear the current user's answers from the quiz
                   quiz.userAnswers.clear(); 
                 }
               } else if (mode == .attack) { 
                 if (context.mounted) {
                   Navigator.pop(context);
+                  await Future.delayed(Duration(seconds: 1));
+                  quiz.userAnswers.clear();
                   await gameController.battle(quizFeedback.totalScore);
                 }
               } else { // mode == .strengthen
                 if (context.mounted) {
                   Navigator.pop(context);
+                  quiz.userAnswers.clear();
                   await gameController.strengthenProperty(
                     propertyToStrengthen!, 
                     quiz, 
@@ -308,13 +310,13 @@ class FeedbackListItem extends StatelessWidget {
                 item!,
                 style: item == correctAnswerText 
                 ? TextStyle(
-                  color: Colors.green,
-                  fontSize: 18, 
-                  fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                    fontSize: 18, 
+                    fontWeight: FontWeight.bold,
                   )
                 : TextStyle(
-                  color: const Color.fromARGB(144, 255, 255, 255),
-                  fontSize: 15
+                    color: const Color.fromARGB(144, 255, 255, 255),
+                    fontSize: 15
                   ), 
                 ),
               )

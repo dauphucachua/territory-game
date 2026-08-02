@@ -23,5 +23,17 @@ void main() {
     expect(coord, (2, 9));
   });
 
-  
+  test("hasPerfectHealth - false", () {
+    final hasPerfectHealth = testProperty.hasPerfectHealth;
+    expect(hasPerfectHealth, false);
+  });
+
+  test("hasPerfectHealth - true", () {
+    testProperty.health = 20;
+    final hasPerfectHealth = testProperty.hasPerfectHealth;
+    expect(hasPerfectHealth, true);
+  });
+
+
+
 }

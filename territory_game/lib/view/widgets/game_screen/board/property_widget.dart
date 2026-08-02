@@ -110,7 +110,7 @@ class _PropertyWidgetState extends State<PropertyWidget> {
             child: widget.property.isBattling 
               ? Icon(
                   Icons.close,
-                  size: widget.size,
+                  size: 100,
                   color: const Color.fromARGB(238, 199, 21, 21)
                 )
               : null
@@ -127,7 +127,13 @@ class _PropertyWidgetState extends State<PropertyWidget> {
               context: context, 
               builder: (BuildContext context) => AlertDialog(
                 title: Text("Attack initiated", textAlign: .center),
-                content: Text("Attack property at ${defender.humanCoord}?", textAlign: .center,),
+                content: defender.hasPerfectHealth 
+                  ? Text(
+                    "The property at ${defender.humanCoord} has perfect health. "   
+                    "There will be a difficult bonus question at the end of the activity. Continue?",
+                    textAlign: .center,
+                    )
+                  : Text("Attack property at ${defender.humanCoord}?", textAlign: .center,),
                 backgroundColor: AppColors.backgroundCream,
                 actions: [
                   TextButton(
@@ -136,20 +142,28 @@ class _PropertyWidgetState extends State<PropertyWidget> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      gameController.setBattle(attacker, defender);
-                      showDialog(
-                        barrierDismissible: false,
-                        context: context,
-                        builder: (BuildContext context) => ChangeNotifierProvider.value(
-                          value: gameController,
-                          child: QuizDialog(
-                            quiz: defender.quiz,
-                            mode: .attack
+                    onPressed: () async {
+                      if (defender.hasPerfectHealth) {
+                        setState(() => _isLoading = true);
+                        await gameController.addBonusQuestionToQuiz(defender.quiz);
+                        setState(() => _isLoading = false);
+                      }
+
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        gameController.setBattle(attacker, defender);
+                        showDialog(
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (BuildContext context) => ChangeNotifierProvider.value(
+                            value: gameController,
+                            child: QuizDialog(
+                              quiz: defender.quiz,
+                              mode: .attack
+                            ),
                           ),
-                        ),
-                      ); 
+                        ); 
+                      }
                     },
                     child: Text("Confirm and begin task", style: TextStyle(color: Colors.blueAccent))
                   ),

@@ -64,12 +64,11 @@ class Quiz {
 
   /// Adds the question set from another quiz to the current one.
   /// 
-  /// This is designed to be used when a player strengthens one of their properties.
+  /// This is designed to be used when a player strengthens one of their properties or when a bonus question needs to added to a quiz.
   void addQuestionsFromQuiz(Quiz newQuiz) {
     if (
       subTopic == newQuiz.subTopic
       && type == newQuiz.type
-      && difficulty == newQuiz.difficulty
     ) {
       final lastQuestionId = questions.last.id;
       for (Question question in newQuiz.questions) {
