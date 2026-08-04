@@ -70,6 +70,7 @@ void main() {
     });
 
     test("addPlayer - blocks when list is full already", () {
+      testGame.addPlayer(player2);
       testGame.addPlayer(player3);
       expect(testGame.players.length, 2);
     });

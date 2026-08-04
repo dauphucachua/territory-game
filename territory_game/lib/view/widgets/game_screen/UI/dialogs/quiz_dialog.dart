@@ -342,6 +342,7 @@ class _CodingQuizLayoutState extends State<CodingQuizLayout> {
                         ); 
                       }
                     } else {
+                      codeController.clear();
                       setState(() {
                         currentQuestionIndex++;
                       }); 
