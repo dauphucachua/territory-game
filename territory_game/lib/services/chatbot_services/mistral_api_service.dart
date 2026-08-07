@@ -10,7 +10,10 @@ import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 class MistralApiService implements ChatbotApiService {
 
   // The mistral client.
-  final client = MistralClient.withApiKey(mistralKey);
+  final client = MistralClient.withApiKey(
+    mistralKey,
+    baseUrl: "https://us-central1-territory-game-final.cloudfunctions.net/mistralProxy"
+  );
 
   // A list of model strings for switching easily. This can be expanded, can also add functionality for dynamically switching
   // based on the need at hand. 
@@ -177,9 +180,24 @@ class MistralApiService implements ChatbotApiService {
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
           if (questionType == "multipleChoice") 
-            ChatMessage.user(config.multipleChoicePrompt(topic, subTopic, questionCount, questionHistory, difficulty))
+            ChatMessage.user(
+              config.multipleChoicePrompt(
+                topic, 
+                subTopic, 
+                questionCount,
+                questionHistory, 
+                difficulty
+              )
+            )
           else if (questionType == "codingProblem")
-            ChatMessage.user(config.codingProblemPrompt(topic, subTopic, questionHistory, difficulty))
+            ChatMessage.user(
+              config.codingProblemPrompt(
+                topic, 
+                subTopic, 
+                questionHistory, 
+                difficulty
+              )
+            )
         ],
         reasoningEffort: .high,
         responseFormat: quizSchemas[questionType],
