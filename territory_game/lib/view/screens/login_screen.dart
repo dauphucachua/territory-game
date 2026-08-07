@@ -38,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: .start,
             crossAxisAlignment: .center,
             children: [
+              SubtitleText(text: "Territory Game - Demo"),
               TitleText(text: "Login"),
               SizedBox(height: 50.0),
               Row(

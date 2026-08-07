@@ -180,7 +180,7 @@ class GameController extends ChangeNotifier {
     defender.isBattling = true;
 
     // saveEventMessage calls notifyListeners and updates Firestore, so these don't need to be repeated.
-    await saveEventMessage("${activePlayer.displayName}'s property at ${attacker.humanCoord} is attacking ${defender.humanCoord}");
+    await saveEventMessage("${activePlayer.displayName}'s property at ${attacker.humanCoord} is attacking ${defender.humanCoord}.");
   }
 
   /// Facilitates a battle between two properties.
@@ -199,12 +199,14 @@ class GameController extends ChangeNotifier {
     if (attackerScore > defender.health) {
       boardDefender.ownerId = attacker.ownerId;
       boardDefender.health = attackerScore;
-      final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} was successful. It now belongs to ${attackingPlayer.displayName} and has $attackerScore health";
+      final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} was successful. "
+                      "It now belongs to ${attackingPlayer.displayName} and has $attackerScore health.";
       saveEventMessage(message);
     } else {
       boardAttacker.health ~/= 2;    
 
-      final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} failed. The property at ${attacker.humanCoord} lost half of its health - ${boardAttacker.health} left.";
+      final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} failed. "
+                      "The property at ${attacker.humanCoord} lost half of its health - ${boardAttacker.health} left.";
       saveEventMessage(message);
     }
 
