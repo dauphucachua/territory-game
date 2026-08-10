@@ -13,11 +13,26 @@ void main() {
   );
   
   test("json", () {
+    history.activityHistory = ["Event message 1", "Event message 2"];
+    history.questionHistory["multipleChoice"] = ["MC question 1", "MC question 2"];
+    history.questionHistory["codingProblem"] = ["CP question 1", "CP question 2"];
+
     final historyJson = history.toJson();
-    print(historyJson);
+    expect(historyJson["activityHistory"][0], "Event message 1");
+    expect(historyJson["activityHistory"][1], "Event message 2");
+    expect(historyJson["questionHistory"]["multipleChoice"][0], "MC question 1");
+    expect(historyJson["questionHistory"]["multipleChoice"][1], "MC question 2");
+    expect(historyJson["questionHistory"]["codingProblem"][0], "CP question 1");
+    expect(historyJson["questionHistory"]["codingProblem"][1], "CP question 2");
+    
     final historyObj = History.fromJson(historyJson);
-    print(historyObj.activityHistory);
-    print(historyObj.questionHistory);
+    expect(historyObj.activityHistory[0], "Event message 1");
+    expect(historyObj.activityHistory[1], "Event message 2");
+    expect(historyObj.questionHistory["multipleChoice"]![0], "MC question 1");
+    expect(historyObj.questionHistory["multipleChoice"]![1], "MC question 2");
+    expect(historyObj.questionHistory["codingProblem"]![0], "CP question 1");
+    expect(historyObj.questionHistory["codingProblem"]![1], "CP question 2");
+
   });
 
   test("addChatMessage", () {
