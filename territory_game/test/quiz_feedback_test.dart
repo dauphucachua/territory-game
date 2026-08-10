@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/player.dart';
+import 'package:territory_game/model/quiz_models/question_feedback.dart';
 import 'package:territory_game/model/quiz_models/question_models/coding_problem.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
 import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
@@ -14,102 +16,43 @@ import 'package:territory_game/services/chatbot_services/mistral_api_service.dar
 import 'dummy_gamecontroller.dart';
 
 void main() {
-  Map<String, dynamic> exampleSubject = {
-    "name": "Introduction to Programming",
-    "topics": [
+  final testJson = {
+    "results": [
       {
-          "name": "Variables",
-          "week": 1,
-          "subTopics": [
-              "Naming",
-              "Conventions",
-              "Values"
-          ]
+        "id": 1,
+        "feedback": "Feedback 1",
+        "score": 100,
       },
       {
-          "name": "Functions",
-          "week": 2,
-          "subTopics": [
-              "Scope",
-              "Iteration"
-          ]
-      },
-    ],
-    "questionTypes": [
-        "multipleChoice",
-        "theory",
-        "codingProblem",
-        "codingExercise"
+        "id": 2,
+        "feedback": "Feedback 2",
+        "score": 50,
+      }
     ]
   };
 
-  Subject subject = Subject.fromJson(exampleSubject);
-  
-  final ChatbotApiProvider chatbotProvider = ChatbotApiProvider();
-  final mistralClient = MistralApiService(
-    config: ChatbotConfig());
-  chatbotProvider.addChatbot(mistralClient);
-  
-  Topic topic = Topic(
-    name: "Functions",
-    subTopics: ["Mutability", "Iteration"],
-    week: 1
-  );
+  test("fromJson", () {
+    final quizFeedbackObj = QuizFeedback.fromJson(testJson);
 
-  Game testGame = Game(
-    board: Board(
-      cols: 10,
-      rows: 10,
-    ),
-    startTime: DateTime.now(),
-    endTime: DateTime.now().add(Duration(days: 1000)),
-    id: "gameid123",
-    players: {
-      "id1": Player(
-        id: "id1",
-        displayName: "name1",
-        propertyColor: Colors.black,
-      ),
-      "id2": Player(
-        id: "id2",
-        displayName: "name2",
-        propertyColor: Colors.white,
-      ),
-    },
-    subject: Subject(
-      name: "Introduction to Programming",
-      questionTypes: ["multipleChoice", "codingProblem"],
-      topics: [
-        topic
-      ],
-    ),
-    topic: topic
-  );
-
-
-  final gameController = DummyGameController(
-    chatbotProvider: chatbotProvider, 
-    game: testGame
-  );
-
-  final testQuiz = Quiz(
-    questions: [
-      CodingProblem(
-        id: 1, 
-        question: "Write a function that adds two numbers together", 
-        inputExample: "1, 2", 
-        outputExample: "3"
-      )
-    ],
-    subTopic: "Functions",
-    type: "codingProblem",
-    userAnswers: [
-      "def calculate(): 1 + 2 = 3"
-    ]
-  );
-
-  test("QuizFeedback json", () async {
-    final quizFeedback = await gameController.getFeedback(testQuiz);
-    print(quizFeedback.results[0].score.runtimeType);
+    expect(quizFeedbackObj.results, isA<List<QuestionFeedback>>());
+    expect(quizFeedbackObj.results.length, 2);
+    expect(quizFeedbackObj.results[0].id, 1);
+    expect(quizFeedbackObj.results[0].feedback, "Feedback 1");
+    expect(quizFeedbackObj.results[0].score, 100);
+    expect(quizFeedbackObj.results[1].id, 2);
+    expect(quizFeedbackObj.results[1].feedback, "Feedback 2");
+    expect(quizFeedbackObj.results[1].score, 50);
   });
+
+  test("totalScore", () {
+    final testQuizFeedback = QuizFeedback(
+      results: [
+        QuestionFeedback(id: 1, feedback: "", score: 100),
+        QuestionFeedback(id: 2, feedback: "", score: 50),
+      ]
+    );
+
+    expect(testQuizFeedback.totalScore, 150);
+  });
+
 }
