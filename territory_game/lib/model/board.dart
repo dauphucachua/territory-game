@@ -93,7 +93,6 @@ class Board {
       rowsMap["row $i"] = serializedList[i];
     } 
     
-    print(rowsMap);
     return {
       "rows": rows,
       "cols": cols,

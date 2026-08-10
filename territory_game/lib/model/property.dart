@@ -102,7 +102,7 @@ class Property {
     return ownerId != target.ownerId;
   }
 
-  // Checks if a target property is adjacent to (in the surrounding eight squares of) the current property.
+  /// Checks if a target property is adjacent to (in the surrounding eight squares of) the current property.
   bool isAdjacentTo(Property target) { 
     Set adjacencyVectors = {
       (0, 1), (1, 1), (1, 0), (1, -1), (-1, 1), (-1, 0), (-1, -1), (0, -1)
