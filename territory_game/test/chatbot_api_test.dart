@@ -100,8 +100,6 @@ void main() {
     final List<String> questionHistory = [];
     final difficulty = "Easy";
 
-    print("Hello");
-
     var quiz = await chatbotProvider.chatbot.getQuizJson(
       topic, 
       subTopic, 
@@ -111,15 +109,11 @@ void main() {
       difficulty
     ); 
     
-    if (quiz != null) {
-      Quiz quizObj = Quiz.fromJson(quiz);
-      print(quizObj);
-    } else {
-      print("Quiz null");
-    }
-
-    var quizTwo = await gameController.getQuiz(subTopic, questionType, questionCount, difficulty);
-    print(quizTwo);
+    expect(quiz!["difficulty"], "Easy");
+    expect(quiz["subTopic"], subTopic);
+    expect(quiz["quizType"], "multipleChoice");
+    expect(quiz["questions"].runtimeType, List);
+    expect(quiz["questions"].isNotEmpty, true);
   });
 
   test("codingProblem test", () async {
@@ -139,12 +133,11 @@ void main() {
       difficulty
     );
 
-    if (quiz != null) {
-      Quiz quizObj = Quiz.fromJson(quiz);
-      print(quizObj.questions);
-    } else {
-      print("Quiz null");
-    }
+    expect(quiz!["difficulty"], "Easy");
+    expect(quiz["subTopic"], subTopic);
+    expect(quiz["quizType"], "codingProblem");
+    expect(quiz["questions"].runtimeType, List);
+    expect(quiz["questions"].isNotEmpty, true);
   });
 
   test("getFeedback test", () async {
