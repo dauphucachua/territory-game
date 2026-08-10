@@ -5,31 +5,33 @@
 
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
-const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
-const mistralKey = defineSecret("MISTRAL_API_KEY");
+const mistralApiKey = defineSecret("MISTRAL_API_KEY");
 
-exports.mistralProxy = onRequest({
-  cors: true, // Automatically attaches CORS headers for Flutter Web
-  timeoutSeconds: 300, // Extends timeout to 5 minutes
-  secrets: [mistralKey],
-}, async (req, res) => {
-  try {
-    // Strip the local path and forward directly to Mistral's API
-    const targetUrl = `https://api.mistral.ai${req.path}`;
+exports.mistralProxy = onRequest(
+  {
+    cors: true,
+    timeoutSeconds: 300,
+    secrets: [mistralApiKey],
+  },
+  async (req, res) => {
+    try {
+      const targetUrl = `https://api.mistral.ai${req.path}`;
 
-    const response = await fetch(targetUrl, {
-      method: req.method,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${mistralKey.value()}`,
-      },
-      body: req.method !== "GET" ? JSON.stringify(req.body) : undefined,
-    });
+      // Native Node 18/20 fetch
+      const response = await fetch(targetUrl, {
+        method: req.method,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${mistralApiKey.value()}`,
+        },
+        body: req.method !== "GET" ? JSON.stringify(req.body) : undefined,
+      });
 
-    const data = await response.json();
-    res.status(response.status).json(data);
-  } catch (err) {
-    res.status(500).json({ error: "Proxy failed to reach Mistral API" });
+      const data = await response.json();
+      res.status(response.status).json(data);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to proxy request to Mistral API" });
+    }
   }
-});
+);

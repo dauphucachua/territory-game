@@ -19,6 +19,8 @@ dependencies:
   intl: ^0.20.3
   markdown_widget: ^2.3.2+8
   mistralai_dart: ^5.0.0
+  mockito: ^5.8.1
+  mocktail: ^1.0.5
   provider: ^6.1.5+1
   sortedmap: ^0.5.5
 
