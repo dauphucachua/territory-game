@@ -7,7 +7,7 @@ class Quiz {
   final String type;
   final String subTopic;
   final String difficulty;
-  final List<Question> questions; // This should be List<Question>, having type issues, need to return to this
+  final List<Question> questions; 
   List<String> userAnswers;
   
   Quiz({
@@ -49,7 +49,7 @@ class Quiz {
       "quizType": type,
       "subTopic": subTopic,
       "difficulty": difficulty,
-      "questions": questions.map((question) {
+      "questions": List<Map<String, dynamic>>.from(questions.map((question) {
         switch (type) {
           case "multipleChoice": 
             question = question as MultipleChoiceQuestion;
@@ -58,7 +58,7 @@ class Quiz {
             question = question as CodingProblem;
             return question.toJson();
         }
-      })
+      }))
     };
   }
 
@@ -78,10 +78,8 @@ class Quiz {
       questions.addAll(newQuiz.questions);
     } else {
       throw "Quizzes do not share enough attributes to be merged.";
-    }
-    
+    } 
   }
-
 
   /// Returns a formatted string that allows a completed quiz to be submitted clearly to a chatbot.
   String toStringForFeedbackPrompt() {
@@ -111,8 +109,6 @@ class Quiz {
   void storeUserAnswers(Map<int, String> userAnswerMap) {
     userAnswers.addAll(userAnswerMap.values);
   }
-
-
 }
 
 
