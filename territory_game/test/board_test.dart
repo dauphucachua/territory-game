@@ -71,21 +71,61 @@ void main() {
   );
 
   test("json", () {
-    
     Map<String, dynamic> boardJson = board.toJson();
+    expect(boardJson["rows"], 10);
+    expect(boardJson["cols"], 10);
+    expect(boardJson["state"]["row 0"], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardJson["state"]["row 1"], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardJson["state"]["row 2"], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardJson["state"]["row 3"], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardJson["state"]["row 4"], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardJson["state"]["row 5"], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardJson["state"]["row 6"], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardJson["state"]["row 7"], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardJson["state"]["row 8"], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardJson["state"]["row 9"], [null, null, null, null, null, null, null, null, null, null]);
 
     Board boardObj = Board.fromJson(boardJson);
-
-    boardObj.checkBoardState();
+    expect(boardObj.rows, 10);
+    expect(boardObj.cols, 10);
+    expect(boardObj.state[0], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardObj.state[1], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardObj.state[2], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardObj.state[3], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardObj.state[4], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardObj.state[5], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardObj.state[6], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardObj.state[7], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardObj.state[8], [null, null, null, null, null, null, null, null, null, null]);
+    expect(boardObj.state[9], [null, null, null, null, null, null, null, null, null, null]);
   });
   
    test("json with property", () {
     board.state[1][1] = testProperty;
     Map<String, dynamic> boardJson = board.toJson();
+    expect(boardJson["state"]["row 1"][1]["health"], 100);
+    expect(boardJson["state"]["row 1"][1]["isBattling"], "false");
+    expect(boardJson["state"]["row 1"][1]["row"], 1);
+    expect(boardJson["state"]["row 1"][1]["col"], 1);
+    expect(boardJson["state"]["row 1"][1]["quiz"].containsKey("questions"), true);
+    expect(boardJson["state"]["row 1"][1]["quiz"].containsKey("difficulty"), true);
+    expect(boardJson["state"]["row 1"][1]["quiz"].containsKey("subTopic"), true);
+    expect(boardJson["state"]["row 1"][1]["quiz"].containsKey("quizType"), true);
 
     Board boardObj = Board.fromJson(boardJson);
+    expect(boardObj.state[1][1].runtimeType, Property);
+    expect(boardObj.state[1][1].health, 100);
+    expect(boardObj.state[1][1].isBattling, false);
+    expect(boardObj.state[1][1].row, 1);
+    expect(boardObj.state[1][1].col, 1);
+    expect(boardObj.state[1][1].quiz.runtimeType, Quiz);
+  });
 
-    boardObj.checkBoardState();
+  test("getBoardArea", () {
+    expect(board.getBoardArea(1, 1), "The Dojo");
+    expect(board.getBoardArea(2, 2), "The Arena");
+    expect(board.getBoardArea(3, 3), "The Battleground");
+    expect(board.getBoardArea(4, 4), "The Pit");
   });
 
   test("getControlPointsByPlayer", () {
@@ -93,7 +133,7 @@ void main() {
     board.state[2][2] = testProperty2; // 2 points
     board.state[3][3] = testProperty3; // 5 points
     board.state[4][4] = testProperty4; // 10 points
-    int points = board.getControlPointsByPlayer(testPlayer);
+    final points = board.getControlPointsByPlayer(testPlayer);
     expect(points, 18);
   }); 
   
