@@ -83,8 +83,11 @@ class CloseWindowButton extends StatelessWidget {
 
 class LoaderWithText extends StatelessWidget {
   final String text;
-  const LoaderWithText({
+  Color? color;
+
+  LoaderWithText({
     required this.text,
+    this.color = AppColors.opaqueWhite,
     super.key,
   });
 
@@ -92,7 +95,13 @@ class LoaderWithText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        ContentText(text: text),
+        Text(
+          text,
+          style: TextStyle(
+            color: color,
+            fontSize: 14.0
+          )
+        ),
         SizedBox(width: 12.0),
         CircularProgressIndicator()
       ]

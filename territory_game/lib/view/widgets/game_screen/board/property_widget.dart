@@ -30,8 +30,7 @@ class _PropertyWidgetState extends State<PropertyWidget> {
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
-    Property property = widget.property;
-    
+    final Property property = widget.property;
 
     String buildStatString() {
       final owner = gameController.game.players[property.ownerId]!.displayName;
@@ -63,45 +62,59 @@ class _PropertyWidgetState extends State<PropertyWidget> {
         child: GestureDetector(
           onTap: () {
             showDialog(
+              barrierDismissible: false,
               context: context,
-              builder: (context) => AlertDialog(
-                title: Text("Strengthen property?"),
-                content: _isLoading 
-                ? LoaderWithText(text: "Getting quiz from chatbot...")
-                : Text("Strengthen your property by answering questions on the same topic"),
-                actions: [
-                  TextButton(
-                    child: Text("Cancel"),
-                    onPressed: () => Navigator.pop(context)
-                  ),
-                  TextButton(
-                    child: Text("Confirm and begin quiz"),
-                    onPressed: () async {
-                      setState(() => _isLoading = true);
-                      final newQuiz = await gameController.getQuiz(
-                        widget.property.quiz.subTopic,
-                        widget.property.quiz.type,
-                        widget.property.quiz.questions.length,
-                        widget.property.quiz.difficulty
-                      );
-                      setState(() => _isLoading = false);
-
-                      if (context.mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => ChangeNotifierProvider.value(
-                            value: gameController,
-                            child: QuizDialog(
-                              quiz: newQuiz,
-                              mode: .strengthen,
-                              propertyToStrengthen: widget.property,
-                            )
-                          )
-                        );
-                      }
-                    }
-                  )
-                ], 
+              builder: (context) => StatefulBuilder(
+                builder: (context, setState) => AlertDialog(
+                  title: Text("Strengthen property?"),
+                  content: Text("Strengthen your property by answering questions on the same topic"),
+                  actions: [
+                    _isLoading 
+                      ? Container() 
+                      : TextButton(
+                        child: Text("Cancel"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() => _isLoading = false);
+                        }
+                      ),
+                    _isLoading 
+                      ? Center(
+                        child: LoaderWithText(
+                          text: "Getting quiz from chatbot...",
+                          color: AppColors.darkBlue
+                        ),
+                      )
+                      : TextButton(
+                        child: Text("Confirm and begin quiz"),
+                        onPressed: () async {
+                          setState(() => _isLoading = true);
+                          final newQuiz = await gameController.getQuiz(
+                            widget.property.quiz.subTopic,
+                            widget.property.quiz.type,
+                            widget.property.quiz.type == "multipleChoice" ? 5 : 1,
+                            widget.property.quiz.difficulty
+                          );
+                          setState(() => _isLoading = false);
+                          
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            showDialog(
+                              context: context,
+                              builder: (context) => ChangeNotifierProvider.value(
+                                value: gameController,
+                                child: QuizDialog(
+                                  quiz: newQuiz,
+                                  mode: .strengthen,
+                                  propertyToStrengthen: widget.property,
+                                )
+                              )
+                            );
+                          }
+                        }
+                      )
+                  ], 
+                ),
               )
             );
           },
