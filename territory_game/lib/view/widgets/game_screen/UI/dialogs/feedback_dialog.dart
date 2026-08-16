@@ -99,6 +99,7 @@ class FeedbackDialog extends StatelessWidget {
               } else { // mode == .strengthen
                 if (context.mounted) {
                   Navigator.pop(context);
+                  await Future.delayed(Duration(seconds: 1));
                   quiz.userAnswers.clear();
                   await gameController.strengthenProperty(
                     propertyToStrengthen!, 
@@ -347,42 +348,40 @@ class FeedbackListItem extends StatelessWidget {
             color: getFeedbackBoxColor(),
             borderRadius: BorderRadius.circular(15.0),
           ),
-          child: Expanded(
-            child: Column(
-              children: [
-                if (quizType == "multipleChoice")
-                  Text(
-                    "You answered: '$userAnswerText'",
-                    style: TextStyle(
-                      color: const Color.fromARGB(144, 255, 255, 255),
-                      fontSize: 18.0
-                    ),
-                  ),
-                SizedBox(height: 10),
-                quizType == "codingProblem" 
-                ? SingleChildScrollView(
-                  scrollDirection: .vertical,
-                  child: SmoothMarkdown(
-                    data: feedbackText,
-                    styleSheet: MarkdownStyleSheet.dark(
-                      baseStyle: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.opaqueWhite
-                      )
-                    ),
-                  ),
-                )
-                : ContentText(text: feedbackText),
-                SizedBox(height: 10),
+          child: Column(
+            children: [
+              if (quizType == "multipleChoice")
                 Text(
-                  "Score: $questionScore",
+                  "You answered: '$userAnswerText'",
                   style: TextStyle(
                     color: const Color.fromARGB(144, 255, 255, 255),
                     fontSize: 18.0
                   ),
                 ),
-              ],
-            ),
+              SizedBox(height: 10),
+              quizType == "codingProblem" 
+              ? SingleChildScrollView(
+                scrollDirection: .vertical,
+                child: SmoothMarkdown(
+                  data: feedbackText,
+                  styleSheet: MarkdownStyleSheet.dark(
+                    baseStyle: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.opaqueWhite
+                    )
+                  ),
+                ),
+              )
+              : ContentText(text: feedbackText),
+              SizedBox(height: 10),
+              Text(
+                "Score: $questionScore",
+                style: TextStyle(
+                  color: const Color.fromARGB(144, 255, 255, 255),
+                  fontSize: 18.0
+                ),
+              ),
+            ],
           ),
         ),
       ],
