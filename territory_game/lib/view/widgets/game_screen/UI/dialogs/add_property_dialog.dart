@@ -18,6 +18,7 @@ class AddPropertyDialog extends StatefulWidget {
 }
 
 class _AddPropertyDialogState extends State<AddPropertyDialog> {
+  // Empty strings for storing user selections.
   String selectedSubtopic = "";
   String selectedQuestionType = "";
   String selectedDifficulty = "";
@@ -28,6 +29,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
     
+    /// Gets the sub-topic limit data for display in sub-topic cards.
     Widget getCardDataBody(String subTopic) {
       Map subTopicCount = gameController.subTopicCountPerArea();
       Map currentSubTopicCount = subTopicCount[subTopic];
@@ -46,6 +48,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
       );
     }
     
+    /// Returns a list of card data for building the scrollable ListViews.
     List<SelectionCardData> getCardDataList(List<String> titles) {
       List<SelectionCardData> cardData = (titles.map((title) => SelectionCardData(
         title: title, 
@@ -55,8 +58,6 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
       ))).toList();
       return cardData;
     }
-
-    
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -177,6 +178,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
   }
 }
 
+/// Data model for the selection cards.
 class SelectionCardData {
   final String title;
   final Widget? body;
@@ -187,6 +189,7 @@ class SelectionCardData {
   });
 }
 
+/// Custom widget for selection cards.
 class SelectionCard extends StatelessWidget { 
   final String title;
   bool isSelected;
@@ -243,6 +246,7 @@ class SelectionCard extends StatelessWidget {
   }
 }
 
+/// A custom widget for a horizontally scrollable ListView. 
 class ScrollableHorizontalListView extends StatelessWidget {
   final List<SelectionCardData> cardData;
   final double height;

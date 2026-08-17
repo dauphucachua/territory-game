@@ -1,12 +1,13 @@
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 
- /// A data model for properties, which are territorial game pieces owned by players and placed on the board.
- /// 
- /// Probably needs an id attribute.
+ /// A data model for properties, which are game pieces owned by players and placed on the board.
 class Property {
+  // The unique id of the property's current owner.
   String ownerId;
+  // A quiz is stored in a property on creation.
   Quiz quiz;
+  // The property's health, given by the quiz score.
   int health;
   bool isBattling;
   int? row;
@@ -24,6 +25,9 @@ class Property {
   int get questionCount => quiz.questions.length;
   String get quizType => quiz.type;
   
+  /// Returns true if the property has the maximum score for all questions stored in it.
+  /// 
+  /// Allows the bonus question mechanism to be triggered when attacking.
   bool get hasPerfectHealth {
     if (quiz.type == "multipleChoice" && quiz.questions.length * 20 == health) {
       return true;
@@ -33,6 +37,7 @@ class Property {
     return false;
   }
   
+  /// Gets the board area of the property as a String.
   String get boardArea {
     if (row != null && col != null) {
       if (row! >= 4 && row! <= 5 && col! >= 4 && col! <= 5) {
@@ -47,6 +52,7 @@ class Property {
     } throw "The property has not been placed (Board Area Failure).";
   }
 
+  /// Gets the number of control points that the property is currently securing.
   int get controlPoints {
     switch (boardArea) {
       case "The Pit": return 10;
@@ -56,6 +62,7 @@ class Property {
     } throw "The property has not been placed (Control Points Failure).";
   } 
 
+  /// Loads a Property from a JSON object.
   factory Property.fromJson(Map<String, dynamic> json) {
     return Property(
       ownerId: json["ownerId"],
@@ -90,8 +97,6 @@ class Property {
   }
 
   /// Returns a string for showing the property on the game board via its checkBoardState() method.
-  /// 
-  /// Probably need to create a specialized method for this so a more universal toString() override can be implemented.
   @override
   String toString() {
     return "PROP";

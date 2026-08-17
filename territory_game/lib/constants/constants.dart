@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+/// This file contains classes of constant values for global use throughout the application.
 
+/// A class of color constants.
 class AppColors {
   static const darkBlue = Color.fromARGB(255, 33, 48, 68);
   static const blue = Color.fromARGB(255, 45, 65, 90);
@@ -18,12 +20,14 @@ class AppColors {
   static const selectedBlue = Color.fromARGB(255, 69, 99, 136); 
 }
 
+/// A class of common dimensions.
 class AppDimensions {
   static final cornerRadius = BorderRadius.circular(15.0);
   static final boardRows = 10;
   static final boardCols = 10;
 }
 
+/// A class for the rules of the app.
 class AppRules {
   static const rules = 
     """
@@ -45,7 +49,7 @@ class AppRules {
     Different areas of the board provide different numbers of control points.
     -	Centre (RED): “The Pit” – 10 control points
     -	2nd from centre (PURPLE): “The Battleground” – 5 control points
-    -	3rd from centre (YELLOW): “The Arena” – 2 control points
+    -	3rd from centre (GREEN): “The Arena” – 2 control points
     -	Outer ring (GREY): “The Dojo" – 1 control point
 
     ATTACKING:
@@ -54,6 +58,7 @@ class AppRules {
     Properties must be directly adjacent to be able to attack each other.
     If you beat your opponent's score on the questions saved in their property, it becomes yours.
     If you fail, your attacking property will lose half of its health.
+    If your opponetn
 
     STRENGTHENING: 
 

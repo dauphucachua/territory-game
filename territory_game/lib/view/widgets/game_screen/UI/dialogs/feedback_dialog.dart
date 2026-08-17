@@ -17,6 +17,8 @@ class FeedbackDialog extends StatelessWidget {
   final Quiz quiz;
   final QuizFeedback quizFeedback;
   final QuizMode mode;
+  // A propertyToStrengthen is present in .strengthen mode.
+  // This allows the exit button to trigger the strengthening process on the right property.
   Property? propertyToStrengthen;
 
   FeedbackDialog({
@@ -58,6 +60,7 @@ class FeedbackDialog extends StatelessWidget {
             ),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
+              // Button text changes depending on QuizMode.
               child: Text(
                 switch (mode) {
                   .creation => "Exit and place property",
@@ -116,25 +119,10 @@ class FeedbackDialog extends StatelessWidget {
   }
 }
 
-// Widget selectLayout(Quiz quiz, QuizFeedback quizFeedback, QuizMode mode) {
-//   if (quiz.type == "multipleChoice") {
-//     return FeedbackLayout( 
-//       quiz: quiz,
-//       quizFeedback: quizFeedback,
-//       mode: mode
-//     );
-//   } else if (quiz.type == "codingProblem") {
-//     return CodingProblemFeedbackLayout(
-//       quiz: quiz,
-//       quizFeedback: quizFeedback,
-//       mode: mode
-//     );
-//   }
-  
-
-//   throw "Quiz type not found / not recognised";
-// }
-
+/// A custom widget for the feedback screen layout body.
+/// 
+/// Allows the surrounding UI elements to stay the same (eg. Dialog style, exit button) while the layout
+/// changes dynamically based on quiz type.
 class FeedbackLayout extends StatelessWidget {
   final Quiz quiz;
   final QuizFeedback quizFeedback;
@@ -250,6 +238,7 @@ class FeedbackLayout extends StatelessWidget {
   }
 }
 
+/// A custom widget for displaying feedback to the user.
 class FeedbackListItem extends StatelessWidget {
   final String quizType;
   final String questionText;
@@ -270,6 +259,8 @@ class FeedbackListItem extends StatelessWidget {
     super.key
   });
   
+  /// Sets the conditions for the feedback card being greed, yellow, or red depending on
+  /// quizType and score/correctness.
   Color getFeedbackBoxColor() {
     if (quizType == "multipleChoice") {
       if (userAnswerText == correctAnswerText) {
@@ -295,6 +286,7 @@ class FeedbackListItem extends StatelessWidget {
     return Row(
       mainAxisAlignment: .spaceEvenly,
       children: [
+        // Shows the submitted answer (+ correct answer if multiple choice)
         Container(
           width: 600,
           padding: EdgeInsets.all(20.0),
@@ -341,6 +333,7 @@ class FeedbackListItem extends StatelessWidget {
           Icons.arrow_forward,
           color: const Color.fromARGB(136, 255, 255, 255)
         ),
+        // Feedback card
         Container(
           width: 600,
           padding: EdgeInsets.all(20.0),
@@ -360,9 +353,9 @@ class FeedbackListItem extends StatelessWidget {
                 ),
               SizedBox(height: 10),
               quizType == "codingProblem" 
-              ? SingleChildScrollView(
+              ? SingleChildScrollView( 
                 scrollDirection: .vertical,
-                child: SmoothMarkdown(
+                child: SmoothMarkdown( // Uses markdown so code examples can be displayed.
                   data: feedbackText,
                   styleSheet: MarkdownStyleSheet.dark(
                     baseStyle: TextStyle(

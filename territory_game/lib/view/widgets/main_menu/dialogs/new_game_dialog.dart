@@ -5,7 +5,6 @@ import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game.dart';
-import 'package:territory_game/model/game_user.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
@@ -14,12 +13,13 @@ import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 import 'package:territory_game/services/timer_service/timer_service.dart';
-import 'package:territory_game/view/screens/game_screen.dart';
 import 'package:territory_game/view/screens/game_screen_wrapper.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 
+/// A dialog box that provides setting selection for creating a new game.
 class NewGameDialog extends StatefulWidget {
   final FirebaseAuthService firebaseAuth;
+  // The choices of subject (currently comes from Subject class demo data)
   final List<Subject> subjectOptions = subjectList;
 
   NewGameDialog({
@@ -32,6 +32,7 @@ class NewGameDialog extends StatefulWidget {
 }
 
 class _NewGameDialogState extends State<NewGameDialog> {
+  // Nullable fields for assigning the user's selections.
   Subject? selectedSubject;
   Topic? selectedTopic;
   Color? selectedColor;
@@ -53,6 +54,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
     "1 week": Duration(days: 7)
   };
 
+  /// Checks that all of the options have been selected.
   bool allOptionsSelected() {
     return selectedSubject != null 
       && selectedTopic != null
@@ -84,7 +86,6 @@ class _NewGameDialogState extends State<NewGameDialog> {
       // Create a Firestore reference doc with an auto-generated ID for the new game.
       final newGameRef = db.collection("games").doc();
       final newGameId = newGameRef.id;
-      print("new game Id from Firestore ref: ${newGameId}");
 
       // Initialize Game object.
       final game = Game(
@@ -96,20 +97,15 @@ class _NewGameDialogState extends State<NewGameDialog> {
         startTime: startTime,
         endTime: selectedEndTime!,
       );
-
-      print("Game object initialized id: ${game.id}");
-      print("Player ID in game: ${game.players[player.id]!.id}");
   
       // Add gameId to the active user's activeGameIds List.
       widget.firebaseAuth.activeUser!.addGameId(newGameId);
-
-      print("FirebaseAuth activeUser game ids: ${widget.firebaseAuth.activeUser!.activeGameIds}");
 
       // Update activeUser's document with the new game.
       db.collection("users").doc(
         widget.firebaseAuth.activeUser!.id).set(
           widget.firebaseAuth.activeUser!.toJson());
-      
+
       // Set a document in the Firestore games collection using the Game id.
       db.collection("games").doc(game.id).set(game.toJson());
 
@@ -178,6 +174,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                 children: [
                   TitleText(text: "New game"),
                   SizedBox(height: 40.0), 
+                  // Subject selection
                   SelectionDropdownRow(
                     instructionText: "Select a subject",
                     dropdownItems: List<DropdownMenuEntry>.from(
@@ -195,6 +192,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                     },
                   ),
                   SizedBox(height: 32.0),
+                  // Topic selection
                   SelectionDropdownRow(
                     instructionText: "Select a topic", 
                     dropdownItems: selectedSubject != null // If a subject has been selected
@@ -214,6 +212,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                     }
                   ),
                   SizedBox(height: 32.0),
+                  // Property color selection
                   SelectionDropdownRow(
                     instructionText: "Select a property color", 
                     dropdownItems: List<DropdownMenuEntry>.from(
@@ -232,6 +231,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                     }
                   ),
                   SizedBox(height: 32.0),
+                  // Game duration selection
                   SelectionDropdownRow(
                     instructionText: "Select a game duration", 
                     dropdownItems: List<DropdownMenuEntry>.from(
@@ -246,7 +246,6 @@ class _NewGameDialogState extends State<NewGameDialog> {
                       setState(() {
                         selectedEndTime = duration;
                       });
-                      print(duration);
                     }
                   ),
                   SizedBox(height: 32.0),
@@ -255,6 +254,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                     children: [
                       SizedBox(
                         width: 300,
+                        // Textfield for display names
                         child: TextField(
                           controller: nameController,
                           style: TextStyle(
@@ -270,7 +270,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
                           ),
                         ),
                       ),
-                      
+                      // Start new game button
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.opaqueWhite,
@@ -301,6 +301,7 @@ class _NewGameDialogState extends State<NewGameDialog> {
   }
 }
 
+/// A custom widget for a row with a text label and a dropdown menu.
 class SelectionDropdownRow extends StatelessWidget {
   final String instructionText;
   final List<DropdownMenuEntry> dropdownItems;

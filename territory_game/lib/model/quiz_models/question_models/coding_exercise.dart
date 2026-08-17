@@ -2,7 +2,8 @@ import 'package:territory_game/model/quiz_models/question_models/question.dart';
 
 /// A data model for the coding exercise question type.
 class CodingExercise extends Question {
-  final List<String> steps;
+  // A series of steps for the user to carry out, as Strings.
+  final List<String> steps; 
 
   CodingExercise({
     required super.id,

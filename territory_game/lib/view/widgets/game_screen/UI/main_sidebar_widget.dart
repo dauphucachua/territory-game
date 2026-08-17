@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
-import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/add_property_dialog.dart';
 import 'package:territory_game/view/widgets/game_screen/property_icon.dart';
 
+// An enum to allow switching between the activity tab and the properties tab.
 enum TabStatus {activityTab, propertiesTab}
 
+/// A custom widget for the main sidebar on the GameScreen.
+/// 
+/// It supplies the 'New property' button, the list of player properties, and the activity history.
 class MainSidebarWidget extends StatefulWidget {
   const MainSidebarWidget({super.key});
 
@@ -49,7 +52,12 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
                   ? AppColors.blue
                   : null
                 ),
-                child: Text("My properties"),
+                child: Text(
+                  "My properties",
+                  style: TextStyle(
+                    color: AppColors.opaqueWhite
+                  )
+                ),
                 onPressed: () => setState(() {activeTab = TabStatus.propertiesTab;})
               ),
               TextButton(
@@ -58,13 +66,20 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
                   ? AppColors.blue
                   : null
                 ),
-                child: Text("Activity"),
+                child: Text(
+                  "Activity",
+                  style: TextStyle(
+                    color: AppColors.opaqueWhite
+                  )
+                ),
                 onPressed: () => setState(() {activeTab = TabStatus.activityTab;})
               ),
             ],
           ),
           Divider(),
-          activeTab == TabStatus.activityTab ? Expanded(child: ActivityTabContent()) : Expanded(child: PropertiesTabContent()),
+          activeTab == TabStatus.activityTab 
+            ? Expanded(child: ActivityTabContent()) 
+            : Expanded(child: PropertiesTabContent()),
           Divider(),
           SizedBox(height: 10),           
           ElevatedButton(      
@@ -105,6 +120,7 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
   }
 }
 
+/// A layout for the activity tab content as a body of the sidebar.
 class ActivityTabContent extends StatelessWidget {
   ActivityTabContent({
     super.key,
@@ -117,6 +133,7 @@ class ActivityTabContent extends StatelessWidget {
     final gameController = context.watch<GameController>();
     final activityHistory = gameController.game.history.activityHistory;
 
+    /// Invokes the GameController's method for saving chat messages with the chatController text.
     Future<void> submitChatMessage() async {
       await gameController.saveChatMessage(chatController.text.trim());
     }
@@ -181,7 +198,7 @@ class ActivityTabContent extends StatelessWidget {
                       color: const Color.fromARGB(255, 110, 133, 151)
                     ),
                     onPressed: () => submitChatMessage()
-                  )
+                  ),
                 ],
               )
             ],
@@ -192,6 +209,7 @@ class ActivityTabContent extends StatelessWidget {
   }
 }
 
+/// A layout for the properties tab content as a body of the sidebar.
 class PropertiesTabContent extends StatelessWidget {
   const PropertiesTabContent({super.key});
 
@@ -202,7 +220,6 @@ class PropertiesTabContent extends StatelessWidget {
     final propertyToPlace = activePlayer.propertyToPlace;
     final playerColor = activePlayer.propertyColor;
     final playerProperties = gameController.getPropertiesByPlayerId(activePlayer.id);
-   
 
     return Column(
       children: [
@@ -221,7 +238,7 @@ class PropertiesTabContent extends StatelessWidget {
           children: [
             Draggable(
               data: propertyToPlace,
-              feedback: PropertyIcon(color: playerColor), // Needs to be player.color             
+              feedback: PropertyIcon(color: playerColor),           
               child: PropertyListCard(
                 property: propertyToPlace,
                 iconColor: playerColor
@@ -267,6 +284,7 @@ class PropertiesTabContent extends StatelessWidget {
   }
 }
 
+/// A custom widget for displaying property info on a card in a ListView.
 class PropertyListCard extends StatelessWidget {
   const PropertyListCard({
     super.key,
@@ -319,6 +337,7 @@ class PropertyListCard extends StatelessWidget {
   }
 }
 
+/// A custom widget that groups a heart icon with a property's health as text.
 class HealthStat extends StatelessWidget {
   final int health;
 

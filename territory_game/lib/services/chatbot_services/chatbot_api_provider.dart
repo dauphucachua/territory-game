@@ -11,12 +11,12 @@ class ChatbotApiProvider {
 
   ChatbotApiProvider();
 
-  // Adds a chatbot's API service to the list.
+  /// Adds a chatbot's API service to the list.
   void addChatbot(ChatbotApiService chatbot) {
     _chatbotList.add(chatbot);
   }
 
-  // Uses the currentChatbotIndex to return the active chatbot's API service.'
+  /// Uses the currentChatbotIndex to return the active chatbot's API service.'
   ChatbotApiService get chatbot => _chatbotList[currentChatbotIndex];
 
   

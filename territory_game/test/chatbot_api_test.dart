@@ -92,6 +92,7 @@ void main() {
     game: testGame
   );
   
+  /// Tests that the chatbot returns a multiple choice quiz with the requested settings.
   test("multipleChoice test", () async {
     final topic = subject.topics[0];
     final subTopic = topic.subTopics[0];
@@ -116,6 +117,7 @@ void main() {
     expect(quiz["questions"].isNotEmpty, true);
   });
 
+  /// Tests that the chatbot returns a coding problem with the requested settings.
   test("codingProblem test", () async {
     final topic = gameController.game.topic;
     final subTopic = gameController.game.topic.subTopics[0];
@@ -140,6 +142,8 @@ void main() {
     expect(quiz["questions"].isNotEmpty, true);
   });
 
+  /// Tests that the chatbot returns feedback with the requested settings, and assesses 
+  /// right and wrong answers appropriately.
   test("getFeedback test", () async {
     final mockQuestion1 = MultipleChoiceQuestion(
       id: 1, 

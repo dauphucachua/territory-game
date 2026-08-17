@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+/// A custom widget used for displaying a property as an icon.
 // ignore: must_be_immutable
 class PropertyIcon extends StatelessWidget {
   final double width;

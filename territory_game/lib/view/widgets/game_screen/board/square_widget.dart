@@ -5,7 +5,7 @@ import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/square.dart';
 import 'package:territory_game/view/widgets/game_screen/board/property_widget.dart';
 
-/// This widget embodies a square of the game board.
+/// This widget visually represents a square on the game board.
 // ignore: must_be_immutable
 class SquareWidget extends StatefulWidget {
   final Square square;
@@ -29,70 +29,64 @@ class _SquareWidgetState extends State<SquareWidget> {
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
-    return GestureDetector(
-      onTap: () {
-        // Clicking on square behaviour here
-        // May need to be a callback function
-      },
-      child: DragTarget<Property>(
-        onAcceptWithDetails: (incomingProperty) async {
-          if (!incomingProperty.data.isPlaced) {
-            if (
-              !await gameController.placeProperty(
-                incomingProperty.data, 
-                row: widget.square.row, 
-                col: widget.square.col
-              )
-            ) {
-
-              if (context.mounted) {
-                final propertySubTopic = incomingProperty.data.quiz.subTopic;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("The $propertySubTopic limit for ${widget.square.area} is already full - choose a different board area.")
-                  )
-                );
-              }
+    // Makes the square a drag target for accepting properties being placed.
+    return DragTarget<Property>(
+      onAcceptWithDetails: (incomingProperty) async {
+        if (!incomingProperty.data.isPlaced) { // Checks that the property is not already placed first.
+          if (
+            !await gameController.placeProperty(
+              incomingProperty.data, 
+              row: widget.square.row, 
+              col: widget.square.col
+            )
+          ) {   
+            if (context.mounted) {
+              final propertySubTopic = incomingProperty.data.quiz.subTopic;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("The $propertySubTopic limit for ${widget.square.area} is already full - choose a different board area.")
+                ),
+              );
             }
           }
-        },
-        builder: (context, property, rejected) {
-          return Stack(
-            children: [
-              Container(
-                height: 200,
-                width: 200,
-                decoration: BoxDecoration(
-                  border: BoxBorder.all(width: 2),
-                  color: widget.color,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: widget.property
-                ),
-              ),
-              widget.scorePosition != null 
-              ? Align(
-                alignment: widget.scorePosition!,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 10.0
-                  ),
-                  child: Text(
-                    "${widget.square.points}",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 27
-                    )
-                  ),
-                )
-              )
-              : Container()
-            ],
-          );
         }
-      ),
+      },
+      builder: (context, property, rejected) {
+        return Stack(
+          children: [
+            Container(
+              height: 200,
+              width: 200,
+              decoration: BoxDecoration(
+                border: BoxBorder.all(width: 2),
+                color: widget.color,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: widget.property
+              ),
+            ),
+            widget.scorePosition != null 
+            ? Align(
+              alignment: widget.scorePosition!,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 10.0
+                ),
+                child: Text(
+                  "${widget.square.points}",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 27
+                  )
+                ),
+              )
+            )
+            : Container()
+          ],
+        );
+      }
     );
   }
 }

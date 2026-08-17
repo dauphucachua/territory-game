@@ -28,6 +28,7 @@ class _BoardWidgetState extends State<BoardWidget> {
   Widget build(BuildContext context) {
     final playerMap = context.watch<GameController>().game.players;
     
+    /// Gets the right color for the property based on the property's ownerId.
     Color getPropertyColorFromOwner(Property property) {
       for (String playerId in playerMap.keys) {
         if (playerId == property.ownerId) {
@@ -37,6 +38,7 @@ class _BoardWidgetState extends State<BoardWidget> {
       throw "No matching player ID.";
     }
     
+    /// Builds the board, listening for any state changes broadcast by GameController.
     return Consumer<GameController>(
       builder: (context, gameController, child) => GridView.builder(
         shrinkWrap: true,
@@ -59,6 +61,7 @@ class _BoardWidgetState extends State<BoardWidget> {
           final squareProperty = gameController.boardState[row][col];
           AlignmentGeometry? scorePosition = getScorePositionFromIndex(index);
 
+          // The board is made up of SquareWidgets.
           return SquareWidget(
             square: squareData,
             color: areaSpecificData["color"],
@@ -103,6 +106,8 @@ class _BoardWidgetState extends State<BoardWidget> {
 
   /// Returns an AlignmentGeometry position if the square @ index should have its control point value 
   /// displayed on it.
+  /// 
+  /// This is for positioning the control point labels in the correct corner of the target square.
   AlignmentGeometry? getScorePositionFromIndex(int index) {
     final bool isTopLeft = index == 0
       || index == 22

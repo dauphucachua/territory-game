@@ -184,6 +184,9 @@ void main() {
       gameController.boardState[3][3] = testProperty3;
       gameController.boardState[4][4] = testProperty4;
     });
+
+    /// Tests that the subTopicCountPerArea produces the right number for the properties placed
+    /// in each area.
     test("subTopicCountPerArea", () {
       final countMap = gameController.subTopicCountPerArea();
       expect(countMap["subTopic A"]!["The Dojo"], 1);
@@ -192,6 +195,8 @@ void main() {
       expect(countMap["subTopic A"]!["The Pit"], 1);
     });
 
+    /// Tests that the subTopicLimitSurpassed method returns false when an area can still accept more
+    /// properties of a certain sub-topic.
     test("subTopicLimitSurpassed - false", () {
       expect(
         gameController.subTopicLimitSurpassed(testProperty5, row: 1, col: 2),
@@ -199,6 +204,8 @@ void main() {
       );
     });
 
+    /// Tests that the subTopicLimitSurpassed method returns true when an area cannot accept any more properties
+    /// on a given sub-topic.
     test("subTopicLimitSurpassed - true", () {
       expect(
         gameController.subTopicLimitSurpassed(testProperty5, row: 5, col: 5),
@@ -208,16 +215,19 @@ void main() {
   });
 
   group("placeProperty", () {
+    /// Tests that placeProperty is accepted when the square is not occupied.
     test("placeProperty - accepted", () {
       expect(gameController.placeProperty(testProperty, row: 1, col: 1), true);
       expect(gameController.boardState[1][1], testProperty);    
     });
 
+    /// Tests that placeProperty is rejected when the square is occupied.
     test("placeProperty - rejected", () {
       gameController.boardState[1][1] = testProperty;
       expect(gameController.placeProperty(testProperty, row: 1, col: 1), false);
     });
   });
+
 
   group("addPlayerToGame", () {
     setUp(() {
@@ -264,6 +274,7 @@ void main() {
       expect(gameController2.activeUser.activeGameIds.contains("gameid123"), true);
     });
 
+    /// Tests that addPlayerToGame doesn't work when GameUser id and Player id are not the same.
     test("addPlayerToGame - failure", () {
       final mismatchedIdPlayer = Player(
         displayName: "name3",
@@ -277,11 +288,14 @@ void main() {
       expect(gameController2.game.players.length, 1);
     });
 
+    /// Tests that a player's propertyToPlace field can be set.
     test("setPropertyToPlace", () {
       gameController.setPropertyToPlace(testProperty);
       expect(gameController.activePlayer.propertyToPlace, testProperty); 
     });
     
+    /// Tests that health is increased by score and question count is increased by the number of 
+    /// additional questions when strengthening.
     test("strengthenProperty", () {
       testQuiz = Quiz( 
         difficulty: "Easy",
@@ -350,6 +364,8 @@ void main() {
         );
       });
 
+      /// Tests that the battling properties are appropriately placed in the active player's activeBattle
+      /// field, and that their 'isBattling' field is set to 'true'.
       test("setBattle result", () {  
         
         gameController.setBattle(attackingProperty, defendingProperty);
@@ -359,6 +375,7 @@ void main() {
         expect(defendingProperty.isBattling, true); 
       });
 
+      /// Tests that the attack wins when their score is greater than the defender's health.
       test("battle - attacker wins", () {
         gameController.boardState[1][1] = attackingProperty;
         gameController.boardState[1][2] = defendingProperty;
@@ -372,6 +389,7 @@ void main() {
         expect(gameController.boardState[1][2].isBattling, false);
       });
 
+      /// Tests that the attacker loses when their score is lower than the defender's health.
       test("battle - attacker loses", () {
         gameController.boardState[1][1] = attackingProperty;
         gameController.boardState[1][2] = defendingProperty;
@@ -430,6 +448,7 @@ void main() {
         );
       });
       
+      /// Tests that a list of the correct length is produced for each player's owned properties.
       test("getPropertiesByPlayerId", () {
         gameController.boardState[1][1] = testProperty;
         gameController.boardState[2][2] = testProperty2;
@@ -439,6 +458,7 @@ void main() {
         expect(gameController.getPropertiesByPlayerId("id2").length, 1);
       });
 
+      /// Tests that the correct number of control points is calculated for each player's number of properties.
       test("getControlPointsByPlayerId", () {
         gameController.boardState[1][1] = testProperty;
         gameController.boardState[2][2] = testProperty2;
@@ -465,6 +485,8 @@ void main() {
           type: "codingProblem",
         );
       });
+
+      /// Tests that quizzes are produced with the right details.
       test("getQuiz", () async {
         final quiz = await gameController.getQuiz(
           "Variables",
@@ -480,6 +502,7 @@ void main() {
         expect(quiz.difficulty, "Easy");
       });
 
+      /// Tests that feedback is produced and loaded into the right types.
       test("getFeedback", () async {
         final feedback = await gameController.getFeedback(testQuiz);
 
@@ -490,6 +513,7 @@ void main() {
         expect(feedback.results[0].score.runtimeType, int);
       });
 
+      /// Tests that a single bonus question can be added to a quiz.
       test("addBonusQuestionToQuiz", () async {
         await gameController.addBonusQuestionToQuiz(testQuiz);
 
@@ -500,6 +524,7 @@ void main() {
     });
 
     group("message saving methods", () {
+      /// Tests that questions are saved successfully in the History class. 
       test("saveToQuestionHistory", () {
         final questionType = "multipleChoice";
         final questions = [
@@ -527,6 +552,7 @@ void main() {
         expect(gameController.game.history.questionHistory["multipleChoice"]![1], "Question 2");
       });
 
+      /// Tests that chat messages are saved successfully in the History class.
       test("saveChatMessage", () {
         final message = "Hello";
         gameController.saveChatMessage(message);
@@ -536,6 +562,7 @@ void main() {
         expect(gameController.game.history.activityHistory[0].contains("Hello"), true);
       });
 
+      /// Tests that event messages are saved correctly in the History class.
       test("saveEventMessage", () {
         final event = "Event message";
         gameController.saveEventMessage(event);
@@ -544,7 +571,9 @@ void main() {
         expect(gameController.game.history.activityHistory[0].contains("Event message"), true); 
       });
     });
-
+    
+    /// Tests that the endGame() method switches the game's isActive field to false
+    /// and removes the game's ID from the active GameUser's activeGames list.
     test("endGame", () {
       gameController.endGame();
       expect(gameController.game.isActive, false);

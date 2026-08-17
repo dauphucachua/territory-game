@@ -29,10 +29,7 @@ void main() {
     difficulty: "Easy"
   );
 
-  test("toStringForFeedbackPrompt", () {
-    print(testQuiz.toStringForFeedbackPrompt());
-  });
-
+  /// Tests that the JSON serialisation/deserialisation methods produce the expected result.
   test("json", () {
     Map<String, dynamic> quizJson = testQuiz.toJson();
 
@@ -49,6 +46,9 @@ void main() {
     expect(quizObj.difficulty, "Easy");
   });
 
+  /// Tests that questions can be added from another quiz and question numbers are updated appropriately.
+  /// 
+  /// This is for strengtheing a property. 
   test("addQuestionsFromQuiz", () {
     testQuiz.addQuestionsFromQuiz(testQuiz2);
     expect(testQuiz.questions.length, 6); // Checks that questions have been added.
@@ -56,6 +56,7 @@ void main() {
     expect(testQuiz.questions.last.id, 6); // Checks that ids have increased to account for the updated quantity of the set.
   });
 
+  /// Tests that the temporary userAnswers field can be successfully added to.
   test("storeUserAnswers", () {
     final answers = {
       1: "Answer 1",

@@ -1,5 +1,6 @@
 import 'package:territory_game/model/property.dart';
 
+/// A class which stores the Property objects currently involved in an attack.
 class Battle {
   Property? attacker;
   Property? defender;
@@ -9,6 +10,7 @@ class Battle {
     this.defender
   });
 
+  /// Loads a Battle object from JSON format.
   factory Battle.fromJson(Map<String, dynamic> json) {
     return Battle(
       attacker: json["attacker"] != null ? Property.fromJson(json["attacker"]) : null,
@@ -16,6 +18,7 @@ class Battle {
     );
   }
 
+  /// Returns a JSON-friendly Map version of the Battle.
   Map<String, dynamic> toJson() {
     return {
       "attacker": attacker?.toJson(),
@@ -23,6 +26,7 @@ class Battle {
     };
   }
 
+  /// Sets the attacker and defender fields with Property objects.
   void setBattlers({
     required Property attacker,
     required Property defender
@@ -31,6 +35,7 @@ class Battle {
     this.defender = defender;
   }
 
+  /// Returns the Battle to an empty state.
   void clearBattlers() {
     attacker = null;
     defender = null;

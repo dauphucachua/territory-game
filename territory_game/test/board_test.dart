@@ -70,6 +70,7 @@ void main() {
     col: 4
   );
 
+  /// Tests that the JSON serialisation/deserialisation methods produce the expected result.
   test("json", () {
     Map<String, dynamic> boardJson = board.toJson();
     expect(boardJson["rows"], 10);
@@ -100,6 +101,8 @@ void main() {
     expect(boardObj.state[9], [null, null, null, null, null, null, null, null, null, null]);
   });
   
+  /// Tests that the JSON serialisation/deserialisation methods produce the expected result with a property
+  /// on the board.
    test("json with property", () {
     board.state[1][1] = testProperty;
     Map<String, dynamic> boardJson = board.toJson();
@@ -121,6 +124,7 @@ void main() {
     expect(boardObj.state[1][1].quiz.runtimeType, Quiz);
   });
 
+  /// Tests that the getBoardArea method selects the right board area for a range of coordinates.
   test("getBoardArea", () {
     expect(board.getBoardArea(1, 1), "The Dojo");
     expect(board.getBoardArea(2, 2), "The Arena");
@@ -128,6 +132,7 @@ void main() {
     expect(board.getBoardArea(4, 4), "The Pit");
   });
 
+  /// Tests that the getControlPointsByPlayer method gets the right number of points for the given players.
   test("getControlPointsByPlayer", () {
     board.state[1][1] = testProperty; // 1 points
     board.state[2][2] = testProperty2; // 2 points

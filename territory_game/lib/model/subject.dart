@@ -24,6 +24,7 @@ class Subject {
     );  
   }
 
+  /// Return a JSON-friendly Map version of the Subject.
   Map<String, dynamic> toJson() {
     return {
       "name": name,
@@ -33,44 +34,46 @@ class Subject {
   }
 }
 
- final Map<String, dynamic> exampleSubject = {
-    "name": "Introduction to Programming",
-    "topics": [
-      {
-          "name": "Week 1: Python and basic data types",
-          "week": 1,
-          "subTopics": [
-              "Python syntax",
-              "Style conventions",
-              "Variables",
-              "Strings",
-              "Booleans",
-              "Operators",
-              "Floats and integers",
-              "Lists",
-              "Tuples",
-              "Sets",
-              "Dictionaries"
-          ]
-      },
-      {
-          "name": "Week 2: Control flow",
-          "week": 2,
-          "subTopics": [
-              "Conditions",
-              "For loops",
-              "While loops",
-              "Iterators",
-              "Generators",
-              "List comprehensions",
-              
-          ]
-      },
-    ],
-    "questionTypes": [
-        "multipleChoice",
-        "codingProblem",
-    ]
-  };
+// The subject data that is used for the current proof of concept stage of the application.
+final Map<String, dynamic> exampleSubject = {
+  "name": "Introduction to Programming",
+  "topics": [
+    {
+        "name": "Week 1: Python and basic data types",
+        "week": 1,
+        "subTopics": [
+            "Python syntax",
+            "Style conventions",
+            "Variables",
+            "Strings",
+            "Booleans",
+            "Operators",
+            "Floats and integers",
+            "Lists",
+            "Tuples",
+            "Sets",
+            "Dictionaries"
+        ]
+    },
+    {
+        "name": "Week 2: Control flow",
+        "week": 2,
+        "subTopics": [
+            "Conditions",
+            "For loops",
+            "While loops",
+            "Iterators",
+            "Generators",
+            "List comprehensions",
+            
+        ]
+    },
+  ],
+  "questionTypes": [
+      "multipleChoice",
+      "codingProblem",
+  ]
+};
 
+// A List of subjects used for selection in the UI.
 final List<Subject> subjectList = [Subject.fromJson(exampleSubject)];

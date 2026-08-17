@@ -3,12 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/property.dart';
-import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/game_screen/UI/dialogs/quiz_dialog.dart';
 import 'package:territory_game/view/widgets/game_screen/property_icon.dart';
 
+/// A widget that visually represents a property on the board.
 class PropertyWidget extends StatefulWidget {
+  // PropertyWidget is mapped to a Property object.
   final Property property;
   final Color color;
   final double size;
@@ -32,6 +33,7 @@ class _PropertyWidgetState extends State<PropertyWidget> {
     final gameController = context.watch<GameController>();
     final Property property = widget.property;
 
+    /// Builds the string displayed on the property's hoverable tooltip.
     String buildStatString() {
       final owner = gameController.game.players[property.ownerId]!.displayName;
       final health = property.health;
@@ -56,9 +58,11 @@ class _PropertyWidgetState extends State<PropertyWidget> {
         borderRadius: AppDimensions.cornerRadius,
       ),
       child: property.ownerId == gameController.activeUser.id
+      // Makes the property draggable as an attacker.
       ? Draggable(
         data: widget.property,
-        feedback: Text("Attack!", style: TextStyle(color: AppColors.heartRed)), 
+        feedback: Text("Attack!", style: TextStyle(color: AppColors.heartRed)),
+        // Makes the property clickable so it can be strengthened. 
         child: GestureDetector(
           onTap: () {
             showDialog(
@@ -120,6 +124,7 @@ class _PropertyWidgetState extends State<PropertyWidget> {
           },
           child: PropertyIcon(
             color: widget.color,
+            // Displays an 'X' if property is currently battling.
             child: widget.property.isBattling 
               ? Icon(
                   Icons.close,
@@ -130,6 +135,7 @@ class _PropertyWidgetState extends State<PropertyWidget> {
           ),
         ),
       )
+      // Makes the property a drag target so that it can accept an attack.
       : DragTarget<Property>(
         onAcceptWithDetails: (details) {
           Property attacker = details.data;
@@ -140,6 +146,7 @@ class _PropertyWidgetState extends State<PropertyWidget> {
               context: context, 
               builder: (BuildContext context) => AlertDialog(
                 title: Text("Attack initiated", textAlign: .center),
+                // If the defender has perfect health, offer to add a hard bonus question.
                 content: defender.hasPerfectHealth 
                   ? Text(
                     "The property at ${defender.humanCoord} has perfect health. "   
@@ -165,6 +172,7 @@ class _PropertyWidgetState extends State<PropertyWidget> {
                       if (context.mounted) {
                         Navigator.pop(context);
                         gameController.setBattle(attacker, defender);
+                        // Open a QuizDialog in attack mode with the defender's quiz data.
                         showDialog(
                           barrierDismissible: false,
                           context: context,

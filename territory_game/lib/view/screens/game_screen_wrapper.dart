@@ -4,6 +4,8 @@ import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/view/screens/game_over_screen.dart';
 import 'package:territory_game/view/screens/game_screen.dart';
 
+/// This class serves as a conditional trigger for displaying the GameScreen or the GameOverScreen
+/// depending on whether the game is active or not.
 class GameScreenWrapper extends StatefulWidget {
   const GameScreenWrapper({super.key});
 

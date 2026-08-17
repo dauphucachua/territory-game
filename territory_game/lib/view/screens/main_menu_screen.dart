@@ -86,7 +86,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         if (selectedDisplayName != null && selectedDisplayName!.isNotEmpty) {
           final newPlayer = createPlayerWithOppositeColor(game);
           await gameController.addPlayerToGame(newPlayer);
-          print(gameController.game.players);
           pushToGameScreen(gameController);
         } else {
           if (context.mounted) {
@@ -309,14 +308,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         if (opponentId != null) {
                           opponentName = currentGame.players[opponentId]!.displayName;
                         }
-                
                           
                         return MouseRegion(
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
                             onTap: () async {
                               selectedDisplayName = nameController.text.trim();
-                              print(selectedDisplayName);
                               onGameChosen(currentGame);
                             },
                             child: Container(
@@ -350,6 +347,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 }
 
+/// A custom widget for the buttons in the main menu.
 class MainMenuButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;

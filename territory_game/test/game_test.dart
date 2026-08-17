@@ -45,6 +45,7 @@ void main() {
     )
   );
 
+  /// Tests that the JSON serialisation/deserialisation methods produce the expected result.
   test("json", () {
     final gameJson = testGame.toJson();
     expect(gameJson["startTime"], "2026-07-20 20:18:04.000");
@@ -94,6 +95,7 @@ void main() {
     expect(gameObj.history.questionHistory["codingProblem"]!.length, 2);
   });
 
+  /// Tests that the containsPlayerWithId method returns true when an id is found and false when it is not.
   test("containsPlayerWithId", () {
     String userId = "id1";
     expect(testGame.containsPlayerWithId(userId), true);
@@ -101,6 +103,7 @@ void main() {
     expect(testGame.containsPlayerWithId(userId2), false);
   });
 
+  /// Tests that players are successfully added to the game.
   group("addPlayer", () {
     final player2 = Player(
       id: "id2",
@@ -114,6 +117,7 @@ void main() {
       propertyColor: Colors.white,
     );
     
+    /// Tests that players are successfully added to the game.
     test("addPlayer", () {
       testGame.addPlayer(player2);
       expect(testGame.players.length, 2);

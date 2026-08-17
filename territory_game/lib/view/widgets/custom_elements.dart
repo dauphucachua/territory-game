@@ -3,6 +3,7 @@ import 'package:territory_game/constants/constants.dart';
 
 /// Common elements for use in the UI.
 
+/// Text for use as a title.
 class TitleText extends StatelessWidget {
   final String text;
   const TitleText({
@@ -22,6 +23,7 @@ class TitleText extends StatelessWidget {
   }
 }
 
+/// Text for use as a subtitle.
 class SubtitleText extends StatelessWidget {
   final String text;
   const SubtitleText({
@@ -41,6 +43,7 @@ class SubtitleText extends StatelessWidget {
   }
 }
 
+/// Text for standard content.
 class ContentText extends StatelessWidget {
   const ContentText({
     super.key,
@@ -62,6 +65,7 @@ class ContentText extends StatelessWidget {
   }
 }
 
+/// An 'x' button for closing dialogs.
 class CloseWindowButton extends StatelessWidget {
   const CloseWindowButton({
     super.key,
@@ -81,6 +85,7 @@ class CloseWindowButton extends StatelessWidget {
   }
 }
 
+/// A CircularProgressIndicator that displays a message.
 class LoaderWithText extends StatelessWidget {
   final String text;
   Color? color;

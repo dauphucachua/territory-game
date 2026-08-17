@@ -5,6 +5,7 @@ import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/player.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 
+/// A simple game over screen that displays the winner and the final balance of control points.
 class GameOverScreen extends StatelessWidget {
   const GameOverScreen({super.key});
 
@@ -12,11 +13,12 @@ class GameOverScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
     final activePlayer = gameController.activePlayer;
+    final playerPoints = gameController.getControlPointsByPlayerId(activePlayer.id);
+    
     Player? opponent = gameController.opponent;
     int? opponentPoints;
-    final playerPoints = gameController.getControlPointsByPlayerId(activePlayer.id);
     opponentPoints = opponent != null ? gameController.getControlPointsByPlayerId(opponent.id) : 0; 
-    
+     
     return Scaffold(
       backgroundColor: AppColors.darkBlue,
       body: Padding(
@@ -34,11 +36,14 @@ class GameOverScreen extends StatelessWidget {
               mainAxisAlignment: .start,
               crossAxisAlignment: .center,
               children: [
+                // Game over title
                 TitleText(text: "Game over"),
+                // Subtitle with player names
                 SubtitleText(text: opponent != null 
                   ? "${activePlayer.displayName} vs. ${opponent.displayName}"
                   : "${activePlayer.displayName} vs. no-one"
                 ),
+                // Conditional indication of result
                 if (playerPoints > opponentPoints)
                   SubtitleText(text: "${activePlayer.displayName} wins!")
                 else if (playerPoints == opponentPoints)
@@ -46,8 +51,10 @@ class GameOverScreen extends StatelessWidget {
                 else
                   SubtitleText(text: "${opponent?.displayName} wins!"),
                 SizedBox(height: 64.0),
+                // Control point balance
                 SubtitleText(text: "$playerPoints control points vs. $opponentPoints control points"),
                 SizedBox(height: 32.0),
+                // Exit button
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context), 
                   child: Text(
@@ -55,9 +62,9 @@ class GameOverScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 20,
                       color: AppColors.blue
-                    )
-                  )
-                )
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

@@ -6,6 +6,9 @@ import 'package:territory_game/services/firebase_services/firebase_auth_service.
 import 'package:territory_game/view/screens/main_menu_screen.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 
+/// This is the login screen.
+/// 
+/// It allows users to log in / register with email and password.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
     super.key
@@ -49,6 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               SizedBox(height: 4.0),
+              // The email entry field.
               EntryField(
                 hideText: false,
                 controller: emailController
@@ -62,10 +66,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               SizedBox(height: 4.0),
+              // The password entry field.
               EntryField(
                 hideText: true,
                 controller: passwordController),
               SizedBox(height: 4.0),
+              // Forgot password feature.
+              // Unimplemented as unnecessary for the testing approach.
               Row(
                 mainAxisAlignment: .end,
                 children: [
@@ -77,6 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: .center,
                 children: [
+                  // Register button
                   ElevatedButton(         
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.blue,
@@ -120,6 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   SizedBox(width: 20.0),
+                  // Login button
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.opaqueWhite,
@@ -184,7 +193,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+/// A custom entry field widget for the email and password text fields.
 class EntryField extends StatelessWidget {
+  // Allows optional text hiding for password fields.
   final bool hideText;
   final TextEditingController controller;
   

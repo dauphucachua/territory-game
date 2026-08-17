@@ -11,7 +11,7 @@ import 'package:territory_game/view/widgets/rules_dialog.dart';
 
 /// This is the main game screen. 
 /// 
-/// It shows the game board, main sidebar, game tabs (unimplemented), main menu (unimplemented) and power-ups (unimplemented).
+/// It shows the game board, top bar with info display and the main sidebar.
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
 
@@ -25,7 +25,9 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
+    // Activates the stream subscription to Firestore for real-time updates from opponent.
     context.read<GameController>().listenForStateUpdates();
+    // Positions the board centrally on startup.
     transformationController.value.setEntry(0, 0, 0.3);
     transformationController.value.setEntry(1, 1, 0.3);
     transformationController.value.setEntry(2, 2, 0.3);
@@ -62,6 +64,7 @@ class _GameScreenState extends State<GameScreen> {
                   itemBuilder: (context) {
                     // Menu list
                     return [
+                      // Home button
                       PopupMenuItem(
                         child: MainMenuItem(
                           text: "Home",
@@ -71,6 +74,7 @@ class _GameScreenState extends State<GameScreen> {
                           )
                         ),
                       ),
+                      // Rules button
                       PopupMenuItem(
                         child: MainMenuItem(
                           text: "Rules",
@@ -80,6 +84,7 @@ class _GameScreenState extends State<GameScreen> {
                           ),
                         ),
                       ),
+                      // Logout button
                       PopupMenuItem(
                         child: MainMenuItem(
                           text: "Logout",
@@ -128,7 +133,6 @@ class _GameScreenState extends State<GameScreen> {
                     opponent: activePlayer
                   )
                   : ContentText(text: "No opponent present"),
-               
                 Spacer(),
                 // Game end time - countdown can be implemented here optionally
                 ContentText(text: "Game ends: ${gameController.game.endTimeAsString}"),
@@ -158,6 +162,7 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                   ),
                 ),
+                // Main action sidebar
                 Positioned(
                   right: 0,
                   bottom: 0,
@@ -168,7 +173,6 @@ class _GameScreenState extends State<GameScreen> {
                     child: MainSidebarWidget()
                   ),
                 ),
-                // The main action sidebar
               ],
             ),
           ),
@@ -178,6 +182,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 }
 
+/// A custom container widget for displaying the control points and number of properties of a player.
 class PlayerStatContainer extends StatelessWidget {
   const PlayerStatContainer({
     super.key,
@@ -199,6 +204,7 @@ class PlayerStatContainer extends StatelessWidget {
       padding: EdgeInsets.all(10.0),
       margin: EdgeInsets.all(6.0),
       decoration: BoxDecoration(
+        // Displays green or red depending on who is winning.
         color: opponent == null || playerControlPoints >= opponentControlPoints
           ? AppColors.correctBoxGreen
           : AppColors.wrongBoxRed,
@@ -207,6 +213,7 @@ class PlayerStatContainer extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // A property icon with the player's color.
           PropertyIcon(
             color: activePlayer.propertyColor,
             width: 20.0,
@@ -224,6 +231,7 @@ class PlayerStatContainer extends StatelessWidget {
   }
 }
 
+/// A custom widget that defines the UI features of the items in the burger menu.
 class MainMenuItem extends StatelessWidget {
   final String text;
   final Function() onTap;

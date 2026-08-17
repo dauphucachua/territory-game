@@ -5,25 +5,16 @@ import 'package:territory_game/model/property.dart';
 class Board {
   final int rows;
   final int cols;
+  // A 2D List that serves as a source of truth for the position. 
+  // Items are either null or Property objects.
   List<List<dynamic>> state;
+  // Stores the sub-topic limit per area.
   final Map<String, num> areaLimits = {
     "The Dojo": double.infinity,
     "The Arena": 4,
     "The Battleground": 2,
     "The Pit": 1
   };
-
-  String getBoardArea(int row, int col) {
-    if (row >= 4 && row <= 5 && col >= 4 && col <= 5) {
-      return "The Pit";
-    } else if (row >= 3 && row <= 6 && col >= 3 && col <= 6) {
-      return "The Battleground";
-    } else if (row >= 2 && row <= 7 && col >= 2 && col <= 7) {
-      return "The Arena";
-    } else {
-      return "The Dojo";
-    }
-  }
   
   Board({
     required this.rows,
@@ -37,6 +28,21 @@ class Board {
     growable: false
   );
 
+
+  /// Returns the name of the board area given the row and col.
+  String getBoardArea(int row, int col) {
+    if (row >= 4 && row <= 5 && col >= 4 && col <= 5) {
+      return "The Pit";
+    } else if (row >= 3 && row <= 6 && col >= 3 && col <= 6) {
+      return "The Battleground";
+    } else if (row >= 2 && row <= 7 && col >= 2 && col <= 7) {
+      return "The Arena";
+    } else {
+      return "The Dojo";
+    }
+  }
+  
+  /// Returns the number of control points a given Player has.
   int getControlPointsByPlayer(Player player) {
     int points = 0;
     for (List row in state) {
@@ -74,13 +80,13 @@ class Board {
 
   /// Returns the properties of the board as a JSON-friendly map.
   Map<String, dynamic> toJson() {
-    
+    // Serializes any Property objects on the board and keeps them in a List of their rows.
     final serializedList = [];
     for (List row in state) {
       var serializedRow = [];
-      for (var value in row) {
-        if (value != null) {
-          serializedRow.add(value.toJson());
+      for (var item in row) {
+        if (item is Property) {
+          serializedRow.add(item.toJson());
         } else {
           serializedRow.add(null);
         }
@@ -88,6 +94,7 @@ class Board {
       serializedList.add(serializedRow);
     }
     
+    // Create a Firestore-compatible (no nested Lists) data structure - eg. {"row 1": [row contents]}.
     final rowsMap = {};
     for (int i = 0; i < serializedList.length; i++) {
       rowsMap["row $i"] = serializedList[i];

@@ -1,19 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:territory_game/model/board.dart';
-import 'package:territory_game/model/game.dart';
-import 'package:territory_game/model/player.dart';
 import 'package:territory_game/model/quiz_models/question_feedback.dart';
-import 'package:territory_game/model/quiz_models/question_models/coding_problem.dart';
-import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
-import 'package:territory_game/model/subject.dart';
-import 'package:territory_game/model/topic.dart';
-import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
-import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
-import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
-
-import 'dummy_gamecontroller.dart';
 
 void main() {
   final testJson = {
@@ -30,7 +17,7 @@ void main() {
       }
     ]
   };
-
+  /// Tests that JSON deserialisation produces the expected result.
   test("fromJson", () {
     final quizFeedbackObj = QuizFeedback.fromJson(testJson);
 
@@ -44,6 +31,7 @@ void main() {
     expect(quizFeedbackObj.results[1].score, 50);
   });
 
+  /// Tests that totalScore is calculated correctly.
   test("totalScore", () {
     final testQuizFeedback = QuizFeedback(
       results: [

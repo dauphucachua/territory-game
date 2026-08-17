@@ -19,6 +19,7 @@ class Topic {
     );
   }
 
+  /// Returns a JSON-friendly Map version of the Topic object.
   Map<String, dynamic> toJson() {
     return {
       "name": name,

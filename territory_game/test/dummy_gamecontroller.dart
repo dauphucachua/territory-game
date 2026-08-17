@@ -15,8 +15,6 @@ import 'package:territory_game/services/chatbot_services/chatbot_api_service.dar
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
 import 'package:territory_game/services/timer_service/timer_service.dart';
 
-import 'dummy_firebase_auth.dart';
-
 /// A version of the GameController class that omits Firestore contact for testing.
 class DummyGameController extends ChangeNotifier {
   FirebaseAuthService? firebaseAuth;

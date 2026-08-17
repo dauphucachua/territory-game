@@ -1,7 +1,10 @@
 /// A data model for the per-question feedback provided by a chatbot.
 class QuestionFeedback {
+  // The question number that the feedback relates to.
   final int id;
+  // The written feedback as a String.
   final String feedback;
+  // The score for the question.
   final int score;
 
   const QuestionFeedback({

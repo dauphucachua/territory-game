@@ -12,6 +12,9 @@ class MistralApiService implements ChatbotApiService {
   // The mistral client.
   final client = MistralClient.withApiKey(
     mistralKey,
+    // Note: this directs to a Firebase cloud function that was written by Gemini to solve a CORS issue with web deployment.
+    // This was suggested by the supervisor of this project as it was a game-breaking external problem that was delaying 
+    // user-testing.
     baseUrl: "https://us-central1-territory-game-final.cloudfunctions.net/mistralProxy"
   );
 
@@ -205,7 +208,7 @@ class MistralApiService implements ChatbotApiService {
     );
     
     // A series of conversions to access the content.parts and part.text properties, which are only available in inherited
-    // offshoots of the MessageContent and TextContent classes
+    // offshoots of the MessageContent and TextContent classes.
     final content = response.choices.first.message!.content! as MessagePartsContent;
     final part = content.parts[1] as TextContentPart;
     final responseText = part.text;
@@ -228,6 +231,8 @@ class MistralApiService implements ChatbotApiService {
       )
     );
 
+    // A series of conversions to access the content.parts and part.text properties, which are only available in inherited
+    // offshoots of the MessageContent and TextContent classes.
     final content = response.choices.first.message!.content! as MessagePartsContent;
     final part = content.parts[1] as TextContentPart;
     final responseText = part.text;

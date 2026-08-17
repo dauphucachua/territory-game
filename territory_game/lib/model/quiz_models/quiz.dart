@@ -7,7 +7,8 @@ class Quiz {
   final String type;
   final String subTopic;
   final String difficulty;
-  final List<Question> questions; 
+  final List<Question> questions;
+  // A List for temporary storage of user answers, defaults as empty List. 
   List<String> userAnswers;
   
   Quiz({
@@ -97,9 +98,11 @@ class Quiz {
     throw "Number of questions != number of answers";
   }
 
+  /// Returns a String display of the quiz for debugging.
   @override toString() {
     return """
       Quiz type: $type
+      Sub-topic: $subTopic
       Difficulty: $difficulty
       Questions: $questions
     """;

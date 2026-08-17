@@ -12,6 +12,7 @@ void main() {
     propertyColor: Colors.black,
   );
   
+  /// Tests that the JSON serialisation/deserialisation methods produce the expected result.
   test("json", () {
     history.activityHistory = ["Event message 1", "Event message 2"];
     history.questionHistory["multipleChoice"] = ["MC question 1", "MC question 2"];
@@ -35,17 +36,20 @@ void main() {
 
   });
 
+  /// Tests that chat messages are saved in the activityHistory List.
   test("addChatMessage", () {
     history.addChatMessage(author, "test chat message");
     expect(history.activityHistory[0].contains("displayName"), true);
     expect(history.activityHistory[0].contains("test chat message"), true);
   });
 
+  /// Tests that event messages are saved in the activityHistory List.
   test("addEventMessage", () {
     history.addEvent("test event message");
     expect(history.activityHistory[0].contains("test event message"), true);
   });
 
+  /// Tests that questions are saved in the questionHistory Map under the right key.
   test("addQuestions", () {
     final questionType = "multipleChoice";
     

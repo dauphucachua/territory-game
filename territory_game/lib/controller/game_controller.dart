@@ -34,6 +34,7 @@ class GameController extends ChangeNotifier {
     required this.game
   });
 
+  // Getters for ease of access.
   Subject get subject => game.subject;
   Topic get topic => game.topic;
   String get topicName => game.topic.name;
@@ -41,12 +42,13 @@ class GameController extends ChangeNotifier {
   ChatbotApiService get chatbot => chatbotProvider.chatbot;
   Board get board => game.board;
   List<List<dynamic>> get boardState => game.board.state;
+  bool get gameIsActive => game.isActive;
   DateTime get endTime => game.endTime;
   GameUser get activeUser => firebaseAuth.activeUser!;
   Player get activePlayer => game.players[activeUser.id]!;
   Player? get opponent => game.players.length > 1 ? game.players.values.where(
     (player) => player.id != activeUser.id).first : null;
-  bool get gameIsActive => game.isActive;
+  
   
   /// Opens a stream subscription to the Firestore document for the current game.
   Future<void> listenForStateUpdates() async {
@@ -60,12 +62,12 @@ class GameController extends ChangeNotifier {
     });
   }
 
-  /// Updates the document with the active user's id on Firestore.
+  /// Updates the "users" document with the active user's id on Firestore.
   Future<void> updateFirestoreActiveUserDoc() async {
     await db.collection("users").doc(activeUser.id).set(activeUser.toJson());
   }
 
-  /// Updates the document with the current game's id on Firestore.
+  /// Updates the "games" document with the current game's id on Firestore.
   Future<void> updateFirestoreGameDoc() async {
     await db.collection("games").doc(game.id).set(game.toJson());
   }
@@ -139,21 +141,25 @@ class GameController extends ChangeNotifier {
 
   /// Places a property at the 2d list position indicated by the row and col parameters.
   Future<bool> placeProperty(Property property, {required int row, required int col}) async {
+    // Check that the new property will not surpass the intended area's sub-topic limits.
     if (subTopicLimitSurpassed(property, row: row, col: col)) {
       print("Area too full of this sub-topic");
       return false;
     }
 
+    // Check that the intended square is not occupied. 
     if (boardState[row][col] != null) {
       print("Square is occupied.");
       return false;
     }
 
+    // Place the property
     property.row = row;
     property.col = col;
     boardState[row][col] = property;
     _removePropertyToPlace();
 
+    // Log a message for the event history.
     final message = "${activePlayer.displayName} placed a property with ${property.health} health at ${property.humanCoord}.";
     saveEventMessage(message);
     notifyListeners();
@@ -192,24 +198,26 @@ class GameController extends ChangeNotifier {
       throw "The battling properties are not set.";
     }
     
+    // Ensure that battle affects the Property objects in the boardState List.
     final boardAttacker = boardState[attacker.row!][attacker.col!];
     final boardDefender = boardState[defender.row!][defender.col!];
     final attackingPlayer = game.players[attacker.ownerId];
 
-    if (attackerScore > defender.health) {
-      boardDefender.ownerId = attacker.ownerId;
-      boardDefender.health = attackerScore;
+    if (attackerScore > defender.health) { // Attacker wins
+      boardDefender.ownerId = attacker.ownerId; // Swap owners
+      boardDefender.health = attackerScore; // Convert score to health
       final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} was successful. "
                       "It now belongs to ${attackingPlayer.displayName} and has $attackerScore health.";
       saveEventMessage(message);
-    } else {
-      boardAttacker.health ~/= 2;    
+    } else { // Attacker loses
+      boardAttacker.health ~/= 2; // Half attacker's health
 
       final message = "${attackingPlayer!.displayName}'s attack on ${defender.humanCoord} failed. "
                       "The property at ${attacker.humanCoord} lost half of its health - ${boardAttacker.health} left.";
       saveEventMessage(message);
     }
 
+    // Reset affected fields.
     boardAttacker.isBattling = false;
     boardDefender.isBattling = false;
     activePlayer.activeBattle = null;
@@ -267,6 +275,7 @@ class GameController extends ChangeNotifier {
   Future<void> addBonusQuestionToQuiz(Quiz quiz) async {
     final questionHistory = game.history.questionHistory[quiz.type]!;
 
+    // Gets a quiz composed only of one hard question.
     Map<String, dynamic>? bonusQuestionJson = await chatbot.getQuizJson(
       game.topic, 
       quiz.subTopic, 

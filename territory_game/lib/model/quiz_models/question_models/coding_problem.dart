@@ -2,8 +2,10 @@ import 'package:territory_game/model/quiz_models/question_models/question.dart';
 
 /// A data model for the coding problem question type.
 class CodingProblem extends Question {
-  final String inputExample;
-  final String outputExample;
+  // An example of the expected input for the problem.
+  final String inputExample; 
+  // An example of the expected output for the problem.
+  final String outputExample; 
 
   CodingProblem({
     required super.id,

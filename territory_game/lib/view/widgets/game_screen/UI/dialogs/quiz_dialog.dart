@@ -13,6 +13,7 @@ import 'package:territory_game/view/widgets/game_screen/UI/dialogs/feedback_dial
 import "package:flutter_highlight/themes/monokai-sublime.dart";
 import 'package:highlight/languages/python.dart';
 
+// An enum for reference by elements that change based on quiz mode.
 enum QuizMode {creation, attack, strengthen}
 
 /// A dialog box for displaying quizzes.
@@ -33,8 +34,6 @@ class QuizDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gameController = context.watch<GameController>();
-
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0)
@@ -55,27 +54,28 @@ class QuizDialog extends StatelessWidget {
 /// Facilitates the selection of a quiz layout based on the type of quiz.
 Widget selectLayout(Quiz quiz, QuizMode mode, Property? propertyToStrengthen) {
   if (quiz.type == "multipleChoice") {
-      return MultipleChoiceLayout(
-        quiz: quiz,
-        mode: mode,
-        propertyToStrengthen: propertyToStrengthen,
-      );
-    } else if (quiz.type == "codingProblem" || quiz.type == "codingExercise") {
-      return CodingQuizLayout(
-        quiz: quiz,
-        mode: mode,
-        propertyToStrengthen: propertyToStrengthen,
-      );
-    } else {
-      print("Quiz type not recognised.");
-    }
-    return const Placeholder();
+    return MultipleChoiceLayout(
+      quiz: quiz,
+      mode: mode,
+      propertyToStrengthen: propertyToStrengthen,
+    );
+  } else if (quiz.type == "codingProblem" || quiz.type == "codingExercise") {
+    return CodingQuizLayout(
+      quiz: quiz,
+      mode: mode,
+      propertyToStrengthen: propertyToStrengthen,
+    );
+  } else {
+    throw "Quiz type not recognized";
+  }
 }
 
 /// A layout for multiple choice quizzes.
 class MultipleChoiceLayout extends StatefulWidget {
   final Quiz quiz;
   final QuizMode mode;
+  // A propertyToStrengthen is present when quizMode is .strengthen. 
+  // It is passed into the feedback dialog so strengthening can be triggered there.
   Property? propertyToStrengthen;
 
   MultipleChoiceLayout({
@@ -95,8 +95,6 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
   SortedMap<int, String> userAnswers = SortedMap(Ordering.byKey());
   bool _isLoading = false;
 
-  
-  
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
@@ -104,7 +102,6 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
     final currentQuestion = questions[currentQuestionIndex];
     final randomizedAnswers = currentQuestion.allAnswersRandomized;
     
-
     /// Adds a user answer to the userAnswers Map.
     void logUserAnswer(String answer) {
       setState(() {
@@ -208,9 +205,12 @@ class _MultipleChoiceLayoutState extends State<MultipleChoiceLayout> {
   }
 }
 
+/// A layout for coding questions.
 class CodingQuizLayout extends StatefulWidget {
   final Quiz quiz;
   final QuizMode mode;
+  // A propertyToStrengthen is present when quizMode is .strengthen. 
+  // It is passed into the feedback dialog so strengthening can be triggered there.
   Property? propertyToStrengthen;
 
   CodingQuizLayout({
@@ -249,7 +249,6 @@ class _CodingQuizLayoutState extends State<CodingQuizLayout> {
     /// Adds a user answer to the userAnswers Map.
     void logUserAnswer(String answer) {
       userAnswers[currentQuestion.id] = answer;
-      print(userAnswers);
     }
 
     return Column(
@@ -364,6 +363,7 @@ class _CodingQuizLayoutState extends State<CodingQuizLayout> {
   }
 }
 
+/// A custom scrollable text card to account for situations where the chatbot produces longer content.
 class ScrollableTextCard extends StatelessWidget {
   final double width;
   double? height;
@@ -394,8 +394,3 @@ class ScrollableTextCard extends StatelessWidget {
     );
   }
 }
-
-
-
-
-

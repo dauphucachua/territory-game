@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:territory_game/model/property.dart';
 import 'package:territory_game/model/quiz_models/question_models/coding_problem.dart';
-import 'package:territory_game/model/quiz_models/question_models/question.dart';
 import 'package:territory_game/model/quiz_models/question_models/theory_question.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
 
@@ -26,6 +25,7 @@ void main() {
     col: 1,
   );
 
+  /// Tests that the JSON serialisation/deserialisation methods produce the expected result.
   test("json", () {
     final testPropertyJson = testProperty.toJson();
 
@@ -46,15 +46,18 @@ void main() {
     
   });
 
+  /// Tests that humanCoord correctly converts indices to a human-readable coordinate.
   test("get humanCoord", () {
     final coord = testProperty.humanCoord;
     expect(coord, (2, 9));
   });
 
+  /// Tests that isPlaced returns true when a property has a coordinate.
   test("isPlaced - true", () {
     expect(testProperty.isPlaced, true);
   });
 
+  /// Tests that isPlaced returns false when a property does not have a coordinate.
   test("isPlaced - false", () {
     testProperty.row = null;
     testProperty.col = null;
@@ -62,17 +65,20 @@ void main() {
     expect(testProperty.isPlaced, false);
   });
 
+  /// Tests that hasPerfectHealth returns false when the property does not have a perfect score.
   test("hasPerfectHealth - false", () {
     final hasPerfectHealth = testProperty.hasPerfectHealth;
     expect(hasPerfectHealth, false);
   });
-
+  
+  /// Tests that hasPerfectHealth returns true when the property has a perfect score.
   test("hasPerfectHealth - true", () {
     testProperty.health = 20;
     final hasPerfectHealth = testProperty.hasPerfectHealth;
     expect(hasPerfectHealth, true);
   });
 
+  /// Tests that isEnemyOf returns true when a given property is owned by another player.
   test("isEnemyOf - true", () {
     Property testProperty2 = Property(
       health: 100,
@@ -90,6 +96,7 @@ void main() {
     expect(testProperty.isEnemyOf(testProperty2), true);
   });
 
+  /// Tests that isEnemyOf returns false when a given property is owned by the active player.
   test("isEnemyOf - false", () {
     Property testProperty2 = Property(
       health: 100,
@@ -107,6 +114,8 @@ void main() {
     expect(testProperty.isEnemyOf(testProperty2), false);
   });
 
+  /// Tests that isAdjacentTo returns true when a given property is within the surrounding eight squares
+  /// of the current property.
   test("isAdjacentTo - true", () {
     // Iterate through all the squares adjacent to [1][1] - where testProperty is positioned
     for (int row = 0; row < 3; row++) {
@@ -132,6 +141,8 @@ void main() {
     }
   });
 
+  /// Tests that isAdjacentTo returns false when a given property is not within the surrounding eight squares
+  /// of the current property.
   test("isAdjacentTo - false", () {
     // Iterate through all the square on a 10x10 board
     for (int row = 0; row < 10; row++) {
@@ -165,6 +176,8 @@ void main() {
     }
   });
 
+  /// Tests that canAttack returns true when a given property is an enemy of and is adjacent to
+  /// the current property.
   test("canAttack - true", () {
     Property testProperty2 = Property(
       health: 100,
@@ -182,6 +195,8 @@ void main() {
     expect(testProperty.canAttack(testProperty2), true);
   });
 
+  /// Tests that canAttack returns false when a given property is not an enemy of / adjacent to
+  /// the current property.
   test("canAttack - false", () {
     // Not an enemy property
     Property testProperty2 = Property(
