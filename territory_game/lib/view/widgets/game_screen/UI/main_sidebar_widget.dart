@@ -121,12 +121,24 @@ class _MainSidebarWidgetState extends State<MainSidebarWidget> {
 }
 
 /// A layout for the activity tab content as a body of the sidebar.
-class ActivityTabContent extends StatelessWidget {
+class ActivityTabContent extends StatefulWidget {
   ActivityTabContent({
     super.key,
   });
 
-  final chatController = TextEditingController();
+  
+
+  @override
+  State<ActivityTabContent> createState() => _ActivityTabContentState();
+}
+class _ActivityTabContentState extends State<ActivityTabContent> {
+  final chatController = TextEditingController(); 
+
+  @override
+  void dispose() {
+    chatController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +147,10 @@ class ActivityTabContent extends StatelessWidget {
 
     /// Invokes the GameController's method for saving chat messages with the chatController text.
     Future<void> submitChatMessage() async {
-      await gameController.saveChatMessage(chatController.text.trim());
+      final message = chatController.text.trim();
+      if (message.isEmpty) return;
+      chatController.clear();
+      await gameController.saveChatMessage(message);
     }
 
     return Column(
@@ -326,7 +341,7 @@ class PropertyListCard extends StatelessWidget {
           Column(
             crossAxisAlignment: .start,
             children: [             
-              ContentText(text: property.quizType),
+              ContentText(text: property.quizType.toReadableString()),
               ContentText(text: "${property.questionCount} questions")             
             ],
           ),

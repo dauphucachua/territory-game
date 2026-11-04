@@ -12,13 +12,13 @@ class SquareWidget extends StatefulWidget {
   final Color color;
   final AlignmentGeometry? scorePosition;
   PropertyWidget? property;
-  
+
   SquareWidget({
     required this.square,
-    required this.color, 
+    required this.color,
     this.scorePosition,
-    this.property, 
-    super.key
+    this.property,
+    super.key,
   });
 
   @override
@@ -32,21 +32,18 @@ class _SquareWidgetState extends State<SquareWidget> {
     // Makes the square a drag target for accepting properties being placed.
     return DragTarget<Property>(
       onAcceptWithDetails: (incomingProperty) async {
-        if (!incomingProperty.data.isPlaced) { // Checks that the property is not already placed first.
-          if (
-            !await gameController.placeProperty(
-              incomingProperty.data, 
-              row: widget.square.row, 
-              col: widget.square.col
-            )
-          ) {   
+        if (!incomingProperty.data.isPlaced) {
+          // Checks that the property is not already placed first.
+          try {
+            await gameController.placeProperty(
+              incomingProperty.data,
+              row: widget.square.row,
+              col: widget.square.col,
+            ); 
+          } on StateError catch (e) {
             if (context.mounted) {
-              final propertySubTopic = incomingProperty.data.quiz.subTopic;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("The $propertySubTopic limit for ${widget.square.area} is already full - choose a different board area.")
-                ),
-              );
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text("Error: ${e.message}")));
             }
           }
         }
@@ -63,30 +60,27 @@ class _SquareWidgetState extends State<SquareWidget> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: widget.property
+                child: widget.property,
               ),
             ),
-            widget.scorePosition != null 
-            ? Align(
-              alignment: widget.scorePosition!,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 10.0
-                ),
-                child: Text(
-                  "${widget.square.points}",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 27
+            widget.scorePosition != null
+                ? Align(
+                    alignment: widget.scorePosition!,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 10.0,
+                      ),
+                      child: Text(
+                        "${widget.square.points}",
+                        style: TextStyle(color: Colors.white, fontSize: 27),
+                      ),
+                    ),
                   )
-                ),
-              )
-            )
-            : Container()
+                : Container(),
           ],
         );
-      }
+      },
     );
   }
 }

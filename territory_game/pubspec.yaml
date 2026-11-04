@@ -16,6 +16,7 @@ dependencies:
     sdk: flutter
   flutter_markdown_plus: ^1.0.11
   flutter_smooth_markdown: ^0.8.1
+  http: ^1.6.0
   intl: ^0.20.3
   markdown_widget: ^2.3.2+8
   mistralai_dart: ^5.0.0
@@ -30,4 +31,12 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
 flutter:
+  assets:
+    - assets/json/
+    
   uses-material-design: true
+
+  fonts:
+    - family: CourierNew
+      fonts:
+        - asset: assets/fonts/COUR.TTF

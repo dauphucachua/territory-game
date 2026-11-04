@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:territory_game/constants/constants.dart';
@@ -9,8 +11,8 @@ import 'package:territory_game/view/widgets/game_screen/UI/main_sidebar_widget.d
 import 'package:territory_game/view/widgets/game_screen/property_icon.dart';
 import 'package:territory_game/view/widgets/rules_dialog.dart';
 
-/// This is the main game screen. 
-/// 
+/// This is the main game screen.
+///
 /// It shows the game board, top bar with info display and the main sidebar.
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -21,12 +23,30 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final transformationController = TransformationController();
+  late final AppLifecycleListener _lifecycleListener;
+
+  @override
+  void dispose() {
+    _lifecycleListener.dispose();
+    transformationController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    final gameController = context.read<GameController>();
     // Activates the stream subscription to Firestore for real-time updates from opponent.
-    context.read<GameController>().listenForStateUpdates();
+    gameController.listenForStateUpdates();
+
+    _lifecycleListener = AppLifecycleListener(
+      onExitRequested: () async {
+        try {
+          await gameController.cancelBattle();
+        } catch (_) {}
+        return AppExitResponse.exit;
+      },
+    );
     // Positions the board centrally on startup.
     transformationController.value.setEntry(0, 0, 0.3);
     transformationController.value.setEntry(1, 1, 0.3);
@@ -40,7 +60,7 @@ class _GameScreenState extends State<GameScreen> {
     final gameController = context.watch<GameController>();
     final activePlayer = gameController.activePlayer;
     Player? opponent = gameController.opponent;
-    
+
     return Scaffold(
       backgroundColor: AppColors.backgroundCream,
       body: Column(
@@ -53,10 +73,7 @@ class _GameScreenState extends State<GameScreen> {
               children: [
                 // Menu button
                 PopupMenuButton(
-                  icon: Icon(
-                    Icons.menu,
-                    color: AppColors.opaqueWhite,
-                  ),
+                  icon: Icon(Icons.menu, color: AppColors.opaqueWhite),
                   color: AppColors.darkBlue,
                   elevation: 4.0,
                   shadowColor: Colors.black,
@@ -69,9 +86,9 @@ class _GameScreenState extends State<GameScreen> {
                         child: MainMenuItem(
                           text: "Home",
                           onTap: () => Navigator.popUntil(
-                            context, 
-                            ModalRoute.withName("/mainMenu")
-                          )
+                            context,
+                            ModalRoute.withName("/mainMenu"),
+                          ),
                         ),
                       ),
                       // Rules button
@@ -80,7 +97,7 @@ class _GameScreenState extends State<GameScreen> {
                           text: "Rules",
                           onTap: () => showDialog(
                             context: context,
-                            builder: (context) => RulesDialog()
+                            builder: (context) => RulesDialog(),
                           ),
                         ),
                       ),
@@ -90,13 +107,11 @@ class _GameScreenState extends State<GameScreen> {
                           text: "Logout",
                           onTap: () {
                             gameController.firebaseAuth.logout();
-                            Navigator.of(context).popUntil(
-                              (route) => route.isFirst
-                            );
+                            Navigator.of(context)
+                                .popUntil((route) => route.isFirst);
                           },
-                        ),   
+                        ),
                       ),
-                      
                     ];
                   },
                 ),
@@ -107,40 +122,42 @@ class _GameScreenState extends State<GameScreen> {
                   crossAxisAlignment: .start,
                   children: [
                     ContentText(
-                      text: opponent != null 
-                        ? "${activePlayer.displayName} vs ${opponent.displayName}"
-                        : activePlayer.displayName
+                      text: opponent != null
+                          ? "${activePlayer.displayName} vs ${opponent.displayName}"
+                          : activePlayer.displayName,
                     ),
                     Text(
                       gameController.topicName,
                       style: TextStyle(
                         fontSize: 12,
-                        color: const Color.fromARGB(136, 255, 255, 255)
-                      )
-                    )
+                        color: const Color.fromARGB(136, 255, 255, 255),
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(width: 32.0),
                 // Player statistic boxes for displaying number of control points per player
                 PlayerStatContainer(
-                  activePlayer: activePlayer, 
-                  opponent: opponent
+                  activePlayer: activePlayer,
+                  opponent: opponent,
                 ),
                 SizedBox(width: 32.0),
-                opponent != null 
-                  ? PlayerStatContainer(
-                    activePlayer: opponent,
-                    opponent: activePlayer
-                  )
-                  : ContentText(text: "No opponent present"),
+                opponent != null
+                    ? PlayerStatContainer(
+                        activePlayer: opponent,
+                        opponent: activePlayer,
+                      )
+                    : ContentText(text: "No opponent present"),
                 Spacer(),
                 // Game end time - countdown can be implemented here optionally
-                ContentText(text: "Game ends: ${gameController.game.endTimeAsString}"),
-                SizedBox(width: 50.0)
+                ContentText(
+                  text: "Game ends: ${gameController.game.endTimeAsString}",
+                ),
+                SizedBox(width: 50.0),
               ],
             ),
           ),
-          // Main screen area 
+          // Main screen area
           Expanded(
             child: Stack(
               children: [
@@ -151,15 +168,13 @@ class _GameScreenState extends State<GameScreen> {
                   minScale: 0.1,
                   maxScale: 4,
                   boundaryMargin: EdgeInsets.symmetric(
-                    vertical: 10000, 
-                    horizontal: 10000
+                    vertical: 10000,
+                    horizontal: 10000,
                   ),
                   child: SizedBox(
                     width: 2000,
                     height: 2000,
-                    child: BoardWidget(
-                      board: gameController.board
-                    ),
+                    child: BoardWidget(board: gameController.board),
                   ),
                 ),
                 // Main action sidebar
@@ -169,8 +184,8 @@ class _GameScreenState extends State<GameScreen> {
                   top: 0,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    // The main sidebar 
-                    child: MainSidebarWidget()
+                    // The main sidebar
+                    child: MainSidebarWidget(),
                   ),
                 ),
               ],
@@ -196,9 +211,15 @@ class PlayerStatContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gameController = context.watch<GameController>();
-    final playerProperties = gameController.getPropertiesByPlayerId(activePlayer.id);
-    final playerControlPoints = gameController.getControlPointsByPlayerId(activePlayer.id);
-    final opponentControlPoints = opponent != null ? gameController.getControlPointsByPlayerId(opponent!.id) : 0;
+    final playerProperties = gameController.getPropertiesByPlayerId(
+      activePlayer.id,
+    );
+    final playerControlPoints = gameController.getControlPointsByPlayerId(
+      activePlayer.id,
+    );
+    final opponentControlPoints = opponent != null
+        ? gameController.getControlPointsByPlayerId(opponent!.id)
+        : 0;
 
     return Container(
       padding: EdgeInsets.all(10.0),
@@ -206,24 +227,18 @@ class PlayerStatContainer extends StatelessWidget {
       decoration: BoxDecoration(
         // Displays green or red depending on who is winning.
         color: opponent == null || playerControlPoints >= opponentControlPoints
-          ? AppColors.correctBoxGreen
-          : AppColors.wrongBoxRed,
+            ? AppColors.correctBoxGreen
+            : AppColors.wrongBoxRed,
         borderRadius: AppDimensions.cornerRadius,
-    
       ),
       child: Row(
         children: [
           // A property icon with the player's color.
-          PropertyIcon(
-            color: activePlayer.propertyColor,
-            width: 20.0,
-          ),
+          PropertyIcon(color: activePlayer.propertyColor, width: 20.0),
           SizedBox(width: 12.0),
           Text(
             "$playerControlPoints control points, ${playerProperties.length} properties",
-            style: TextStyle(
-              color: AppColors.opaqueWhite,
-            )
+            style: TextStyle(color: AppColors.opaqueWhite),
           ),
         ],
       ),
@@ -235,11 +250,7 @@ class PlayerStatContainer extends StatelessWidget {
 class MainMenuItem extends StatelessWidget {
   final String text;
   final Function() onTap;
-  const MainMenuItem({
-    required this.text,
-    required this.onTap,
-    super.key
-  });
+  const MainMenuItem({required this.text, required this.onTap, super.key});
 
   final color = AppColors.darkBlue;
   final hoverColor = AppColors.blue;
@@ -250,15 +261,15 @@ class MainMenuItem extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         width: 220,
-        child: ListTile(  
+        child: ListTile(
           title: Text(
             text,
             style: TextStyle(
               color: AppColors.opaqueWhite,
               fontSize: 18.0,
-              fontWeight: .bold
+              fontWeight: .bold,
             ),
-            textAlign: .center
+            textAlign: .center,
           ),
           tileColor: color,
           hoverColor: hoverColor,

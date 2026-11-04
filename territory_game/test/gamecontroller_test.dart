@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/game_user.dart';
@@ -13,17 +14,20 @@ import 'package:territory_game/model/quiz_models/quiz_feedback.dart';
 import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
-import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
-import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
+import 'package:territory_game/services/timer_service/timer_service.dart';
+import 'dummy_chatbot_api.dart';
 import 'dummy_firebase_auth.dart';
-import 'dummy_gamecontroller.dart';
+import 'dummy_game_repository.dart';
+import 'dummy_user_repository.dart';
 
 void main() {
   late Topic topic;
   late ChatbotApiProvider chatbotProvider;
-  late MistralApiService mistralClient;
-  late DummyGameController gameController;
-  late DummyGameController gameController2;
+  late GameController gameController;
+  late GameController gameController2;
+  late DummyGameRepository gameRepository;
+  late DummyUserRepository userRepository;
+  late DummyChatbotApi chatbotApi; 
   late Player testPlayer;
   late Property testProperty;
   late Property testProperty2;
@@ -36,71 +40,76 @@ void main() {
     topic = Topic(
       name: "topic A",
       subTopics: ["subTopic A", "subTopic B", "subTopic C"],
-      week: 1,
     );
 
     chatbotProvider = ChatbotApiProvider();
-    mistralClient = MistralApiService(config: ChatbotConfig());
-    chatbotProvider.addChatbot(mistralClient);
+    chatbotApi = DummyChatbotApi();
+    chatbotProvider.addChatbot(chatbotApi);
 
-    gameController = DummyGameController(
-      chatbotProvider: chatbotProvider,
-      game: Game(
-        board: Board(cols: 10, rows: 10),
-        startTime: DateTime.now(),
-        endTime: DateTime.now().add(Duration(days: 1000)),
-        id: "gameid123",
-        players: {
-          "id1": Player(
-            id: "id1",
-            displayName: "name1",
-            propertyColor: Colors.black,
-          ),
-          "id2": Player(
-            id: "id2",
-            displayName: "name2",
-            propertyColor: Colors.white,
-          ),
-        },
-        subject: Subject(
-          name: "subject A",
-          questionTypes: ["questionType1", "questionType2"],
-          topics: [topic],
-        ),
-        topic: topic,
-      ),
-      firebaseAuth: DummyFirebaseAuthService(
-        activeUser: GameUser(
-          email: "email1",
+    final game = Game(
+      board: Board(cols: 10, rows: 10),
+      startTime: DateTime.now(),
+      endTime: DateTime.now().add(Duration(days: 1000)),
+      id: "gameid123",
+      players: {
+        "id1": Player(
           id: "id1",
-        )
-      )
+          displayName: "name1",
+          propertyColor: Colors.black,
+        ),
+        "id2": Player(
+          id: "id2",
+          displayName: "name2",
+          propertyColor: Colors.white,
+        ),
+      },
+      subject: Subject(
+        name: "subject A",
+        questionTypes: ["questionType1", "questionType2"],
+        topics: [topic],
+      ),
+      topic: topic,
+    );
+
+    gameRepository = DummyGameRepository(game);
+    userRepository = DummyUserRepository();
+
+    gameController = GameController(
+      chatbotProvider: chatbotProvider,
+      game: game,
+      firebaseAuth: DummyFirebaseAuthService(
+        activeUser: GameUser(email: "email1", id: "id1", activeGameIds: ["gameid123"]),
+      ),
+      gameRepository: gameRepository,
+      userRepository: userRepository,
+      timer: TimerService(endTime: DateTime.now().add(const Duration(days: 1))),
+    );
+
+     testProperty = Property(
+      health: 100,
+      ownerId: "id1",
+      quiz: Quiz(
+        questions: [
+          CodingProblem(
+            id: 1,
+            question: "Test question",
+            inputExample: "input",
+            outputExample: "output",
+          ),
+        ],
+        subTopic: "subTopic A",
+        type: "codingProblem",
+        difficulty: "Easy",
+      ),
+      row: 1,
+      col: 1,
     );
   });
 
-  testProperty = Property(
-    health: 100,
-    ownerId: "id1",
-    quiz: Quiz(
-      questions: [
-        CodingProblem(
-          id: 1,
-          question: "Test question",
-          inputExample: "input",
-          outputExample: "output",
-        ),
-      ],
-      subTopic: "subTopic A",
-      type: "codingProblem",
-      difficulty: "Easy",
-    ),
-    row: 1,
-    col: 1,
-  );
+ 
 
   group("Board area - limitation of property counts", () {
     setUp(() {
-      
       testProperty2 = Property(
         health: 100,
         ownerId: "1",
@@ -216,95 +225,113 @@ void main() {
 
   group("placeProperty", () {
     /// Tests that placeProperty is accepted when the square is not occupied.
-    test("placeProperty - accepted", () {
-      expect(gameController.placeProperty(testProperty, row: 1, col: 1), true);
-      expect(gameController.boardState[1][1], testProperty);    
+    test("placeProperty - accepted", () async {
+      await gameController.placeProperty(testProperty, row: 1, col: 1);
+      expect(gameController.boardState[1][1].health, testProperty.health);
+      expect(gameController.boardState[1][1].ownerId, testProperty.ownerId);
+      expect(gameController.boardState[1][1].quiz.subTopic, testProperty.quiz.subTopic);
+      expect(gameController.boardState[1][1].quiz.difficulty, testProperty.quiz.difficulty);
+      expect(gameController.boardState[1][1].quiz.type, testProperty.quiz.type);
     });
 
     /// Tests that placeProperty is rejected when the square is occupied.
-    test("placeProperty - rejected", () {
-      gameController.boardState[1][1] = testProperty;
-      expect(gameController.placeProperty(testProperty, row: 1, col: 1), false);
+    test("placeProperty - rejected", () async {
+      gameRepository.storedGame.board.state[1][1] = testProperty;
+      await expectLater(
+        gameController.placeProperty(testProperty, row: 1, col: 1),
+        throwsA(isA<StateError>()),
+      );
     });
   });
 
-
   group("addPlayerToGame", () {
     setUp(() {
-      // A GameController with only one player in the game
-      gameController2 = DummyGameController(
-        chatbotProvider: chatbotProvider,
-        game: Game(
-          board: Board(cols: 10, rows: 10),
-          startTime: DateTime.now(),
-          endTime: DateTime.now().add(Duration(days: 1000)),
-          id: "gameid123",
-          players: {
-            "id1": Player(
-              id: "id1",
-              displayName: "name1",
-              propertyColor: Colors.black,
-            ),
-          },
-          subject: Subject(
-            name: "subject A",
-            questionTypes: ["questionType1", "questionType2"],
-            topics: [topic],
+      // A game with only one player.
+      final game = Game(
+        board: Board(cols: 10, rows: 10),
+        startTime: DateTime.now(),
+        endTime: DateTime.now().add(Duration(days: 1000)),
+        id: "gameid123",
+        players: {
+          "id1": Player(
+            id: "id1",
+            displayName: "name1",
+            propertyColor: Colors.black,
           ),
-          topic: topic,
+        },
+        subject: Subject(
+          name: "subject A",
+          questionTypes: ["questionType1", "questionType2"],
+          topics: [topic],
         ),
+        topic: topic,
+      );
+
+      // A GameController with only one player in the game.
+      gameController2 = GameController(
+        chatbotProvider: chatbotProvider,
+        game: game,
         firebaseAuth: DummyFirebaseAuthService(
-          activeUser: GameUser(
-            email: "email2",
-            id: "id2",
-          )
-        )
+          activeUser: GameUser(email: "email2", id: "id2"),
+        ),
+        gameRepository: DummyGameRepository(game),
+        userRepository: userRepository,
+        timer: TimerService(endTime: DateTime.now().add(Duration(days: 1))),
       );
     });
-    
+
     testPlayer = Player(
       displayName: "name2",
       id: "id2",
-      propertyColor: Colors.white
+      propertyColor: Colors.white,
     );
 
-    test("addPlayerToGame - success", () {
-      gameController2.addPlayerToGame(testPlayer);
+    test("addPlayerToGame - success", () async {
+      await gameController2.addPlayerToGame(testPlayer);
       expect(gameController2.game.players.length, 2);
-      expect(gameController2.activeUser.activeGameIds.contains("gameid123"), true);
+      expect(
+        gameController2.activeUser.activeGameIds.contains("gameid123"),
+        true,
+      );
     });
 
     /// Tests that addPlayerToGame doesn't work when GameUser id and Player id are not the same.
-    test("addPlayerToGame - failure", () {
+    test("addPlayerToGame - failure", () async {
       final mismatchedIdPlayer = Player(
         displayName: "name3",
         id: "id3",
-        propertyColor: Colors.white
+        propertyColor: Colors.white,
       );
-      
-      expect(() => gameController2.addPlayerToGame(mismatchedIdPlayer), 
-        throwsA('Authorized user ID does not match Player object ID.')
+
+      await expectLater(
+        gameController2.addPlayerToGame(mismatchedIdPlayer),
+        throwsA(isA<StateError>()),
       );
       expect(gameController2.game.players.length, 1);
     });
 
     /// Tests that a player's propertyToPlace field can be set.
-    test("setPropertyToPlace", () {
-      gameController.setPropertyToPlace(testProperty);
-      expect(gameController.activePlayer.propertyToPlace, testProperty); 
+    test("setPropertyToPlace", () async {
+      await gameController.setPropertyToPlace(testProperty);
+      expect(gameController.activePlayer.propertyToPlace!.health, testProperty.health);
+      expect(gameController.activePlayer.propertyToPlace!.questionCount, testProperty.questionCount);
+      expect(gameController.activePlayer.propertyToPlace!.ownerId, testProperty.ownerId);
+      expect(gameController.activePlayer.propertyToPlace!.row, testProperty.row);
+      expect(gameController.activePlayer.propertyToPlace!.col, testProperty.col);
+
     });
-    
-    /// Tests that health is increased by score and question count is increased by the number of 
+
+    /// Tests that health is increased by score and question count is increased by the number of
     /// additional questions when strengthening.
-    test("strengthenProperty", () {
-      testQuiz = Quiz( 
+    test("strengthenProperty", () async {
+      testQuiz = Quiz(
         difficulty: "Easy",
         questions: [
           CodingProblem(
-            id: 1, 
-            question: "Question 1", 
-            inputExample: "inputExample", 
-            outputExample: "outputExample"
+            id: 1,
+            question: "Question 1",
+            inputExample: "inputExample",
+            outputExample: "outputExample",
           ),
         ],
         subTopic: "subTopic A",
@@ -313,9 +340,10 @@ void main() {
 
       final newQuizScore = 70;
 
-      gameController.strengthenProperty(testProperty, testQuiz, newQuizScore);
-      expect(testProperty.questionCount, 2);
-      expect(testProperty.health, 170);
+      gameRepository.storedGame.board.state[1][1] = testProperty;
+      await gameController.strengthenProperty(testProperty, testQuiz, newQuizScore);
+      expect(gameController.game.board.state[1][1].questionCount, 2);
+      expect(gameController.game.board.state[1][1].health, 170);
     });
 
     late Property attackingProperty;
@@ -342,7 +370,7 @@ void main() {
           row: 1,
           col: 1,
         );
-        
+
         defendingProperty = Property(
           health: 50,
           ownerId: "id2",
@@ -366,48 +394,63 @@ void main() {
 
       /// Tests that the battling properties are appropriately placed in the active player's activeBattle
       /// field, and that their 'isBattling' field is set to 'true'.
-      test("setBattle result", () {  
-        
-        gameController.setBattle(attackingProperty, defendingProperty);
-        expect(gameController.activePlayer.activeBattle!.attacker, attackingProperty);  
-        expect(gameController.activePlayer.activeBattle!.defender, defendingProperty);   
-        expect(attackingProperty.isBattling, true);
-        expect(defendingProperty.isBattling, true); 
+      test("setBattle result", () async {
+        gameRepository.storedGame.board.state[1][1] = attackingProperty;
+        gameRepository.storedGame.board.state[1][2] = defendingProperty;
+
+        await gameController.setBattle(attackingProperty, defendingProperty);
+
+        final updatedGame = gameController.game;
+        final attackerOnBoard = updatedGame.board.state[1][1] as Property;
+        final defenderOnBoard = updatedGame.board.state[1][2] as Property;
+        final battle = updatedGame.players["id1"]!.activeBattle!;
+
+        expect(battle.attacker!.row, 1);
+        expect(battle.attacker!.col, 1);
+        expect(battle.defender!.row, 1);
+        expect(battle.defender!.col, 2);
+        expect(attackerOnBoard.isBattling, isTrue);
+        expect(defenderOnBoard.isBattling, isTrue);
       });
-
       /// Tests that the attack wins when their score is greater than the defender's health.
-      test("battle - attacker wins", () {
-        gameController.boardState[1][1] = attackingProperty;
-        gameController.boardState[1][2] = defendingProperty;
-        expect(gameController.boardState[1][2].ownerId, "id2");
+      test("battle - attacker wins", () async {
+        gameRepository.storedGame.board.state[1][1] = attackingProperty;
+        gameRepository.storedGame.board.state[1][2] = defendingProperty;
+        expect(
+          gameRepository.storedGame.board.state[1][2].ownerId,
+          "id2",
+        );
 
-        gameController.setBattle(attackingProperty, defendingProperty);
+        await gameController.setBattle(attackingProperty, defendingProperty);
         final attackerScore = 80;
-        gameController.battle(attackerScore);
+        await gameController.battle(attackerScore);
         expect(gameController.boardState[1][2].ownerId, "id1");
         expect(gameController.boardState[1][1].isBattling, false);
         expect(gameController.boardState[1][2].isBattling, false);
       });
 
       /// Tests that the attacker loses when their score is lower than the defender's health.
-      test("battle - attacker loses", () {
-        gameController.boardState[1][1] = attackingProperty;
-        gameController.boardState[1][2] = defendingProperty;
-        expect(gameController.boardState[1][2].ownerId, "id2");
-        
-        gameController.setBattle(attackingProperty, defendingProperty);
+      test("battle - attacker loses", () async {
+        gameRepository.storedGame.board.state[1][1] = attackingProperty;
+        gameRepository.storedGame.board.state[1][2] = defendingProperty;
+        expect(
+          gameRepository.storedGame.board.state[1][2].ownerId,
+          "id2",
+        );
+
+        await gameController.setBattle(attackingProperty, defendingProperty);
         final attackerScore = 20;
-        gameController.battle(attackerScore);
+        await gameController.battle(attackerScore);
         expect(gameController.boardState[1][2].ownerId, "id2");
         expect(gameController.boardState[1][1].health, 50);
         expect(gameController.boardState[1][1].isBattling, false);
         expect(gameController.boardState[1][2].isBattling, false);
-      });      
+      });
     });
-    
+
     group("get by playerId", () {
       setUp(() {
-         testProperty2 = Property(
+        testProperty2 = Property(
           health: 100,
           ownerId: "id1",
           quiz: Quiz(
@@ -426,7 +469,7 @@ void main() {
           row: 2,
           col: 2,
         );
-        
+
         testProperty3 = Property(
           health: 50,
           ownerId: "id2",
@@ -447,7 +490,7 @@ void main() {
           col: 3,
         );
       });
-      
+
       /// Tests that a list of the correct length is produced for each player's owned properties.
       test("getPropertiesByPlayerId", () {
         gameController.boardState[1][1] = testProperty;
@@ -471,14 +514,14 @@ void main() {
 
     group("quiz methods", () {
       setUp(() {
-        testQuiz = Quiz( 
+        testQuiz = Quiz(
           difficulty: "Easy",
           questions: [
             CodingProblem(
-              id: 1, 
-              question: "Write a function that returns the sum of two numbers.", 
-              inputExample: "2, 3", 
-              outputExample: "5"
+              id: 1,
+              question: "Write a function that returns the sum of two numbers.",
+              inputExample: "2, 3",
+              outputExample: "5",
             ),
           ],
           subTopic: "Functions",
@@ -492,7 +535,7 @@ void main() {
           "Variables",
           "multipleChoice",
           5,
-          "Easy"
+          "Easy",
         );
 
         expect(quiz.runtimeType, Quiz);
@@ -524,60 +567,82 @@ void main() {
     });
 
     group("message saving methods", () {
-      /// Tests that questions are saved successfully in the History class. 
-      test("saveToQuestionHistory", () {
+      /// Tests that questions are saved successfully in the History class.
+      test("saveToQuestionHistory", () async {
         final questionType = "multipleChoice";
         final questions = [
           MultipleChoiceQuestion(
             id: 1,
             correctAnswer: "Answer 1",
             distractors: ["Answer 2, Answer 3, Answer 4"],
-            question: "Question 1"
+            question: "Question 1",
           ),
           MultipleChoiceQuestion(
             id: 2,
             correctAnswer: "Answer 1",
             distractors: ["Answer 2, Answer 3, Answer 4"],
-            question: "Question 2"
-          )
+            question: "Question 2",
+          ),
         ];
 
-        gameController.saveToQuestionHistory(
-          questionType,
-          questions
-        );
+        await gameController.saveToQuestionHistory(questionType, questions);
 
-        expect(gameController.game.history.questionHistory["multipleChoice"]!.length, 2);
-        expect(gameController.game.history.questionHistory["multipleChoice"]![0], "Question 1");
-        expect(gameController.game.history.questionHistory["multipleChoice"]![1], "Question 2");
+        expect(
+          gameController.game.history.questionHistory["multipleChoice"]!.length,
+          2,
+        );
+        expect(
+          gameController.game.history.questionHistory["multipleChoice"]![0],
+          "Question 1",
+        );
+        expect(
+          gameController.game.history.questionHistory["multipleChoice"]![1],
+          "Question 2",
+        );
       });
 
       /// Tests that chat messages are saved successfully in the History class.
-      test("saveChatMessage", () {
+      test("saveChatMessage", () async {
         final message = "Hello";
-        gameController.saveChatMessage(message);
+        await gameController.saveChatMessage(message);
 
         expect(gameController.game.history.activityHistory.length, 1);
-        expect(gameController.game.history.activityHistory[0].contains("name1"), true);
-        expect(gameController.game.history.activityHistory[0].contains("Hello"), true);
+        expect(
+          gameController.game.history.activityHistory[0].contains("name1"),
+          true,
+        );
+        expect(
+          gameController.game.history.activityHistory[0].contains("Hello"),
+          true,
+        );
       });
 
       /// Tests that event messages are saved correctly in the History class.
-      test("saveEventMessage", () {
+      test("saveEventMessage", () async {
         final event = "Event message";
-        gameController.saveEventMessage(event);
+        await gameController.saveEventMessage(event);
 
         expect(gameController.game.history.activityHistory.length, 1);
-        expect(gameController.game.history.activityHistory[0].contains("Event message"), true); 
+        expect(
+          gameController.game.history.activityHistory[0].contains(
+            "Event message",
+          ),
+          true,
+        );
       });
     });
-    
+
     /// Tests that the endGame() method switches the game's isActive field to false
     /// and removes the game's ID from the active GameUser's activeGames list.
-    test("endGame", () {
-      gameController.endGame();
+    test("endGame", () async {
+      await gameController.endGame();
       expect(gameController.game.isActive, false);
-      expect(gameController.activeUser.activeGameIds.contains(gameController.game.id), false);
+      expect(
+        gameController.activeUser.activeGameIds.contains(
+          gameController.game.id,
+        ),
+        false,
+      );
     });
   });
 }

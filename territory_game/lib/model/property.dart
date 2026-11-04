@@ -1,5 +1,6 @@
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/model/quiz_models/quiz_type.dart';
 
  /// A data model for properties, which are game pieces owned by players and placed on the board.
 class Property {
@@ -23,15 +24,15 @@ class Property {
   });
 
   int get questionCount => quiz.questions.length;
-  String get quizType => quiz.type;
+  QuizType get quizType => quiz.type;
   
   /// Returns true if the property has the maximum score for all questions stored in it.
   /// 
   /// Allows the bonus question mechanism to be triggered when attacking.
   bool get hasPerfectHealth {
-    if (quiz.type == "multipleChoice" && quiz.questions.length * 20 == health) {
+    if (quiz.type == QuizType.multipleChoice && quiz.questions.length * 20 == health) {
       return true;
-    } else if (quiz.type == "codingProblem" && quiz.questions.length * 100 == health) {
+    } else if (quiz.type == QuizType.codingProblem && quiz.questions.length * 100 == health) {
       return true;
     }
     return false;

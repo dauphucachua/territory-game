@@ -11,7 +11,6 @@ void main() {
   Topic topic = Topic(
     name: "Topic A",
     subTopics: ["subTopic A", "subTopic B"],
-    week: 1
   );
 
   Game testGame = Game(
@@ -84,7 +83,6 @@ void main() {
     expect(gameObj.topic.name, "Topic A");
     expect(gameObj.topic.subTopics, isA<List<String>>());
     expect(gameObj.topic.subTopics.length, 2);
-    expect(gameObj.topic.week, 1);
     expect(gameObj.players, isA<Map<String, Player>>());
     expect(gameObj.players.length, 1);
     expect(gameObj.history.activityHistory, isA<List<String>>());

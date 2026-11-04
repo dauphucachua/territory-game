@@ -7,20 +7,9 @@ class GameUser {
   final String email;
   // List of user's active game IDs.
   List<String> activeGameIds;
-  
-  GameUser({
-    required this.id,
-    required this.email,
-    List<String>? activeGameIds
-  }) : activeGameIds = activeGameIds ?? [];
 
-  /// Loads a GameUser from a FirebaseCredential's uid and email fields.
-  factory GameUser.fromFirebaseCredential(UserCredential credential) {
-    return GameUser(
-      id: credential.user!.uid,
-      email: credential.user!.email!,
-    );
-  }
+  GameUser({required this.id, required this.email, List<String>? activeGameIds})
+    : activeGameIds = activeGameIds ?? [];
 
   /// Loads a GameUser from a JSON object.
   factory GameUser.fromJson(Map<String, dynamic> json) {
@@ -33,11 +22,7 @@ class GameUser {
 
   /// Return a JSON-friendly Map version of the GameUser object.
   Map<String, dynamic> toJson() {
-    return {
-      "id": id,
-      "email": email,
-      "activeGameIds": activeGameIds
-    };
+    return {"id": id, "email": email, "activeGameIds": activeGameIds};
   }
 
   /// Adds a game ID to the activeGameIds List.

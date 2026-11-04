@@ -62,7 +62,7 @@ class Game {
       history: History.fromJson(json["history"]),
       subject: Subject.fromJson(json["subject"]),
       topic: Topic.fromJson(json["topic"]),
-      isActive: json["isActive"] == "true"
+      isActive: json["isActive"]
     );
   }
   
@@ -82,7 +82,7 @@ class Game {
       "history": history.toJson(),
       "subject": subject.toJson(),
       "topic": topic.toJson(),
-      "isActive": isActive.toString()
+      "isActive": isActive
     };
   }
 

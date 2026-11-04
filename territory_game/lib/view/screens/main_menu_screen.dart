@@ -1,106 +1,132 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import "package:collection/collection.dart";
 import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/player.dart';
-import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
-import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
-import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
+import 'package:territory_game/repositories/game_repository.dart';
 import 'package:territory_game/services/firebase_services/firebase_auth_service.dart';
-import 'package:territory_game/services/timer_service/timer_service.dart';
+import 'package:territory_game/services/initialization_services/session_builder.dart';
 import 'package:territory_game/view/screens/game_screen_wrapper.dart';
-import 'package:territory_game/view/widgets/custom_elements.dart';
 import 'package:territory_game/view/widgets/main_menu/dialogs/new_game_dialog.dart';
 import 'package:territory_game/view/widgets/rules_dialog.dart';
 
-
 class MainMenuScreen extends StatefulWidget {
-  const MainMenuScreen({
-    super.key
-  });
+  const MainMenuScreen({super.key});
 
   @override
   State<MainMenuScreen> createState() => _MainMenuScreenState();
 }
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
-  final db = FirebaseFirestore.instance;
+  late Stream<List<Game>> activeGamesStream;
+  late Stream<List<Game>> availableGamesStream;
   final nameController = TextEditingController();
   String? selectedDisplayName;
-  
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshGameStreams();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+  void _refreshGameStreams() {
+    final auth = context.read<FirebaseAuthService>();
+    final user = auth.activeUser!;
+    final gameRepository = context.read<GameRepository>();
+
+    activeGamesStream = gameRepository.watchActiveGames(
+      List<String>.of(user.activeGameIds),
+    );
+
+    availableGamesStream = gameRepository.watchAvailableGames(user.id);
+  }
+
+  void pushToGameScreen(BuildContext context, GameController gameController) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        settings: RouteSettings(name: "/gameScreen"),
+        builder: (_) => ChangeNotifierProvider(
+          create: (_) => gameController,
+          child: const GameScreenWrapper(),
+        ),
+      ),
+    );
+
+    if (context.mounted) {
+      setState(() {
+        _refreshGameStreams();
+      });
+    }
+  }
+
+  Player createPlayerWithOppositeColor(
+    Game game,
+    String activeUserId,
+    String selectedDisplayName,
+  ) {
+    final opponentColor = game.players.values.first.propertyColor;
+
+    return Player(
+      id: activeUserId,
+      displayName: selectedDisplayName,
+      propertyColor: opponentColor == AppColors.propertyBlack
+          ? AppColors.propertyWhite
+          : AppColors.propertyBlack,
+    );
+  }
+
+  Future<void> pushAvailableGame(
+    BuildContext context,
+    Game game,
+    String activeUserId,
+    String selectedDisplayName,
+  ) async {
+    final gameController = await context.read<SessionBuilder>().create(game);
+    final newPlayer = createPlayerWithOppositeColor(
+      game,
+      activeUserId,
+      selectedDisplayName,
+    );
+    try {
+      await gameController.addPlayerToGame(newPlayer);
+
+      if (context.mounted) {
+        pushToGameScreen(context, gameController);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e. Could not join game.")),
+        );
+      }
+      gameController.dispose();
+    }
+  }
+
+  Future<void> pushActiveGame(
+    BuildContext context,
+    Game game,
+    String activeUserId,
+  ) async {
+    if (game.containsPlayerWithId(activeUserId)) {
+      final gameController = await context.read<SessionBuilder>().create(game);
+      if (!context.mounted) return;
+      pushToGameScreen(context, gameController);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final firebaseAuth = context.watch<FirebaseAuthService>();
-    
-    GameController initializeGameController(Game game) {
-      final timer = TimerService(
-        endTime: game.endTime
-        );
+    final activeUserId = firebaseAuth.activeUser!.id;
 
-      final chatbotProvider = ChatbotApiProvider();
-      final mistralClient = MistralApiService(
-        config: ChatbotConfig());
-      chatbotProvider.addChatbot(mistralClient);
-
-      return GameController(
-        chatbotProvider: chatbotProvider,
-        game: game,
-        firebaseAuth: firebaseAuth,
-        timer: timer
-      );
-    }
-
-    void pushToGameScreen(GameController gameController) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          settings: RouteSettings(name: "/gameScreen"),
-          builder: (context) => ChangeNotifierProvider(
-            create: (context) => gameController,
-            child: const GameScreenWrapper()
-          ),
-        ),
-      );
-    }
-
-    Player createPlayerWithOppositeColor(Game game) {
-      final opponentColor = game.players.values.first.propertyColor;
-
-      return Player(
-        id: firebaseAuth.activeUser!.id,
-        displayName: selectedDisplayName!,
-        propertyColor: opponentColor == AppColors.propertyBlack 
-          ? AppColors.propertyWhite 
-          : AppColors.propertyBlack 
-      );
-    }
-
-    void onGameChosen(Game game) async {                 
-      final gameController = initializeGameController(game);
-
-      if (game.containsPlayerWithId(firebaseAuth.activeUser!.id)) {       
-        pushToGameScreen(gameController);
-      } else {
-        if (selectedDisplayName != null && selectedDisplayName!.isNotEmpty) {
-          final newPlayer = createPlayerWithOppositeColor(game);
-          await gameController.addPlayerToGame(newPlayer);
-          pushToGameScreen(gameController);
-        } else {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "Enter a display name to join a game."
-                ),
-              ),
-            );
-          }
-        }
-      }
-    }
-    
     // New game, opens dialog - choose subject, choose topic, choose duration, start game
     return Scaffold(
       body: Row(
@@ -127,17 +153,15 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     text: "New game",
                     onPressed: () => showDialog(
                       context: context,
-                      builder: (context) => NewGameDialog(
-                        firebaseAuth: firebaseAuth,
-                      ),
+                      builder: (context) => NewGameDialog(),
                     ),
                   ),
                   MainMenuButton(
                     text: "Rules",
                     onPressed: () => showDialog(
                       context: context,
-                      builder: (context) => RulesDialog()
-                    ) // RulesScreen
+                      builder: (context) => RulesDialog(),
+                    ), // RulesScreen
                   ),
                   MainMenuButton(
                     text: "Logout",
@@ -158,99 +182,38 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 children: [
                   Text(
                     "Continue a game",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: AppColors.darkBlue
-                    )
+                    style: TextStyle(fontSize: 20, color: AppColors.darkBlue),
                   ),
                   SizedBox(width: 10),
-                  Icon(
-                    Icons.arrow_right,
-                    color: AppColors.darkBlue
-                  ),
+                  Icon(Icons.arrow_right, color: AppColors.darkBlue),
                 ],
               ),
               SizedBox(height: 10),
-
               // This is a menu showing the active user's currently active games.
               SizedBox(
                 height: 300,
                 width: 450,
-                child: firebaseAuth.activeUser!.activeGameIds.isNotEmpty 
-                ? StreamBuilder(
-                  stream: db.collection("games")
-                    .where("id", whereIn: firebaseAuth.activeUser!.activeGameIds)
-                    .snapshots(),    
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Text("Loading active games...");
-                    }
-                    
-                    final data = snapshot.data!.docs.map((doc) => doc.data()).toList();
-
-                    return ListView.builder(
-                      scrollDirection: .vertical,
-                      itemCount: data.length,
-                      itemBuilder: (context, index) {
-                        final currentGameData = Map<String, dynamic>.from(data[index]);
-                        final currentGame = Game.fromJson(currentGameData);
-                        List<String> playerIds = currentGame.players.keys.toList();
-                        String? opponentId = playerIds.firstWhereOrNull(
-                          (playerId) => playerId != firebaseAuth.activeUser!.id
-                        );
-
-                        return MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () => onGameChosen(currentGame),
-                            
-                            child: Container(
-                              padding: EdgeInsets.all(20),
-                              margin: EdgeInsets.all(5),
-                          
-                              height: 100.0,
-                              decoration: BoxDecoration(
-                                color: AppColors.blue,
-                                borderRadius: AppDimensions.cornerRadius,
-                              ),
-                              child: Column(
-                                children: [
-                                  opponentId != null
-                                    ? ContentText(text: "You vs. ${currentGame.players[opponentId]!.displayName}")
-                                    : ContentText(text: "You vs. unassigned"),
-                                  ContentText(text: currentGame.topic.name),
-                                  ContentText(text: "Ends: ${currentGame.endTimeAsString}"),
-                                  
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                    );
-                  }
-                )
-                : Center(
-                  child: Text(
-                    "You currently have no active games. "
-                  )
-                )
+                child: GameListView(
+                  games: activeGamesStream,
+                  itemBuilder: (context, game) => ListTile(
+                    title: Text(game.topic.name),
+                    subtitle: Text("Ends: ${game.endTimeAsString}"),
+                    onTap: () async =>
+                        await pushActiveGame(context, game, activeUserId),
+                  ),
+                  loadingMessage: "Loading active games...",
+                  emptyMessage: "No active games found.",
+                ),
               ),
               SizedBox(height: 10),
               Row(
                 children: [
                   Text(
                     "Join an available game",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: AppColors.darkBlue
-                    )
+                    style: TextStyle(fontSize: 20, color: AppColors.darkBlue),
                   ),
                   SizedBox(width: 10),
-                  Icon(
-                    Icons.arrow_right,
-                    color: AppColors.darkBlue
-                  ),
+                  Icon(Icons.arrow_right, color: AppColors.darkBlue),
                 ],
               ),
               SizedBox(
@@ -259,84 +222,37 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   controller: nameController,
                   decoration: InputDecoration(
                     hintText: "Enter display name before joining",
-                    hintStyle: TextStyle(
-                      fontSize: 14
-                    )
-                  )
+                    hintStyle: TextStyle(fontSize: 14),
+                  ),
                 ),
-              ),
-
-              // This is a menu showing games that are available to join.
+              ), // This is a menu showing games that are available to join.
               SizedBox(
-                height: 300,
                 width: 450,
-                child: StreamBuilder(
-                  stream: db.collection("games").snapshots(),    
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Text("Loading available games...");
-                    }
-                    
-                    final data = snapshot.data!.docs.map((doc) => doc.data()).toList();
-
-                    return ListView.builder(
-                      itemCount: data.length,
-                      itemBuilder: (context, index) {
-                        final currentGameData = Map<String, dynamic>.from(data[index]);
-
-                        // Filter out games with no players and games which are full.
-                        if (
-                          currentGameData["players"].isEmpty
-                          || currentGameData["players"].length > 1
-                        ) {
-                          return Container();
-                        }
-                        
-                        // Filter out games that the active player is already in.
-                        for (String playerId in currentGameData["players"].keys) {
-                          if (playerId == firebaseAuth.activeUser!.id) {
-                            return Container();
-                          }
-                        }
-
-                        final currentGame = Game.fromJson(currentGameData);
-                        List<String> playerIds = currentGame.players.keys.toList();
-                        String? opponentId = playerIds.firstWhereOrNull(
-                          (playerId) => playerId != firebaseAuth.activeUser!.id
+                height: 300,
+                child: GameListView(
+                  games: availableGamesStream,
+                  itemBuilder: (context, game) => ListTile(
+                    title: Text(game.topic.name),
+                    subtitle: Text("Ends: ${game.endTimeAsString}"),
+                    onTap: () async {
+                      final selectedDisplayName = nameController.text.trim();
+                      if (selectedDisplayName == "" ||
+                          selectedDisplayName.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Enter a display name.")),
                         );
-                        String? opponentName;
-                        if (opponentId != null) {
-                          opponentName = currentGame.players[opponentId]!.displayName;
-                        }
-                          
-                        return MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () async {
-                              selectedDisplayName = nameController.text.trim();
-                              onGameChosen(currentGame);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(20),
-                              margin: EdgeInsets.all(5),
-                              height: 100.0,
-                              decoration: BoxDecoration(
-                                color: AppColors.blue,
-                                borderRadius: AppDimensions.cornerRadius,
-                              ),
-                              child: Column(
-                                children: [
-                                  ContentText(text: "vs. $opponentName"),
-                                  ContentText(text: currentGame.topic.name),
-                                  ContentText(text: "Ends at: ${currentGameData["endTime"]}")
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                        return;
+                      }
+                      await pushAvailableGame(
+                        context,
+                        game,
+                        activeUserId,
+                        selectedDisplayName,
+                      );
+                    },
+                  ),
+                  loadingMessage: "Loading available games...",
+                  emptyMessage: "No available games.",
                 ),
               ),
             ],
@@ -365,15 +281,59 @@ class MainMenuButton extends StatelessWidget {
         backgroundColor: AppColors.blue,
         fixedSize: Size(200, 50),
       ),
-      onPressed: onPressed,//newGameDialog
+      onPressed: onPressed, //newGameDialog
       child: Text(
         text,
-        style: TextStyle(
-          color: AppColors.opaqueWhite,
-          fontSize: 18.0
-        ),
+        style: TextStyle(color: AppColors.opaqueWhite, fontSize: 18.0),
       ),
     );
   }
 }
 
+typedef GameItemBuilder = Widget Function(BuildContext context, Game game);
+
+class GameListView extends StatelessWidget {
+  final Stream<List<Game>> games;
+  final GameItemBuilder itemBuilder;
+  final String loadingMessage;
+  final String emptyMessage;
+
+  const GameListView({
+    required this.games,
+    required this.itemBuilder,
+    required this.loadingMessage,
+    required this.emptyMessage,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: games,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint(
+            "$loadingMessage stream error: ${snapshot.error}\n${snapshot.stackTrace}",
+          );
+          return const Center(child: Text("Could not load games."));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: Text(loadingMessage));
+        }
+
+        final gameList = snapshot.data;
+        if (gameList == null || gameList.isEmpty) {
+          return Center(child: Text(emptyMessage));
+        }
+
+        return ListView.builder(
+          itemCount: gameList.length,
+          itemBuilder: (context, index) {
+            return itemBuilder(context, gameList[index]);
+          },
+        );
+      },
+    );
+  }
+}

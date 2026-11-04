@@ -7,12 +7,10 @@ import 'package:territory_game/view/screens/main_menu_screen.dart';
 import 'package:territory_game/view/widgets/custom_elements.dart';
 
 /// This is the login screen.
-/// 
+///
 /// It allows users to log in / register with email and password.
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({
-    super.key
-  });
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -21,6 +19,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,10 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 4.0),
               // The email entry field.
-              EntryField(
-                hideText: false,
-                controller: emailController
-              ),
+              EntryField(hideText: false, controller: emailController),
               SizedBox(height: 40.0),
               Row(
                 mainAxisAlignment: .start,
@@ -67,9 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 4.0),
               // The password entry field.
-              EntryField(
-                hideText: true,
-                controller: passwordController),
+              EntryField(hideText: true, controller: passwordController),
               SizedBox(height: 4.0),
               // Forgot password feature.
               // Unimplemented as unnecessary for the testing approach.
@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: .center,
                 children: [
                   // Register button
-                  ElevatedButton(         
+                  ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.blue,
                     ),
@@ -99,31 +99,32 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    onPressed: () async { 
+                    onPressed: () async {
                       try {
-                        firebaseAuth.register( 
+                        await firebaseAuth.register(
                           emailController.text,
-                          passwordController.text
+                          passwordController.text,
                         );
 
-                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Account registered successfully for ${emailController.text}. Login now."),
-                            duration: Duration(
-                              seconds: 3
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Account registered successfully for ${emailController.text}. Login now.",
+                              ),
+                              duration: Duration(seconds: 3),
                             ),
-                          ),
-                        );
-
+                          );
+                        }
                       } on FirebaseAuthException catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(e.toString()),
-                            duration: Duration(
-                              seconds: 3
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.toString()),
+                              duration: Duration(seconds: 3),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       }
                     },
                   ),
@@ -137,15 +138,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         "Login",
-                        style: TextStyle(
-                          color: AppColors.blue,
-                          fontSize: 20.0,
-                        ),
+                        style: TextStyle(color: AppColors.blue, fontSize: 20.0),
                       ),
                     ),
                     onPressed: () async {
                       try {
-                        await firebaseAuth.login(emailController.text, passwordController.text);                  
+                        await firebaseAuth.login(
+                          emailController.text,
+                          passwordController.text,
+                        );
 
                         if (context.mounted) {
                           if (firebaseAuth.activeUser != null) {
@@ -153,35 +154,36 @@ class _LoginScreenState extends State<LoginScreen> {
                               context,
                               MaterialPageRoute(
                                 settings: RouteSettings(name: "/mainMenu"),
-                                builder: (context) => ChangeNotifierProvider.value(
-                                  value: context.read<FirebaseAuthService>(),
-                                  child: MainMenuScreen(),
-                                  
-                                )
-                              )
+                                builder: (context) =>
+                                    ChangeNotifierProvider.value(
+                                      value: context
+                                          .read<FirebaseAuthService>(),
+                                      child: MainMenuScreen(),
+                                    ),
+                              ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text("Login unsuccessful. No active user."),
-                                duration: Duration(
-                                  seconds: 3
+                                content: Text(
+                                  "Login unsuccessful. No active user.",
                                 ),
+                                duration: Duration(seconds: 3),
                               ),
                             );
                           }
                         }
                       } on FirebaseAuthException catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(e.toString()),
-                            duration: Duration(
-                              seconds: 3
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.toString()),
+                              duration: Duration(seconds: 3),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       }
-                    }
+                    },
                   ),
                 ],
               ),
@@ -198,7 +200,7 @@ class EntryField extends StatelessWidget {
   // Allows optional text hiding for password fields.
   final bool hideText;
   final TextEditingController controller;
-  
+
   const EntryField({
     required this.hideText,
     required this.controller,
@@ -217,11 +219,9 @@ class EntryField extends StatelessWidget {
         child: TextField(
           controller: controller,
           obscureText: hideText,
-          style: TextStyle(
-            color: AppColors.opaqueWhite,
-          ),
+          style: TextStyle(color: AppColors.opaqueWhite),
         ),
-      )
+      ),
     );
   }
 }

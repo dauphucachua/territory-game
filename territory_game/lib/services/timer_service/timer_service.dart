@@ -12,11 +12,16 @@ class TimerService {
     required this.endTime
   });
 
+  void dispose() {
+    timer?.cancel();
+    timer = null;
+  }
   /// Runs the timer with a 1-second tick.
   /// 
   /// Every 1 second, the timer checks if the endTime has been surpassed. 
   /// If so, its runs the onTimeout function passed to it.
   void runTimer({required Future<void>Function() onTimeout}) {
+    timer?.cancel();
     timer = Timer.periodic(const Duration(seconds: 1), (_) async {
       timeLeft = endTime.difference(DateTime.now());
       if (timeLeft! < const Duration(seconds: 0)) {

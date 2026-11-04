@@ -16,7 +16,20 @@ class CodingExercise extends Question {
     return CodingExercise(
       id: json["id"],
       question: json["question"],
-      steps: json["steps"]
+      steps: List<String>.from(json["steps"])
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "question": question,
+      "steps": steps
+    };
+  }
+
+  @override
+  String toString() {
+    return "id:$id\nquestion:$question\nsteps:$steps";
   }
 }

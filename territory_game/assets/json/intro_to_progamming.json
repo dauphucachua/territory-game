@@ -1,28 +1,60 @@
 {
-    "name": "Introduction to Programming",
-    "topics": [
-        {
-            "name": "Variables",
-            "week": 1,
-            "subtopics": [
-                "Naming",
-                "Conventions",
-                "Values"
-            ]
-        },
-        {
-            "name": "Functions",
-            "week": 2,
-            "subtopics": [
-                "Scope",
-                "Iteration"
-            ]
-        }
-    ],
-    "questionTypes": [
-        "multipleChoice",
-        "theory",
-        "codingProblem",
-        "codingExercise"
-    ]
+  "name": "Introduction to Programming",
+  "topics": [
+    {
+      "name": "Python, variables and basic data types",
+      "subTopics": [
+        "Python syntax",
+        "Style conventions",
+        "Variables",
+        "Strings",
+        "Booleans",
+        "Operators",
+        "Floats and integers",
+        "Lists",
+        "Tuples",
+        "Sets",
+        "Dictionaries"
+      ]
+    },
+    {
+      "name": "Control flow: loops and conditions",
+      "subTopics": [
+        "Conditions",
+        "For loops",
+        "While loops",
+        "Iterators",
+        "Generators"
+      ]
+    },
+    {
+      "name": "Mutability & functions",
+      "subTopics": [
+        "Mutability",
+        "References",
+        "Functions",
+        "Scope"
+      ]
+    },
+    {
+      "name": "Object-oriented programming",
+      "subTopics": [
+        "Classes and objects",
+        "Attributes and methods",
+        "Encapsulation",
+        "Inheritance",
+        "Composition",
+        "Polymorphism"
+      ]
+    },
+    {
+      "name": "Input & output",
+      "subTopics": [
+        "Text files",
+        "JSON",
+        "CSV"
+      ]
+    }
+  ],
+  "questionTypes": ["multipleChoice", "codingProblem", "codingExercise"]
 }

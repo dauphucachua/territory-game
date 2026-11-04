@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:territory_game/controller/game_controller.dart';
 import 'package:territory_game/model/board.dart';
 import 'package:territory_game/model/game.dart';
 import 'package:territory_game/model/player.dart';
@@ -7,60 +8,56 @@ import 'package:territory_game/model/quiz_models/question_models/multiple_choice
 import 'package:territory_game/model/quiz_models/quiz.dart';
 import 'package:territory_game/model/subject.dart';
 import 'package:territory_game/model/topic.dart';
+import 'package:territory_game/repositories/game_repository.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_provider.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
+import 'package:territory_game/services/chatbot_services/gpt_api_service.dart';
 import 'package:territory_game/services/chatbot_services/mistral_api_service.dart';
+import 'package:territory_game/services/timer_service/timer_service.dart';
+
+import 'dummy_firebase_auth.dart';
+import 'dummy_game_repository.dart';
 import 'dummy_gamecontroller.dart';
+import 'dummy_user_repository.dart';
 
 void main() {
-
   Map<String, dynamic> exampleSubject = {
     "name": "Introduction to Programming",
     "topics": [
       {
-          "name": "Variables",
-          "week": 1,
-          "subTopics": [
-              "Naming",
-              "Conventions",
-              "Values"
-          ]
+        "name": "Variables",
+        "week": 1,
+        "subTopics": ["Naming", "Conventions", "Values"],
       },
       {
-          "name": "Functions",
-          "week": 2,
-          "subTopics": [
-              "Scope",
-              "Iteration"
-          ]
+        "name": "Functions",
+        "week": 2,
+        "subTopics": ["Scope", "Iteration"],
       },
     ],
     "questionTypes": [
-        "multipleChoice",
-        "theory",
-        "codingProblem",
-        "codingExercise"
-    ]
+      "multipleChoice",
+      "theory",
+      "codingProblem",
+      "codingExercise",
+    ],
   };
 
   Subject subject = Subject.fromJson(exampleSubject);
-  
+
   final ChatbotApiProvider chatbotProvider = ChatbotApiProvider();
-  final mistralClient = MistralApiService(
-    config: ChatbotConfig());
-  chatbotProvider.addChatbot(mistralClient);
-  
+  // final mistralClient = MistralApiService(config: ChatbotConfig());
+  final gptClient = GptApiService(config: ChatbotConfig());
+  // chatbotProvider.addChatbot(mistralClient);
+  chatbotProvider.addChatbot(gptClient);
+
   Topic topic = Topic(
     name: "Functions",
     subTopics: ["Mutability", "Iteration"],
-    week: 1
   );
 
   Game testGame = Game(
-    board: Board(
-      cols: 10,
-      rows: 10,
-    ),
+    board: Board(cols: 10, rows: 10),
     startTime: DateTime.now(),
     endTime: DateTime.now().add(Duration(days: 1000)),
     id: "gameid123",
@@ -79,19 +76,20 @@ void main() {
     subject: Subject(
       name: "Introduction to Programming",
       questionTypes: ["multipleChoice", "codingProblem"],
-      topics: [
-        topic
-      ],
+      topics: [topic],
     ),
-    topic: topic
+    topic: topic,
   );
 
-
-  final gameController = DummyGameController(
-    chatbotProvider: chatbotProvider, 
-    game: testGame
+  final gameController = GameController(
+    chatbotProvider: chatbotProvider,
+    game: testGame,
+    firebaseAuth: DummyFirebaseAuthService(),
+    gameRepository: DummyGameRepository(testGame),
+    userRepository: DummyUserRepository(),
+    timer: TimerService(endTime: DateTime.now().add(Duration(days: 1)))
   );
-  
+
   /// Tests that the chatbot returns a multiple choice quiz with the requested settings.
   test("multipleChoice test", () async {
     final topic = subject.topics[0];
@@ -102,14 +100,14 @@ void main() {
     final difficulty = "Easy";
 
     var quiz = await chatbotProvider.chatbot.getQuizJson(
-      topic, 
-      subTopic, 
-      questionType, 
+      topic,
+      subTopic,
+      questionType,
       questionCount,
       questionHistory,
-      difficulty
-    ); 
-    
+      difficulty,
+    );
+
     expect(quiz!["difficulty"], "Easy");
     expect(quiz["subTopic"], subTopic);
     expect(quiz["quizType"], "multipleChoice");
@@ -132,7 +130,7 @@ void main() {
       questionType,
       questionCount,
       questionHistory,
-      difficulty
+      difficulty,
     );
 
     expect(quiz!["difficulty"], "Easy");
@@ -142,20 +140,22 @@ void main() {
     expect(quiz["questions"].isNotEmpty, true);
   });
 
-  /// Tests that the chatbot returns feedback with the requested settings, and assesses 
+  /// Tests that the chatbot returns feedback with the requested settings, and assesses
   /// right and wrong answers appropriately.
   test("getFeedback test", () async {
     final mockQuestion1 = MultipleChoiceQuestion(
-      id: 1, 
-      question: "How do you assign a string value to a variable in Python?", 
-      correctAnswer: "x = 'Hello'", 
-      distractors: ["x = hello", "x := hello", "x == 'hello'"]);
+      id: 1,
+      question: "How do you assign a string value to a variable in Python?",
+      correctAnswer: "x = 'Hello'",
+      distractors: ["x = hello", "x := hello", "x == 'hello'"],
+    );
 
     final mockQuestion2 = MultipleChoiceQuestion(
-      id: 2, 
-      question: "How do you assign an integer value to a variable in Python?", 
-      correctAnswer: "x = 1", 
-      distractors: ["x = 1.0", "x := 1", "x == 1"]);
+      id: 2,
+      question: "How do you assign an integer value to a variable in Python?",
+      correctAnswer: "x = 1",
+      distractors: ["x = 1.0", "x := 1", "x == 1"],
+    );
 
     Quiz mockQuiz = Quiz(
       type: "multipleChoice",
@@ -169,7 +169,7 @@ void main() {
     mockQuiz.storeUserAnswers(userAnswers);
 
     var quizFeedback = await gameController.getFeedback(mockQuiz);
-    
+
     expect(quizFeedback.results[0].id, 1);
     expect(quizFeedback.results[0].score, 10);
     expect(quizFeedback.results[0].feedback.isNotEmpty, true);

@@ -1,8 +1,8 @@
 import 'package:territory_game/model/topic.dart';
 
 /// A data model for an educational subject.
-/// 
-/// The intention of this class is allow the application to be used by a range of subjects with 
+///
+/// The intention of this class is allow the application to be used by a range of subjects with
 /// different topics and types of questions.
 class Subject {
   final String name;
@@ -12,16 +12,18 @@ class Subject {
   Subject({
     required this.name,
     required this.topics,
-    required this.questionTypes
+    required this.questionTypes,
   });
 
   /// Loads a Subject object from a JSON file.
   factory Subject.fromJson(Map<String, dynamic> json) {
     return Subject(
       name: json["name"],
-      topics: List<Topic>.from((json["topics"].map((topic) => Topic.fromJson(topic))).toList()),
-      questionTypes: List<String>.from(json["questionTypes"])
-    );  
+      topics: List<Topic>.from(
+        (json["topics"].map((topic) => Topic.fromJson(topic))).toList(),
+      ),
+      questionTypes: List<String>.from(json["questionTypes"]),
+    );
   }
 
   /// Return a JSON-friendly Map version of the Subject.
@@ -29,7 +31,7 @@ class Subject {
     return {
       "name": name,
       "topics": topics.map((topic) => topic.toJson()),
-      "questionTypes": questionTypes
+      "questionTypes": questionTypes,
     };
   }
 }
@@ -39,40 +41,61 @@ final Map<String, dynamic> exampleSubject = {
   "name": "Introduction to Programming",
   "topics": [
     {
-        "name": "Week 1: Python and basic data types",
-        "week": 1,
-        "subTopics": [
-            "Python syntax",
-            "Style conventions",
-            "Variables",
-            "Strings",
-            "Booleans",
-            "Operators",
-            "Floats and integers",
-            "Lists",
-            "Tuples",
-            "Sets",
-            "Dictionaries"
-        ]
+      "name": "Python, variables and basic data types",
+      "subTopics": [
+        "Python syntax",
+        "Style conventions",
+        "Variables",
+        "Strings",
+        "Booleans",
+        "Operators",
+        "Floats and integers",
+        "Lists",
+        "Tuples",
+        "Sets",
+        "Dictionaries",
+      ],
     },
     {
-        "name": "Week 2: Control flow",
-        "week": 2,
-        "subTopics": [
-            "Conditions",
-            "For loops",
-            "While loops",
-            "Iterators",
-            "Generators",
-            "List comprehensions",
-            
-        ]
+      "name": "Control flow: loops and conditions",
+      "subTopics": [
+        "Conditions",
+        "For loops",
+        "While loops",
+        "Iterators",
+        "Generators",
+      ],
+    },
+    {
+      "name": "Mutability & functions",
+      "subTopics": [
+        "Mutability",
+        "References",
+        "Functions",
+        "Scope",
+      ]
+    },
+    {
+      "name": "Object-oriented programming",
+      "subTopics": [
+        "Classes and objects",
+        "Attributes and methods",
+        "Encapsulation",
+        "Inheritance",
+        "Composition",
+        "Polymorphism"
+      ]
+    },
+    {
+      "name": "Input & output",
+      "subTopics": [
+        "Text files",
+        "JSON",
+        "CSV",
+      ]
     },
   ],
-  "questionTypes": [
-      "multipleChoice",
-      "codingProblem",
-  ]
+  "questionTypes": ["multipleChoice", "codingProblem", "codingExercise"],
 };
 
 // A List of subjects used for selection in the UI.

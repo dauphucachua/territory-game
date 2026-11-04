@@ -16,4 +16,11 @@ class TheoryQuestion extends Question {
       question: json["question"]
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "question": question
+    };
+  }
 }

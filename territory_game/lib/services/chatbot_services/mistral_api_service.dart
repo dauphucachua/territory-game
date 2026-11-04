@@ -1,160 +1,70 @@
 import 'dart:convert';
+
 import 'package:mistralai_dart/mistralai_dart.dart';
 import 'package:territory_game/api_keys/api_keys.dart';
+import 'package:territory_game/constants/constants.dart';
 import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/model/quiz_models/quiz_type.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_api_service.dart';
 import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 
 /// An API service for communicating with Mistral AI.
 class MistralApiService implements ChatbotApiService {
-
   // The mistral client.
   final client = MistralClient.withApiKey(
     mistralKey,
     // Note: this directs to a Firebase cloud function that was written by Gemini to solve a CORS issue with web deployment.
-    // This was suggested by the supervisor of this project as it was a game-breaking external problem that was delaying 
+    // This was suggested by the supervisor of this project as it was a game-breaking external problem that was delaying
     // user-testing.
-    baseUrl: "https://us-central1-territory-game-final.cloudfunctions.net/mistralProxy"
+    baseUrl: "https://us-central1-territory-game-final.cloudfunctions.net/mistralProxy",
   );
 
   // A list of model strings for switching easily. This can be expanded, can also add functionality for dynamically switching
-  // based on the need at hand. 
-  final List<String> models = ["mistral-small-latest", "mistral-medium-latest", "mistral-large-latest"];
+  // based on the need at hand.
+  final List<String> models = [
+    "mistral-small-latest",
+    "mistral-medium-latest",
+    "mistral-large-latest",
+  ];
 
   // A Map of schemas for use with various quiz types.
-  final Map<String, dynamic> quizSchemas = {
-    "multipleChoice": ResponseFormatJsonSchema(
-      name: "multipleChoiceQuiz",
-      schema: {
-        "quizType": {
-          "type": "string",
-          "description": "This value must be: multipleChoice. It describes the quiz type."
-        },
-        "subTopic": {
-          "type": "string",
-          "description": "Return the sub-topic provided in the prompt."
-        }, 
-        "difficulty": {
-          "type": "string",
-          "description": "Return the difficulty that was provided in the prompt."
-        },
-        "questions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "description": "The chronological number of the question in the set."
-                },
-              "question": {"type": "string"},
-              "correctAnswer": {"type": "string"},
-              "distractors": {
-                "type": "array",
-                "items": {"type": "string"},
-              }, 
-            },       
-          },
-        },
-      },
+  final Map<QuizType, dynamic> quizSchemas = {
+    QuizType.multipleChoice: ResponseFormatJsonSchema(
+      name: "multipleChoice",
+      schema: ChatbotSchemas.quizSchemas["multipleChoice"],
     ),
-    "codingProblem": ResponseFormatJsonSchema(
+    QuizType.codingProblem: ResponseFormatJsonSchema(
       name: "codingProblem",
-      schema: {
-        "quizType": {
-          "type": "string",
-          "description": "The value must be: codingProblem. It describes the quiz type."
-        },
-        "subTopic": {
-          "type": "string",
-          "description": "Return the sub-topic provided in the prompt",
-        },
-        "difficulty": {
-          "type": "string",
-          "description": "Return the difficulty that was provided in the prompt."
-        },
-        "questions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "description": "The chronological number of the question in the set",
-              },
-              "question": {
-                "type": "string",
-                "description": "The Leetcode / Codewars style question ONLY."
-              },
-              "inputExample": {
-                "type": "string",
-                "description": "This is an example of the type of input the user can expect to receive for the problem."
-              },
-              "outputExample": {
-                "type": "string",
-                "description": "This is an example of the type of output that the problem expects the user to produce."
-              }, 
-            },
-          },
-        },
-      },
+      schema: ChatbotSchemas.quizSchemas["codingProblem"],
     ),
+    QuizType.codingExercise: ResponseFormatJsonSchema(
+      name: "codingExercise",
+      schema: ChatbotSchemas.quizSchemas["codingExercise"]
+    ),
+    QuizType.theory: ResponseFormatJsonSchema(
+      name: "theory",
+      schema: ChatbotSchemas.quizSchemas["theory"]
+    )
   };
 
   // A Map of feedback schemas, for use with various quiz types.
-  final Map<String, dynamic> feedbackSchemas = {
-    "multipleChoice": ResponseFormatJsonSchema(
+  final Map<QuizType, dynamic> feedbackSchemas = {
+    QuizType.multipleChoice: ResponseFormatJsonSchema(
       name: "multipleChoiceFeedback",
-      schema: {
-        "quizType": {
-          "type": "string",
-          "description": "This value must be: multipleChoice. It describes the quiz type."
-        },
-        "results": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "description": "The chronological number of the question in the set",
-              },
-              "feedback": {"type": "string"},
-              "score": {"type": "integer"},
-          },
-          },       
-        },
-      },
+      schema: ChatbotSchemas.feedbackSchemas["multipleChoice"],
     ),
-    "codingProblem": ResponseFormatJsonSchema(
+    QuizType.codingProblem: ResponseFormatJsonSchema(
       name: "codingProblemFeedback",
-      schema: {
-        "quizType": {
-          "type": "string",
-          "description": "The value must be: codingProblem. This is the quiz type." 
-        },
-        "results": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "description": "The chronological number of the question in the set",
-              },
-              "feedback": {
-                "type": "string",
-                "description": "Your feedback describing any mistakes, misunderstanding, context, and providing an example solution in Python markdown."
-              },
-              "score": {
-                "type": "integer",
-                "description": "A score out of 100 for the user's answer to the question."
-              },
-            },
-          },       
-        },
-      },
+      schema: ChatbotSchemas.feedbackSchemas["codingProblem"],
+    ),
+     QuizType.codingExercise: ResponseFormatJsonSchema(
+      name: "codingExercise",
+      schema: ChatbotSchemas.feedbackSchemas["codingExercise"]
+    ),
+    QuizType.theory: ResponseFormatJsonSchema(
+      name: "theory",
+      schema: ChatbotSchemas.feedbackSchemas["theory"]
     ),
   };
 
@@ -162,54 +72,42 @@ class MistralApiService implements ChatbotApiService {
   @override
   final ChatbotConfig config;
 
-  MistralApiService({
-    required this.config
-  });
-  
+  MistralApiService({required this.config});
+
   /// Queries Mistral with the desired quiz properties via its API and returns a quiz as a Map.
   @override
   Future<Map<String, dynamic>?> getQuizJson(
-    Topic topic, 
-    String subTopic, 
-    String questionType,
+    Topic topic,
+    String subTopic,
+    QuizType quizType,
     int questionCount,
     List<String> questionHistory,
-    String difficulty
+    String difficulty,
   ) async {
-
+    final prompt = config.quizPrompt(
+      quizType,
+      topic,
+      subTopic,
+      questionCount,
+      questionHistory,
+      difficulty,
+    );
     final ChatCompletionResponse response = await client.chat.create(
       request: ChatCompletionRequest(
         model: models[1],
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
-          if (questionType == "multipleChoice") 
-            ChatMessage.user(
-              config.multipleChoicePrompt(
-                topic, 
-                subTopic, 
-                questionCount,
-                questionHistory, 
-                difficulty
-              )
-            )
-          else if (questionType == "codingProblem")
-            ChatMessage.user(
-              config.codingProblemPrompt(
-                topic, 
-                subTopic, 
-                questionHistory, 
-                difficulty
-              )
-            )
+          ChatMessage.user(prompt),
         ],
-        reasoningEffort: .high,
-        responseFormat: quizSchemas[questionType],
+        reasoningEffort: .medium,
+        responseFormat: quizSchemas[quizType],
       ),
     );
-    
+
     // A series of conversions to access the content.parts and part.text properties, which are only available in inherited
     // offshoots of the MessageContent and TextContent classes.
-    final content = response.choices.first.message!.content! as MessagePartsContent;
+    final content =
+        response.choices.first.message!.content! as MessagePartsContent;
     final part = content.parts[1] as TextContentPart;
     final responseText = part.text;
 
@@ -219,26 +117,26 @@ class MistralApiService implements ChatbotApiService {
   /// Sends Mistral a completed quiz via its API and returns feedback as a Map.
   @override
   Future<Map<String, dynamic>?> getFeedbackJson(Quiz quiz) async {
+    final prompt = config.feedbackPrompt(quiz);
     final ChatCompletionResponse response = await client.chat.create(
       request: ChatCompletionRequest(
         model: models[1],
         messages: [
           ChatMessage.system(config.programmingSystemPrompt),
-          ChatMessage.user(config.feedbackPrompt(quiz))
+          ChatMessage.user(prompt),
         ],
-        reasoningEffort: .high,
+        reasoningEffort: .medium,
         responseFormat: feedbackSchemas[quiz.type],
-      )
+      ),
     );
 
     // A series of conversions to access the content.parts and part.text properties, which are only available in inherited
     // offshoots of the MessageContent and TextContent classes.
-    final content = response.choices.first.message!.content! as MessagePartsContent;
+    final content =
+        response.choices.first.message!.content! as MessagePartsContent;
     final part = content.parts[1] as TextContentPart;
     final responseText = part.text;
 
     return jsonDecode(responseText);
   }
-  
- 
 }

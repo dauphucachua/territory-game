@@ -1,4 +1,5 @@
 import 'package:territory_game/model/quiz_models/quiz.dart';
+import 'package:territory_game/model/quiz_models/quiz_type.dart';
 import 'package:territory_game/model/topic.dart';
 import 'package:territory_game/services/chatbot_services/chatbot_config.dart';
 
@@ -10,7 +11,7 @@ abstract interface class ChatbotApiService {
   Future<Map<String, dynamic>?> getQuizJson(
     Topic topic, 
     String subTopic, 
-    String questionType,
+    QuizType quizType,
     int questionCount,
     List<String> questionHistory,
     String difficulty
